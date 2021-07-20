@@ -19,7 +19,7 @@
 #' @param method Character, indicating the type of regularizing prior to use.
 #' Supports one of \code{c("lasso", "hs")}, see Details. Defaults to
 #' \code{"lasso"}.
-#' @param scale Logical, indicating whether or not to scale the predictors
+#' @param standardize Logical, indicating whether or not to scale the predictors
 #' (defaults to \code{TRUE}, which is recommended so that shrinking affects all
 #' parameters similarly.
 #' @param prior Numeric vector, specifying the prior to use. Note that the
@@ -49,9 +49,9 @@ brma <-
            vi = "vi",
            study = "study",
            method = "hs",
-           scale = TRUE,
-           prior = switch(method, "lasso" = c(lasso_df = 1, lasso_scale = 1),
-                                  "hs" = c(hs_df = 1, hs_df_global = 1, hs_df_slab = 4, hs_scale_global = 1, hs_scale_slab = 1)),
+           standardize = TRUE,
+           prior = switch(method, "lasso" = c(df = 1, scale = 1),
+                                  "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
            ...) {
     # real<lower=0> hs_df;  // local degrees of freedom
     # real<lower=0> hs_df_global;  // global degrees of freedom
