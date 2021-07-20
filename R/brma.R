@@ -43,7 +43,8 @@
 #'   priors is determined by a global scale parameter \code{scale}, which
 #'   defaults to 1 and an inverse-tuning parameter \eqn{\frac{1}{\lambda}}
 #'   which is given a chi-square prior governed by a degrees of freedom
-#'   parameter \code{df} (defaults to 1). If \code{scale = TRUE}, shrinkage will
+#'   parameter \code{df} (defaults to 1). If \code{standardize = TRUE},
+#'   shrinkage will
 #'   affect all coefficients equally and it is not necessary to adapt the
 #'   \code{scale} parameter. Increasing the \code{df} parameter will allow
 #'   larger values for the inverse-tuning parameter, leading to less shrinkage.}
