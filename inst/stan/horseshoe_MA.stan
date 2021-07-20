@@ -24,11 +24,11 @@ data {
   int<lower=1> K;  // number of population-level effects
   matrix[N, K] X;  // population-level design matrix
   // data for the horseshoe prior
-  real<lower=0> hs_df;  // local degrees of freedom
-  real<lower=0> hs_df_global;  // global degrees of freedom
-  real<lower=0> hs_df_slab;  // slab degrees of freedom
-  real<lower=0> hs_scale_global;  // global prior scale
-  real<lower=0> hs_scale_slab;  // slab prior scale
+  real<lower=0> df;  // local degrees of freedom
+  real<lower=0> df_global;  // global degrees of freedom
+  real<lower=0> df_slab;  // slab degrees of freedom
+  real<lower=0> scale_global;  // global prior scale
+  real<lower=0> scale_slab;  // slab prior scale
   // data for group-level effects of ID 1
   int<lower=1> N_1;  // number of grouping levels
   int<lower=1> M_1;  // number of coefficients per level
@@ -63,9 +63,9 @@ transformed parameters {
   real<lower=0> sigma = 0;  // residual SD
   vector[N_1] r_1_1;  // actual group-level effects
   // compute actual regression coefficients
-  b = horseshoe(zb, hs_local, hs_global, hs_scale_slab^2 * hs_slab);
+  b = horseshoe(zb, hs_local, hs_global, scale_slab^2 * hs_slab);
   // compute actual regression coefficients
-  b = horseshoe(zb, hs_local, hs_global, hs_scale_slab^2 * hs_slab);
+  b = horseshoe(zb, hs_local, hs_global, scale_slab^2 * hs_slab);
   r_1_1 = (sd_1[1] * (z_1[1]));
 }
 model {
@@ -81,12 +81,12 @@ model {
   }
   // priors including constants
   target += std_normal_lpdf(zb);
-  target += student_t_lpdf(hs_local | hs_df, 0, 1)
+  target += student_t_lpdf(hs_local | df, 0, 1)
     - rows(hs_local) * log(0.5);
   target += student_t_lpdf(Intercept | 3, 0.1, 2.5);
-  target += student_t_lpdf(hs_global | hs_df_global, 0, hs_scale_global)
+  target += student_t_lpdf(hs_global | df_global, 0, scale_global)
     - 1 * log(0.5);
-  target += inv_gamma_lpdf(hs_slab | 0.5 * hs_df_slab, 0.5 * hs_df_slab);
+  target += inv_gamma_lpdf(hs_slab | 0.5 * df_slab, 0.5 * df_slab);
   target += student_t_lpdf(sd_1 | 3, 0, 2.5)
     - 1 * student_t_lccdf(0 | 3, 0, 2.5);
   target += std_normal_lpdf(z_1[1]);
