@@ -32,17 +32,61 @@
 # Defaults to 4.
 #' @param ... Additional arguments passed on to [rstan::sampling()].
 #' Use this, e.g., to override default arguments of that function.
-#' @details The following models are available:
+#' @details Penalization of the regression coefficients occurs either via the
+#' lasso (Park & Casella, 2008) or the regularized horseshoe (Piironen & Vehtari, 2017)
+#' prior. The implementation of both priors is based on the \code{\link{brms}} package.
 #' \describe{
-#'   \item{lasso}{ More info about the lasso model}
-#'   \item{hs}{ More info about the horseshoe model}
+#'   \item{lasso}{ The Bayesian equivalent of the lasso penalty is obtained when placing
+#'   independent Laplace (i.e., double exponential) priors on the regression coefficients
+#'   centered around zero. The scale of the Laplace priors is determined by a global scale
+#'   parameter \code{scale}, which defaults to 1 and an inverse-tuning parameter \eqn{\frac{1}{\lambda}}
+#'   which is given a chi-square prior governed by a degrees of freedom parameter \code{df}  (defaults
+#'   to 1). If \code{scale = TRUE}, shrinkage will affect all coefficients equally and it is not
+#'   necessary to adapt the \code{scale} parameter. Increasing the \code{df} parameter will allow
+#'   larger values for the inverse-tuning parameter, leading to less shrinkage.}
+#'   \item{hs}{ One issue with the lasso prior is that it has relatively light tails. As a result,
+#'   not only does the lasso have the desirable behavior of pulling small coefficients to zero,
+#'   it also results in too much shrinkage of large coefficients. An alternative prior
+#'   that improves upon this shrinkage pattern is the horseshoe prior (Carvalho, Polson & Scott, 2010).
+#'   The horseshoe prior has an infinitely large spike at zero, thereby pulling small coefficients
+#'   toward zero but in addition has fat tails, which allow substantial coefficients to escape the
+#'   shrinkage. The regularized horseshoe is an extension of the horseshoe prior that
+#'   allows the inclusion of prior information regarding the number of relevant predictors and can
+#'   be more numerically stable in certain cases (Piironen & Vehtari, 2017).
+#'   The regularized horseshoe has a global shrinkage parameter that influences all coefficients
+#'   similarly and local shrinkage parameters that enable flexible shrinkage patterns for each
+#'   coefficient separately. The local shrinkage parameters are given a student-t prior with a
+#'   default \code{df} parameter of 1. Larger values for \code{df} result in lighter tails and
+#'   a prior that is no longer strictly a horseshoe prior. However, increasing \code{df} slightly
+#'   might be necessary to avoid divergent transitions in Stan (see also
+#'   \url{https://mc-stan.org/misc/warnings.html}). Similarly, the degrees of freedom for the
+#'   student-t prior on the global shrinkage parameter \code{df_global} can be increased from
+#'   the default of 1 to, for example, 3 if divergent transitions occur although the resulting
+#'   prior is then strictly no longer a horseshoe. The scale for the student-t prior on the
+#'   global shrinkage parameter \code{scale_global} defaults to 1 and can be decreased to achieve
+#'   more shrinkage. Moreover, if prior information regarding the number of relevant moderators
+#'   is available, it is recommended to include this information via the \code{par_ratio} argument
+#'   by setting it to the ratio of the expected number of non-zero coefficients to the expected
+#'   number of zero coefficients. When \code{par_ratio} is specified, \code{scale_global} is
+#'   ignored and instead based on the available prior information.
+#'   Contrary to the horseshoe prior, the regularized horseshoe applies additional regularization
+#'   on large coefficients which is governed by a student-t prior with a \code{scale_slab}
+#'   defaulting to 2 and \code{df_slab} defaulting to 4. This additional regularization ensures
+#'   at least some shrinkage of large coefficients to avoid any sampling problems. }
 #' }
+#' @references
+#' Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American
+#' Statistical Association, 103(482), 681–686. doi:10.1198/016214508000000337
+#'
+#' Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator
+#' for sparse signals. Biometrika, 97(2), 465–480. doi:10.1093/biomet/asq017
+#'
+#' Piironen, J., & Vehtari, A. (2017). Sparsity information and regularization in
+#' the horseshoe and other shrinkage priors. Electronic Journal of Statistics, 11(2).
+#' doi:10.1214/17-ejs1337si
 #' @export
 #' @examples
-#' set.seed(8)
-#' SimulateSMD()
-#' SimulateSMD(k_train = 50, distribution = "bernoulli")
-#' SimulateSMD(distribution = "bernoulli", model = es * x[ ,1] * x[ ,2])
+
 brma <-
   function(formula,
            data,
