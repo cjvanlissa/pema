@@ -8,8 +8,8 @@ data {
   int<lower=1> K;  // number of population-level effects
   matrix[N, K] X;  // population-level design matrix
   // data for the lasso prior
-  real<lower=0> lasso_df;  // prior degrees of freedom
-  real<lower=0> lasso_scale;  // prior scale
+  real<lower=0> df;  // prior degrees of freedom
+  real<lower=0> scale;  // prior scale
   // data for group-level effects of ID 1
   int<lower=1> N_1;  // number of grouping levels
   int<lower=1> M_1;  // number of coefficients per level
@@ -53,9 +53,9 @@ model {
     target += normal_lpdf(Y | mu, se);
   }
   // priors including constants
-  target += double_exponential_lpdf(b | 0, lasso_scale * lasso_inv_lambda);
+  target += double_exponential_lpdf(b | 0, scale * lasso_inv_lambda);
   target += student_t_lpdf(Intercept | 3, 0.1, 2.5);
-  target += chi_square_lpdf(lasso_inv_lambda | lasso_df);
+  target += chi_square_lpdf(lasso_inv_lambda | df);
   target += student_t_lpdf(sd_1 | 3, 0, 2.5)
     - 1 * student_t_lccdf(0 | 3, 0, 2.5);
   target += std_normal_lpdf(z_1[1]);
