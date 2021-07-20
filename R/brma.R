@@ -19,7 +19,7 @@
 #' @param method Character, indicating the type of regularizing prior to use.
 #' Supports one of \code{c("lasso", "hs")}, see Details. Defaults to
 #' \code{"lasso"}.
-#' @param standardize Logical, indicating whether or not to scale the predictors
+#' @param standardize Logical, indicating whether or not to standardize the predictors
 #' (defaults to \code{TRUE}, which is recommended so that shrinking affects all
 #' parameters similarly.
 #' @param prior Numeric vector, specifying the prior to use. Note that the
@@ -121,7 +121,7 @@ brma <-
   }
   se <- sqrt(vi)
   N <- length(Y)
-  if(isTRUE(scale)){
+  if(isTRUE(standardize)){
     X <- scale(X)
   }
 
