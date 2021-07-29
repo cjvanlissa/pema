@@ -1,7 +1,7 @@
 #' Conduct Bayesian Regularized Meta-Analysis
 #'
 #' This function uses Bayesian estimation via the \code{stan} function
-#' \code{\link[stan]{sampling}} to fit a meta-analytic mixed-effects model with
+#' [rstan::sampling] to fit a meta-analytic mixed-effects model with
 #' moderators. A lasso or horseshoe prior is used to shrink the regression
 #' coefficients of irrrelevant moderators towards zero. See Details.
 #' @param formula An object of class `formula` (or one that can be coerced to
@@ -35,7 +35,7 @@
 #' @details Penalization of the regression coefficients occurs either via the
 #' lasso (Park & Casella, 2008) or the regularized horseshoe
 #' (Piironen & Vehtari, 2017) prior. The implementation of both priors is based
-#' on the \code{\link{brms}} package.
+  #' on the [brms::brms-package] package.
 #' \describe{
 #'   \item{lasso}{ The Bayesian equivalent of the lasso penalty is obtained when
 #'   placing independent Laplace (i.e., double exponential) priors on the
@@ -97,6 +97,7 @@
 #' doi:10.1214/17-ejs1337si
 #' @export
 #' @examples
+#' print("Make me")
 brma <-
   function(formula,
            data,
@@ -104,14 +105,10 @@ brma <-
            study = "study",
            method = "hs",
            standardize = TRUE,
-           prior = switch(method, "lasso" = c(df = 1, scale = 1),
-                                  "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
+           prior = switch(method,
+                          "lasso" = c(df = 1, scale = 1),
+                          "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
            ...) {
-    # real<lower=0> hs_df;  // local degrees of freedom
-    # real<lower=0> hs_df_global;  // global degrees of freedom
-    # real<lower=0> hs_df_slab;  // slab degrees of freedom
-    # real<lower=0> hs_scale_global;  // global prior scale
-    # real<lower=0> hs_scale_slab;  // slab prior scale
   mf <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action"), names(mf), 0L))]
   mf$drop.unused.levels <- TRUE
@@ -119,8 +116,7 @@ brma <-
   mf <- eval(mf, parent.frame())
   Y <- mf[[1]]
   X <- mf[,-1, drop = FALSE]
-  # Add intercept
-  #X <- cbind(1, X)
+
   if(inherits(vi, "character")){
     X[[vi]] <- NULL
     vi <- mf[[vi]]
@@ -132,7 +128,8 @@ brma <-
   se <- sqrt(vi)
   N <- length(Y)
   if(isTRUE(standardize)){
-    X <- scale(X)
+    X <- scale(X) # Should there be any fancy standardization for categorical variables?
+                  # Should coefficients be transformed back to original scale?
   }
 
   standat <- c(
@@ -144,7 +141,7 @@ brma <-
       X = X),
     as.list(prior),
     list(
-      N_1 = 20,
+      N_1 = length(unique(study)),
       M_1 = 1,
       J_1 = 1:N,
       Z_1_1 = rep(1, N),

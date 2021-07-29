@@ -35,6 +35,8 @@ the model statement. Defaults to .5.}
 realistic values encountered in psychological research, see Van Erp,
 Verhagen, Grasman, & Wagenmakers, 2017. Defaults to 0.04.}
 
+\item{alpha}{Vector of slant parameters, passed to \link[sn:dsn]{sn::rsn}.}
+
 \item{moderators}{Atomic integer. The number of moderators to simulate for
 each study. Make sure that the number of moderators to be simulated is at
 least as large as the number of moderators referred to in the model
@@ -46,11 +48,11 @@ Can be set to either "normal" or "bernoulli". Defaults to "normal".}
 
 \item{model}{Expression. An expression to specify the model from which to
 simulate the mean true effect size, mu. This formula may use the terms "es"
-(referring to the es parameter of the call to SimulateSMD), and "x\link{, }"
+(referring to the es parameter of the call to simulate_smd), and "x[, ]"
 (referring to the matrix of moderators, x). Thus, to specify that the mean
 effect size, mu, is a function of the effect size and the first moderator,
-one would pass the value \code{model = es * x[ , 1]}.
-Defaults to es * x\link{ , 1}.}
+one would pass the value \code{model = "es * x\[ , 1\]"}.
+Defaults to "es * x[ , 1]".}
 }
 \value{
 List of length 4. The "training" element of this list is a data.frame
@@ -72,7 +74,7 @@ preparation, for a detailed explanation of the simulation procedure.
 }
 \examples{
 set.seed(8)
-SimulateSMD()
-SimulateSMD(k_train = 50, distribution = "bernoulli")
-SimulateSMD(distribution = "bernoulli", model = es * x[ ,1] * x[ ,2])
+simulate_smd()
+simulate_smd(k_train = 50, distribution = "bernoulli")
+simulate_smd(distribution = "bernoulli", model = "es * x[ ,1] * x[ ,2]")
 }

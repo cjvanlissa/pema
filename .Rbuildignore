@@ -1,3 +1,4 @@
 ^pema\.Rproj$
 ^\.Rproj\.user$
 dev/
+^\.travis\.yml

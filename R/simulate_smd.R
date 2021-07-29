@@ -19,6 +19,7 @@
 #' @param tau2 Atomic numeric vector. The residual heterogeneity. For a range of
 #'  realistic values encountered in psychological research, see Van Erp,
 #'  Verhagen, Grasman, & Wagenmakers, 2017. Defaults to 0.04.
+#' @param alpha Vector of slant parameters, passed to [sn::rsn].
 #' @param moderators Atomic integer. The number of moderators to simulate for
 #' each study. Make sure that the number of moderators to be simulated is at
 #' least as large as the number of moderators referred to in the model
@@ -28,11 +29,11 @@
 #' Can be set to either "normal" or "bernoulli". Defaults to "normal".
 #' @param model Expression. An expression to specify the model from which to
 #' simulate the mean true effect size, mu. This formula may use the terms "es"
-#' (referring to the es parameter of the call to SimulateSMD), and "x[, ]"
+#' (referring to the es parameter of the call to simulate_smd), and "x\[, \]"
 #' (referring to the matrix of moderators, x). Thus, to specify that the mean
 #' effect size, mu, is a function of the effect size and the first moderator,
-#' one would pass the value \code{model = es * x[ , 1]}.
-#' Defaults to es * x[ , 1].
+#' one would pass the value \code{model = "es * x\[ , 1\]"}.
+#' Defaults to "es * x\[ , 1\]".
 #' @return List of length 4. The "training" element of this list is a data.frame
 #' with k_train rows. The columns are the variance of the effect size, vi; the
 #' effect size, yi, and the moderators, X. The "testing" element of this list is
@@ -44,9 +45,11 @@
 #' @export
 #' @examples
 #' set.seed(8)
-#' SimulateSMD()
-#' SimulateSMD(k_train = 50, distribution = "bernoulli")
-#' SimulateSMD(distribution = "bernoulli", model = es * x[ ,1] * x[ ,2])
+#' simulate_smd()
+#' simulate_smd(k_train = 50, distribution = "bernoulli")
+#' simulate_smd(distribution = "bernoulli", model = "es * x[ ,1] * x[ ,2]")
+#' @importFrom stats rbinom rnorm rt
+#' @importFrom sn rsn
 simulate_smd <- function(k_train = 20, k_test = 100, mean_n = 40, es = .5,
                          tau2 = 0.04, alpha = 0, moderators = 5, distribution = "normal",
                          model = "es * x[, 1]")
@@ -66,7 +69,7 @@ simulate_smd <- function(k_train = 20, k_test = 100, mean_n = 40, es = .5,
   # Generate moderator matrix x:
   if(distribution == "normal") x <- matrix(rnorm(length(n) * moderators), ncol = moderators)
   if(distribution == "bernoulli") x <- matrix(rbinom((length(n) * moderators), 1, .5), ncol = moderators)
-  if(!(distribution %in% c("normal", "bernoulli"))) stop(paste0(distribution, "is not a valid distribution for SimulateSMD"))
+  if(!(distribution %in% c("normal", "bernoulli"))) stop(paste0(distribution, "is not a valid distribution for simulate_smd"))
 
   # Sample true effect sizes theta.i from a normal distribution with mean
   # mu, and variance tau2, where mu is the average

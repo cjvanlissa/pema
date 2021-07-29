@@ -45,8 +45,8 @@ private:
         vector_d se;
         int K;
         matrix_d X;
-        double lasso_df;
-        double lasso_scale;
+        double df;
+        double scale;
         int N_1;
         int M_1;
         std::vector<int> J_1;
@@ -136,19 +136,19 @@ public:
                 }
             }
             current_statement_begin__ = 11;
-            context__.validate_dims("data initialization", "lasso_df", "double", context__.to_vec());
-            lasso_df = double(0);
-            vals_r__ = context__.vals_r("lasso_df");
+            context__.validate_dims("data initialization", "df", "double", context__.to_vec());
+            df = double(0);
+            vals_r__ = context__.vals_r("df");
             pos__ = 0;
-            lasso_df = vals_r__[pos__++];
-            check_greater_or_equal(function__, "lasso_df", lasso_df, 0);
+            df = vals_r__[pos__++];
+            check_greater_or_equal(function__, "df", df, 0);
             current_statement_begin__ = 12;
-            context__.validate_dims("data initialization", "lasso_scale", "double", context__.to_vec());
-            lasso_scale = double(0);
-            vals_r__ = context__.vals_r("lasso_scale");
+            context__.validate_dims("data initialization", "scale", "double", context__.to_vec());
+            scale = double(0);
+            vals_r__ = context__.vals_r("scale");
             pos__ = 0;
-            lasso_scale = vals_r__[pos__++];
-            check_greater_or_equal(function__, "lasso_scale", lasso_scale, 0);
+            scale = vals_r__[pos__++];
+            check_greater_or_equal(function__, "scale", scale, 0);
             current_statement_begin__ = 14;
             context__.validate_dims("data initialization", "N_1", "int", context__.to_vec());
             N_1 = int(0);
@@ -467,11 +467,11 @@ public:
                 }
             }
             current_statement_begin__ = 56;
-            lp_accum__.add(double_exponential_log(b, 0, (lasso_scale * lasso_inv_lambda)));
+            lp_accum__.add(double_exponential_log(b, 0, (scale * lasso_inv_lambda)));
             current_statement_begin__ = 57;
             lp_accum__.add(student_t_log(Intercept, 3, 0.1, 2.5));
             current_statement_begin__ = 58;
-            lp_accum__.add(chi_square_log(lasso_inv_lambda, lasso_df));
+            lp_accum__.add(chi_square_log(lasso_inv_lambda, df));
             current_statement_begin__ = 59;
             lp_accum__.add((student_t_log(sd_1, 3, 0, 2.5) - (1 * student_t_ccdf_log(0, 3, 0, 2.5))));
             current_statement_begin__ = 61;
