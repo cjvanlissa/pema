@@ -143,7 +143,7 @@ brma <-
     list(
       N_1 = length(unique(study)),
       M_1 = 1,
-      J_1 = 1:N,
+      J_1 = study,
       Z_1_1 = rep(1, N),
       prior_only = FALSE
     )
