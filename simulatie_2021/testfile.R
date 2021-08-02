@@ -69,7 +69,7 @@ summary(fit.hs)
 
 
 
-#werkt ook
+#
 fit.lasso2 <- pema::brma(yi ~ discussion + dilemma_type,
                         study = as.numeric(as.factor(datsub_mes2$group_no)),
                         vi = datsub_mes2$vi,
