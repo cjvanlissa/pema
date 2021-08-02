@@ -102,7 +102,7 @@ brma <-
   function(formula,
            data,
            vi = "vi",
-           study = "study",
+           study = NULL,
            method = "hs",
            standardize = TRUE,
            prior = switch(method,
@@ -120,6 +120,9 @@ brma <-
   if(inherits(vi, "character")){
     X[[vi]] <- NULL
     vi <- mf[[vi]]
+  }
+  if(is.null(study)){
+    study <- 1:nrow(X)
   }
   if(inherits(study, "character")){
     X[[study]] <- NULL
