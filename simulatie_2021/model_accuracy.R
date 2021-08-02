@@ -149,8 +149,8 @@ pred_brma <- function(x, data = NULL, ...){
 # Prepare coefs -----------------------------------------------------------
 
   coefs <- rstan::summary(x$fit)$summary[, "mean"]
-  int <- coefs[names(coefs) == "Int"]
-  coefs <- coefs[startsWith(names(coefs), "coefs[")]
+  int <- coefs[names(coefs) == "Intercept"]
+  coefs <- coefs[startsWith(names(coefs), "betas[")]
 
 # Produce prediction ------------------------------------------------------
   int + rowSums(X * outer(rep.int(1L, nrow(X)), coefs))
