@@ -170,6 +170,6 @@ brma <-
               Y = Y)
   if(!is.null(vi_column)) fit$vi_column <- vi_column
   if(!is.null(study_column)) fit$study_column <- study_column
-  attr(fit, "type") <- "brma"
+  class(fit) <- c("brma", class(fit))
   return(fit)
 }
