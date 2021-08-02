@@ -26,6 +26,13 @@ model_accuracy <-
            ...) {
     switch(
       class(fit)[1],
+      brma = {
+        if (is.null(newdata)) {
+          predicted	<- pred_brma(fit)
+        } else {
+          predicted <- pred_brma(fit, data = newdata)
+        }
+      },
       rma.uni = {
         if (is.null(newdata)) {
           predicted	  <- predict(fit)$pred
@@ -54,7 +61,7 @@ model_accuracy <-
                                                 newdata = newdata)$g)
         }
       },
-    
+
       lma_it = {
         if (is.null(newdata)) {
           if(!hasArg("s")){
@@ -117,3 +124,35 @@ model_accuracy <-
 
     c(r2 = r.2, mse = mse, r_actual_pred = r.actual.pred)
   }
+
+
+pred_brma <- function(x, data = NULL, ...){
+# Prepare data ------------------------------------------------------------
+  if(is.null(data)){
+    X <- fit$X
+  } else {
+    df <- data
+    if(!is.null(x[["vi_column"]])){
+      df[[x$vi_column]] <- NULL
+    }
+    if(!is.null(x[["study_column"]])){
+      df[[x[["study_column"]]]] <- NULL
+    }
+    mf <- call("model.frame",
+               formula = x$formula,
+               data = df,
+               drop.unused.levels = TRUE)
+    mf <- eval(mf, parent.frame())
+    X <- mf[, -1, drop = FALSE]
+  }
+
+# Prepare coefs -----------------------------------------------------------
+
+  coefs <- rstan::summary(x$fit)$summary[, "mean"]
+  int <- coefs[names(coefs) == "Int"]
+  coefs <- coefs[startsWith(names(coefs), "coefs[")]
+
+# Produce prediction ------------------------------------------------------
+  int + rowSums(X * outer(rep.int(1L, nrow(X)), coefs))
+}
+

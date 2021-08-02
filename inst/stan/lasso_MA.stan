@@ -21,16 +21,18 @@ data {
 transformed data {
   vector<lower=0>[N] se2 = square(se);
   int Kc = K - 1;
-  matrix[N, Kc] Xc;  // centered version of X without an intercept
-  vector[Kc] means_X;  // column means of X before centering
+  matrix[N, Kc] Xc;  // standardized version of X without an intercept
+  vector[Kc] means_X;  // column means of X before standardizing
+  vector[Kc] sds_X;  // SDs of X before standardizing
   for (i in 2:K) {
     means_X[i - 1] = mean(X[, i]);
-    Xc[, i - 1] = X[, i] - means_X[i - 1];
+    sds_X[i - 1] = sd(X[, i]);
+    Xc[, i - 1] = (X[, i] - means_X[i - 1]) / sds_X[i - 1];
   }
 }
 parameters {
   vector[Kc] b;  // population-level effects
-  real Intercept;  // temporary intercept for centered predictors
+  real Intercept;  // temporary intercept for standardized predictors
   // lasso shrinkage parameter
   real<lower=0> lasso_inv_lambda;
   vector<lower=0>[M_1] sd_1;  // group-level standard deviations
@@ -62,5 +64,6 @@ model {
 }
 generated quantities {
   // actual population-level intercept
-  real b_Intercept = Intercept - dot_product(means_X, b);
+  real Int = Intercept - sum(b .* (means_X ./ sds_X));
+  vector[Kc] coefs = b ./ sds_X;  // actual group-level effects
 }

@@ -109,35 +109,38 @@ brma <-
                           "lasso" = c(df = 1, scale = 1),
                           "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
            ...) {
+    browser()
+    vi_column <- NULL
+    study_column <- NULL
   mf <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action"), names(mf), 0L))]
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- quote(stats::model.frame)
   mf <- eval(mf, parent.frame())
   Y <- mf[[1]]
-  X <- mf[,-1, drop = FALSE]
+  X <- mf[, -1, drop = FALSE]
   if(inherits(vi, "character")){
+    vi_column <- vi
     X[[vi]] <- NULL
     vi <- data[[vi]]
   }
   if(is.null(study)){
     study <- 1:nrow(X)
-  } else {
-    study <- NULL
   }
   if(inherits(study, "character")){
+    study_column <- study
     X[[study]] <- NULL
     study <- data[[study]]
   }
   se <- sqrt(vi)
   N <- length(Y)
-  if(isTRUE(standardize)){
-    X <- scale(X) # Should there be any fancy standardization for categorical variables?
-                  # Should coefficients be transformed back to original scale?
-    scale_m <- attr(X, "scaled:center")
-    scale_s <- attr(X, "scaled:scale")
-  }
-
+  # if(isTRUE(standardize)){
+  #   X <- scale(X) # Should there be any fancy standardization for categorical variables?
+  #                 # Should coefficients be transformed back to original scale?
+  #   scale_m <- attr(X, "scaled:center")
+  #   scale_s <- attr(X, "scaled:scale")
+  # }
+  X <- cbind(1, X)
   standat <- c(
     list(
       N = N,
@@ -161,14 +164,12 @@ brma <-
                      ),
                   list(...)))
   fit <- eval(cl)
-  fit <- list(model = fit,
+  fit <- list(fit = fit,
+              formula = formula,
               X = X,
-              Y = Y,
-              vi = vi,
-              study = study,
-              scale_s = scale_s,
-              scale_m = scale_m)
+              Y = Y)
+  if(!is.null(vi_column)) fit$vi_column <- vi_column
+  if(!is.null(study_column)) fit$study_column <- study_column
   attr(fit, "type") <- "brma"
   return(fit)
 }
-
