@@ -41,17 +41,19 @@ transformed data {
   vector<lower=0>[N] se2 = square(se);
   int Kc = K - 1;
   matrix[N, Kc] Xc;  // centered version of X without an intercept
-  vector[Kc] means_X;  // column means of X before centering
+  vector[Kc] means_X;  // column means of X before standardizing
+  vector[Kc] sds_X;  // SDs of X before standardizing
   for (i in 2:K) {
     means_X[i - 1] = mean(X[, i]);
-    Xc[, i - 1] = X[, i] - means_X[i - 1];
+    sds_X[i - 1] = sd(X[, i]);
+    Xc[, i - 1] = (X[, i] - means_X[i - 1]) / sds_X[i - 1];
   }
 }
 parameters {
   // local parameters for horseshoe prior
   vector[Kc] zb;
   vector<lower=0>[Kc] hs_local;
-  real Intercept;  // temporary intercept for centered predictors
+  real Int_c;  // temporary intercept for centered predictors
   // horseshoe shrinkage parameters
   real<lower=0> hs_global;  // global shrinkage parameters
   real<lower=0> hs_slab;  // slab regularization parameter
@@ -72,7 +74,7 @@ model {
   // likelihood including constants
   if (!prior_only) {
     // initialize linear predictor term
-    vector[N] mu = Intercept + Xc * b;
+    vector[N] mu = Int_c + Xc * b;
     for (n in 1:N) {
       // add more terms to the linear predictor
       mu[n] += r_1_1[J_1[n]] * Z_1_1[n];
@@ -83,7 +85,7 @@ model {
   target += std_normal_lpdf(zb);
   target += student_t_lpdf(hs_local | df, 0, 1)
     - rows(hs_local) * log(0.5);
-  target += student_t_lpdf(Intercept | 3, 0.1, 2.5);
+  target += student_t_lpdf(Int_c | 3, 0.1, 2.5);
   target += student_t_lpdf(hs_global | df_global, 0, scale_global)
     - 1 * log(0.5);
   target += inv_gamma_lpdf(hs_slab | 0.5 * df_slab, 0.5 * df_slab);
@@ -92,6 +94,7 @@ model {
   target += std_normal_lpdf(z_1[1]);
 }
 generated quantities {
-  // actual population-level intercept
-  real b_Intercept = Intercept - dot_product(means_X, b);
+  // restore parameters to unstandardized scale
+  real Intercept = Int_c - sum(b .* (means_X ./ sds_X));
+  vector[Kc] betas = b ./ sds_X;  // actual group-level effects
 }

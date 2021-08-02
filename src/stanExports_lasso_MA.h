@@ -291,17 +291,17 @@ public:
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable b: ") + e.what()), current_statement_begin__, prog_reader__());
         }
         current_statement_begin__ = 35;
-        if (!(context__.contains_r("Intercept")))
-            stan::lang::rethrow_located(std::runtime_error(std::string("Variable Intercept missing")), current_statement_begin__, prog_reader__());
-        vals_r__ = context__.vals_r("Intercept");
+        if (!(context__.contains_r("Int_c")))
+            stan::lang::rethrow_located(std::runtime_error(std::string("Variable Int_c missing")), current_statement_begin__, prog_reader__());
+        vals_r__ = context__.vals_r("Int_c");
         pos__ = 0U;
-        context__.validate_dims("parameter initialization", "Intercept", "double", context__.to_vec());
-        double Intercept(0);
-        Intercept = vals_r__[pos__++];
+        context__.validate_dims("parameter initialization", "Int_c", "double", context__.to_vec());
+        double Int_c(0);
+        Int_c = vals_r__[pos__++];
         try {
-            writer__.scalar_unconstrain(Intercept);
+            writer__.scalar_unconstrain(Int_c);
         } catch (const std::exception& e) {
-            stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable Intercept: ") + e.what()), current_statement_begin__, prog_reader__());
+            stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable Int_c: ") + e.what()), current_statement_begin__, prog_reader__());
         }
         current_statement_begin__ = 37;
         if (!(context__.contains_r("lasso_inv_lambda")))
@@ -390,12 +390,12 @@ public:
             else
                 b = in__.vector_constrain(Kc);
             current_statement_begin__ = 35;
-            local_scalar_t__ Intercept;
-            (void) Intercept;  // dummy to suppress unused var warning
+            local_scalar_t__ Int_c;
+            (void) Int_c;  // dummy to suppress unused var warning
             if (jacobian__)
-                Intercept = in__.scalar_constrain(lp__);
+                Int_c = in__.scalar_constrain(lp__);
             else
-                Intercept = in__.scalar_constrain();
+                Int_c = in__.scalar_constrain();
             current_statement_begin__ = 37;
             local_scalar_t__ lasso_inv_lambda;
             (void) lasso_inv_lambda;  // dummy to suppress unused var warning
@@ -463,7 +463,7 @@ public:
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> mu(N);
                 stan::math::initialize(mu, DUMMY_VAR__);
                 stan::math::fill(mu, DUMMY_VAR__);
-                stan::math::assign(mu,add(Intercept, multiply(Xc, b)));
+                stan::math::assign(mu,add(Int_c, multiply(Xc, b)));
                 current_statement_begin__ = 51;
                 for (int n = 1; n <= N; ++n) {
                     current_statement_begin__ = 53;
@@ -479,7 +479,7 @@ public:
             current_statement_begin__ = 58;
             lp_accum__.add(double_exponential_log(b, 0, (scale * lasso_inv_lambda)));
             current_statement_begin__ = 59;
-            lp_accum__.add(student_t_log(Intercept, 3, 0.1, 2.5));
+            lp_accum__.add(student_t_log(Int_c, 3, 0.1, 2.5));
             current_statement_begin__ = 60;
             lp_accum__.add(chi_square_log(lasso_inv_lambda, df));
             current_statement_begin__ = 61;
@@ -507,14 +507,14 @@ public:
     void get_param_names(std::vector<std::string>& names__) const {
         names__.resize(0);
         names__.push_back("b");
-        names__.push_back("Intercept");
+        names__.push_back("Int_c");
         names__.push_back("lasso_inv_lambda");
         names__.push_back("sd_1");
         names__.push_back("z_1");
         names__.push_back("sigma");
         names__.push_back("r_1_1");
-        names__.push_back("Int");
-        names__.push_back("coefs");
+        names__.push_back("Intercept");
+        names__.push_back("betas");
     }
     void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
         dimss__.resize(0);
@@ -563,8 +563,8 @@ public:
         for (size_t j_1__ = 0; j_1__ < b_j_1_max__; ++j_1__) {
             vars__.push_back(b(j_1__));
         }
-        double Intercept = in__.scalar_constrain();
-        vars__.push_back(Intercept);
+        double Int_c = in__.scalar_constrain();
+        vars__.push_back(Int_c);
         double lasso_inv_lambda = in__.scalar_lb_constrain(0);
         vars__.push_back(lasso_inv_lambda);
         Eigen::Matrix<double, Eigen::Dynamic, 1> sd_1 = in__.vector_lb_constrain(0, M_1);
@@ -624,24 +624,24 @@ public:
             if (!include_gqs__) return;
             // declare and define generated quantities
             current_statement_begin__ = 67;
-            double Int;
-            (void) Int;  // dummy to suppress unused var warning
-            stan::math::initialize(Int, DUMMY_VAR__);
-            stan::math::fill(Int, DUMMY_VAR__);
-            stan::math::assign(Int,(Intercept - sum(elt_multiply(b, elt_divide(means_X, sds_X)))));
+            double Intercept;
+            (void) Intercept;  // dummy to suppress unused var warning
+            stan::math::initialize(Intercept, DUMMY_VAR__);
+            stan::math::fill(Intercept, DUMMY_VAR__);
+            stan::math::assign(Intercept,(Int_c - sum(elt_multiply(b, elt_divide(means_X, sds_X)))));
             current_statement_begin__ = 68;
-            validate_non_negative_index("coefs", "Kc", Kc);
-            Eigen::Matrix<double, Eigen::Dynamic, 1> coefs(Kc);
-            stan::math::initialize(coefs, DUMMY_VAR__);
-            stan::math::fill(coefs, DUMMY_VAR__);
-            stan::math::assign(coefs,elt_divide(b, sds_X));
+            validate_non_negative_index("betas", "Kc", Kc);
+            Eigen::Matrix<double, Eigen::Dynamic, 1> betas(Kc);
+            stan::math::initialize(betas, DUMMY_VAR__);
+            stan::math::fill(betas, DUMMY_VAR__);
+            stan::math::assign(betas,elt_divide(b, sds_X));
             // validate, write generated quantities
             current_statement_begin__ = 67;
-            vars__.push_back(Int);
+            vars__.push_back(Intercept);
             current_statement_begin__ = 68;
-            size_t coefs_j_1_max__ = Kc;
-            for (size_t j_1__ = 0; j_1__ < coefs_j_1_max__; ++j_1__) {
-                vars__.push_back(coefs(j_1__));
+            size_t betas_j_1_max__ = Kc;
+            for (size_t j_1__ = 0; j_1__ < betas_j_1_max__; ++j_1__) {
+                vars__.push_back(betas(j_1__));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
@@ -680,7 +680,7 @@ public:
             param_names__.push_back(param_name_stream__.str());
         }
         param_name_stream__.str(std::string());
-        param_name_stream__ << "Intercept";
+        param_name_stream__ << "Int_c";
         param_names__.push_back(param_name_stream__.str());
         param_name_stream__.str(std::string());
         param_name_stream__ << "lasso_inv_lambda";
@@ -714,12 +714,12 @@ public:
         }
         if (!include_gqs__) return;
         param_name_stream__.str(std::string());
-        param_name_stream__ << "Int";
+        param_name_stream__ << "Intercept";
         param_names__.push_back(param_name_stream__.str());
-        size_t coefs_j_1_max__ = Kc;
-        for (size_t j_1__ = 0; j_1__ < coefs_j_1_max__; ++j_1__) {
+        size_t betas_j_1_max__ = Kc;
+        for (size_t j_1__ = 0; j_1__ < betas_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "coefs" << '.' << j_1__ + 1;
+            param_name_stream__ << "betas" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
     }
@@ -734,7 +734,7 @@ public:
             param_names__.push_back(param_name_stream__.str());
         }
         param_name_stream__.str(std::string());
-        param_name_stream__ << "Intercept";
+        param_name_stream__ << "Int_c";
         param_names__.push_back(param_name_stream__.str());
         param_name_stream__.str(std::string());
         param_name_stream__ << "lasso_inv_lambda";
@@ -768,12 +768,12 @@ public:
         }
         if (!include_gqs__) return;
         param_name_stream__.str(std::string());
-        param_name_stream__ << "Int";
+        param_name_stream__ << "Intercept";
         param_names__.push_back(param_name_stream__.str());
-        size_t coefs_j_1_max__ = Kc;
-        for (size_t j_1__ = 0; j_1__ < coefs_j_1_max__; ++j_1__) {
+        size_t betas_j_1_max__ = Kc;
+        for (size_t j_1__ = 0; j_1__ < betas_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "coefs" << '.' << j_1__ + 1;
+            param_name_stream__ << "betas" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
     }

@@ -32,7 +32,7 @@ transformed data {
 }
 parameters {
   vector[Kc] b;  // population-level effects
-  real Intercept;  // temporary intercept for standardized predictors
+  real Int_c;  // temporary intercept for standardized predictors
   // lasso shrinkage parameter
   real<lower=0> lasso_inv_lambda;
   vector<lower=0>[M_1] sd_1;  // group-level standard deviations
@@ -47,7 +47,7 @@ model {
   // likelihood including constants
   if (!prior_only) {
     // initialize linear predictor term
-    vector[N] mu = Intercept + Xc * b;
+    vector[N] mu = Int_c + Xc * b;
     for (n in 1:N) {
       // add more terms to the linear predictor
       mu[n] += r_1_1[J_1[n]] * Z_1_1[n];
@@ -56,14 +56,14 @@ model {
   }
   // priors including constants
   target += double_exponential_lpdf(b | 0, scale * lasso_inv_lambda);
-  target += student_t_lpdf(Intercept | 3, 0.1, 2.5);
+  target += student_t_lpdf(Int_c | 3, 0.1, 2.5);
   target += chi_square_lpdf(lasso_inv_lambda | df);
   target += student_t_lpdf(sd_1 | 3, 0, 2.5)
     - 1 * student_t_lccdf(0 | 3, 0, 2.5);
   target += std_normal_lpdf(z_1[1]);
 }
 generated quantities {
-  // actual population-level intercept
-  real Int = Intercept - sum(b .* (means_X ./ sds_X));
-  vector[Kc] coefs = b ./ sds_X;  // actual group-level effects
+  // restore parameters to unstandardized scale
+  real Intercept = Int_c - sum(b .* (means_X ./ sds_X));
+  vector[Kc] betas = b ./ sds_X;  // actual group-level effects
 }
