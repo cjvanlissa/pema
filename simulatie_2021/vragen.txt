@@ -1,0 +1,27 @@
+-hoe werken de push en pull?
+-hoe zet ik iets in .gitignore/ .buildignore?
+
+#simulatie 2021 test
+-welke package versions zijn essentieel om de juiste versie van te hebben?
+
+-in de simulatie 2019, waren er functies (zoals mf_sim) die andere functies klaar maakten voor simulatie, kunnen mf_sim.R en rma_sim.R nog steeds gebruikt worden? 
+-zijn er ook al functies die dat doen voor lasso en horseshoe?
+
+-zowel metaforest als brma() werken met datasets die maar 3 replicaties hebben, alleen rma() niet altijd (afhankelijk van het aantal predictoren).
+
+-zijn er nog functies die from source geladen moeten worden?
+-is model_accuracy() nog nodig? moet ie aangepast worden? Die schijnt namelijk best belangrijk te zijn om de predictive performances als output te hebben. Antoon simulatie v5 gebruikt ook die functie voor de lma fits...
+
+-vi en study lijken expliciet gedefinieerd moeten worden of vi moet in de brma aangepast worden naar as.numeric(vi)
+simulate_smd maakt echter geen variabele 'study' aan en kan die variabele zou dan in de simulatie niet gecalled kunnen worden in de brma() functie. 
+
+###Interesting Note on Antoon-Simulatie:
+-Line 238: mean(var_selected[1:10]) #niet robust tegen NA's
+
+###Output
+
+-in 'simdata' staan de simulated datasets in een lijst die bestaat uit 12 lijsten waarin training data, testing data en housekeeping apart staan. 
+
+-in 'fits' staan de performance criteria
+
+-in 'selected' staan regressie coefficienten van moderatoren die geselecteerd zijn
