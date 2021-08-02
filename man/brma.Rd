@@ -8,7 +8,7 @@ brma(
   formula,
   data,
   vi = "vi",
-  study = "study",
+  study = NULL,
   method = "hs",
   standardize = TRUE,
   prior = switch(method, lasso = c(df = 1, scale = 1), hs = c(df = 1, df_global = 1,

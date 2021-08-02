@@ -122,6 +122,8 @@ brma <-
   }
   if(is.null(study)){
     study <- 1:nrow(X)
+  } else {
+    study <- NULL
   }
   if(inherits(study, "character")){
     X[[study]] <- NULL
@@ -132,6 +134,8 @@ brma <-
   if(isTRUE(standardize)){
     X <- scale(X) # Should there be any fancy standardization for categorical variables?
                   # Should coefficients be transformed back to original scale?
+    scale_m <- attr(X, "scaled:center")
+    scale_s <- attr(X, "scaled:scale")
   }
 
   standat <- c(
@@ -157,6 +161,13 @@ brma <-
                      ),
                   list(...)))
   fit <- eval(cl)
+  fit <- list(model = fit,
+              X = X,
+              Y = Y,
+              vi = vi,
+              study = study,
+              scale_s = scale_s,
+              scale_m = scale_m)
   attr(fit, "type") <- "brma"
   return(fit)
 }
