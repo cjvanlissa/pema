@@ -3,3 +3,4 @@
 dev/
 ^\.travis\.yml
 ^\.github$
+^simulatie_2021$
