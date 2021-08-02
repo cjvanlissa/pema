@@ -1,4 +1,4 @@
-save.image('./simulatie_2021/testfile.RData')
+#save.image('./simulatie_2021/testfile.RData')
 #load('./simulatie_2021/testfile.RData')
 
 library(readxl)
@@ -37,6 +37,7 @@ rma.re <- rma(yi, vi, mods = cbind(discussion, dilemma_type), data = datsub_mes2
 summary(rma.re)
 
 #run random forest
+datsub_mes2 <- missRanger::missRanger(datsub_mes2)
 fit.mf <- MetaForest(yi ~ discussion + published + dilemma_type, num.trees = 150, data = datsub_mes2) #does not work with NA values
 summary(fit.mf)
 
@@ -47,6 +48,12 @@ fit.lasso <- pema::brma(yi ~ discussion + dilemma_type,
                         data = datsub_mes2,
                         method = 'lasso')
 summary(fit.lasso)
+#With text vi
+fit.lasso <- pema::brma(yi ~ discussion + dilemma_type,
+                        study = datsub_mes2$group_no,
+                        vi = "vi",
+                        data = datsub_mes2,
+                        method = 'lasso')
 
 fit.hs <- pema::brma(yi ~ discussion + dilemma_type,
                         study = datsub_mes2$group_no,

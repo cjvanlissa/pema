@@ -116,17 +116,16 @@ brma <-
   mf <- eval(mf, parent.frame())
   Y <- mf[[1]]
   X <- mf[,-1, drop = FALSE]
-
   if(inherits(vi, "character")){
     X[[vi]] <- NULL
-    vi <- mf[[vi]]
+    vi <- data[[vi]]
   }
   if(is.null(study)){
     study <- 1:nrow(X)
   }
   if(inherits(study, "character")){
     X[[study]] <- NULL
-    study <- mf[[study]]
+    study <- data[[study]]
   }
   se <- sqrt(vi)
   N <- length(Y)
