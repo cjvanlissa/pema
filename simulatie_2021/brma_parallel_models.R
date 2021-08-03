@@ -1,3 +1,6 @@
+#save.image(file = './simulatie_2021/brma_models.RData')
+#load('./simulatie_2021/brma_models.RData')
+
 library(parallel)
 library(metaforest) #for random forest
 library(pema) #for brma and simulate_smd
@@ -55,6 +58,9 @@ brma_for_sim <- function(...){
 }
 
 clusterExport(cl, "brma_for_sim")
+clusterExport(cl, "model_accuracy")
+clusterExport(cl, "pred_brma")
+clusterExport(cl, "rma_for_sim")
 
 #upper part of brma for simulation function. Note the extra 'method' argument to specify either horseshoe or Lasso
 #this part works
@@ -64,10 +70,40 @@ brma_sim <- function(cl, simulated_data, file_stem, method, ...){
                             vi = data$training$vi,
                             study = 1:nrow(data$training),
                             data = data$training,
-                            method = 'lasso')
+                            method = method)
     do.call(brma_for_sim, args)
   })
+
+  brma_fits <- t(
+    clusterMap(
+      cl,
+      fun = function(models, data) {
+        if(is.na(models)){
+          return(rep(NA, 7))
+        }
+        c(
+          model_accuracy(
+            fit = models,
+            newdata = as.matrix(data$training[, -c(1:2)]),
+            observed = data[[1]]$yi
+          ),
+          model_accuracy(
+            fit = models,
+            newdata = as.matrix(data$testing[, -1]),
+            observed = data$testing$yi,
+            ymean = mean(data$training$yi)
+          ),
+          tau2 = models$tau2
+        )
+      },
+      models = brma_models,
+      data = simulated_data,
+      SIMPLIFY = TRUE,
+      USE.NAMES = FALSE
+    )
+  )
 }
+
 
 
 rma_sim <- function(cl, simulated_data, file_stem, ...){
