@@ -1,5 +1,4 @@
-#save.image(file = './simulatie_2021/brma_models.RData')
-#load('./simulatie_2021/brma_models.RData')
+#load('./simulatie_2021/brma_models.RData') #this loads in brma_models as created in line 44
 
 library(parallel)
 library(metaforest) #for random forest
@@ -23,57 +22,90 @@ clusterEvalQ(cl, library(sn))
 #create list of simulated datasets to test parallel functions
 simulated_data <- list(pema::simulate_smd(), pema::simulate_smd())
 
-#first test on metaforest with 100 trees. works.
-mf_r_models <- parLapply(cl, simulated_data, function(data) {
-  MetaForest(yi ~.,
-              data = data$training,
-              num.trees = 100)
-  })
 
-#test on lasso model. Works! (but only still if variables "vi" and "study" are explicitly defined)
-lasso_models <- parLapply(cl, simulated_data, function(data) {
-  brma(yi ~ .,
-       data = data$training,
-       vi = data$training$vi,
-       study = 1:nrow(data$training),
-       method = 'lasso')})
-
-#test on horseshoe model. Works! (but only still if variables "vi" and "study" are explicitly defined)
-hs_models <- parLapply(cl, simulated_data, function(data) {
-  brma(yi ~ .,
-       data = data$training,
-       vi = data$training$vi,
-       study = 1:nrow(data$training),
-       method = 'hs')})
-
-
-#stop clusters
-stopCluster(cl)
-
-
-#------work from here
+#------brma_for_sim function
 brma_for_sim <- function(...){
   args <- as.list(match.call()[-1])
   res <- try(do.call(brma, args), silent = TRUE)
 }
 
+#load in other necessary functions
+source('./simulatie_2021/functions for simulation/model_accuracy.R')
+source('./simulatie_2021/functions for simulation/rma_sim.R')
+source('./simulatie_2021/functions for simulation/rma_for_sim.R')
+
+#export functions to clusters
 clusterExport(cl, "brma_for_sim")
 clusterExport(cl, "model_accuracy")
 clusterExport(cl, "pred_brma")
 clusterExport(cl, "rma_for_sim")
+clusterExport(cl, "rma_sim")
 
-#upper part of brma for simulation function. Note the extra 'method' argument to specify either horseshoe or Lasso
-#this part works
+#create brma models. works fine, output is a list with brma() objects
+brma_models <- parLapply(cl, simulated_data, function(data) {
+  args <- list(formula = force(as.formula(paste0("yi~", paste0(names(data$training)[-c(1:2)], collapse = "+")))),
+               data = data$training,
+               method = 'lasso')
+  do.call(brma_for_sim, args)
+})
+
+#also works, returns EAP of beta values (just like output for rma_selected)
+brma_selected <- t(
+  parSapply(
+    cl = cl,
+    brma_models,
+    FUN = function(models){
+      summary(models$fit)$summary[paste0("betas[", 1:(ncol(models$X)-1), "]"), c("50%")]
+    }
+  )
+)
+
+#creates error: 'replacement has length zero'
+brma_fits <- t(
+  clusterMap(
+    cl,
+    fun = function(models, data) {
+      if(is.na(models)){
+        return(rep(NA, 7))
+      }
+      c(
+        model_accuracy(
+          fit = models,
+          newdata = as.matrix(data$training[, -c(1:2)]),
+          observed = data[[1]]$yi
+        ),
+        model_accuracy(
+          fit = models,
+          newdata = as.matrix(data$testing[, -1]),
+          observed = data$testing$yi,
+          ymean = mean(data$training$yi)
+        ),
+        tau2 = models$tau2
+      )
+    },
+    models = brma_models,
+    data = simulated_data,
+    SIMPLIFY = TRUE,
+    USE.NAMES = FALSE
+  )
+)
+
+
+
+
+
+### -------- code below is ongoing proces, not necessary to look at.
+
+#works up until do.call on line 46. Note the extra 'method' argument to specify either horseshoe or Lasso
 brma_sim <- function(cl, simulated_data, file_stem, method, ...){
   brma_models <- parLapply(cl, simulated_data, function(data) {
     args <- list(formula = force(as.formula(paste0("yi~", paste0(names(data$training)[-c(1:2)], collapse = "+")))),
-                            vi = data$training$vi,
-                            study = 1:nrow(data$training),
                             data = data$training,
                             method = method)
     do.call(brma_for_sim, args)
   })
 
+  #brma fit
   brma_fits <- t(
     clusterMap(
       cl,
@@ -104,7 +136,10 @@ brma_sim <- function(cl, simulated_data, file_stem, method, ...){
   )
 }
 
+#stop clusters
+stopCluster(cl)
 
+out2 <- pred_brma(brma_models[1])
 
 rma_sim <- function(cl, simulated_data, file_stem, ...){
   rma_models <- parLapply(cl, simulated_data, function(data) {
