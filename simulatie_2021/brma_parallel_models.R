@@ -49,13 +49,18 @@ brma_models <- parLapply(cl, simulated_data, function(data) {
   do.call(brma_for_sim, args)
 })
 
-#also works, returns EAP of beta values (just like output for rma_selected)
+#also works, returns Boolean matrix of relevant variables for both 95% CI and HDI
 brma_selected <- t(
   parSapply(
     cl = cl,
     brma_models,
     FUN = function(models){
-      summary(models$fit)$summary[paste0("betas[", 1:(ncol(models$X)-1), "]"), c("50%")]
+      CI95 <- summary(models$fit)$summary[paste0("betas[", 1:(ncol(models$X)-1), "]"), c("2.5%", "97.5%")]
+      selected_CI95 <- apply(CI95, 1, function(x){ !(sum(sign(x)) == 0)})
+      hpdi <- bayestestR::hdi(models$fit, parameters = "betas")
+      hpdi <- cbind(hpdi$CI_low, hpdi$CI_high)
+      selected_hpdi <- apply(CI95, 1, function(x){ !(sum(sign(x)) == 0)})
+      selected <- cbind(selected_CI95, selected_hpdi)
     }
   )
 )
@@ -89,6 +94,7 @@ brma_fits <- t(
     USE.NAMES = FALSE
   )
 )
+
 
 
 
