@@ -131,12 +131,12 @@ pred_brma <- function(x, data = NULL, ...){
   if(is.null(data)){
     X <- fit$X
   } else {
-    df <- data
+    df <- data.frame(yi = 1, data) #I changed df <- data to df <- data.frame(yi=1, data)
     if(!is.null(x[["vi_column"]])){
-      df[[x$vi_column]] <- NULL
+      if(x[["vi_column"]] %in% names(df)) df[[x$vi_column]] <- NULL
     }
     if(!is.null(x[["study_column"]])){
-      df[[x[["study_column"]]]] <- NULL
+      if(x[["study_column"]] %in% names(df)) df[[x[["study_column"]]]] <- NULL
     }
     mf <- call("model.frame",
                formula = x$formula,
