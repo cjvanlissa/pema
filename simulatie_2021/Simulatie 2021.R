@@ -26,6 +26,8 @@ source("./simulatie_2021/model_accuracy.R")
 source("./simulatie_2021/mf_sim.R")
 source("./simulatie_2021/rma_sim.R")
 source("./simulatie_2021/rma_for_sim.R")
+#source("./simulatie_2021/brma_sim.R") #does not exist yet
+
 
 
 # Simulation conditions ---------------------------------------------------
@@ -123,7 +125,7 @@ for (chunk in 1:n_chunks) {
 
   rma_sim(cl, simulated_data = simulated_data, file_stem = "rma")
 
-# Conduct (pema) model ------------------------------------------------------
+# Conduct pema models ------------------------------------------------------
   #NOTE: these functions dont exist yet
   brma_sim(cl, data = simulated_data, file_stem = 'lasso', method = 'lasso')
   brma_sim(cl, data = simulated_data, file_stem = 'hs', method = 'hs')
