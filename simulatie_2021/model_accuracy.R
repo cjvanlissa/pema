@@ -133,10 +133,10 @@ pred_brma <- function(x, data = NULL, ...){
   } else {
     df <- data
     if(!is.null(x[["vi_column"]])){
-      df[[x$vi_column]] <- NULL
+      if(x[["vi_column"]] %in% names(df)) df[[x$vi_column]] <- NULL
     }
     if(!is.null(x[["study_column"]])){
-      df[[x[["study_column"]]]] <- NULL
+      if(x[["study_column"]] %in% names(df)) df[[x[["study_column"]]]] <- NULL
     }
     mf <- call("model.frame",
                formula = x$formula,
