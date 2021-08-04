@@ -21,17 +21,15 @@ versions <- c(
 if(!all(versions == 0)) stop("Using the incorrect version of one or more packages.")
 
 # Load simulation functions from source -----------------------------------
-source("./simulatie_2021/simulate_smd.R")
-source("./simulatie_2021/model_accuracy.R")
-source("./simulatie_2021/mf_sim.R")
-source("./simulatie_2021/rma_sim.R")
-source("./simulatie_2021/rma_for_sim.R")
-#source("./simulatie_2021/brma_sim.R") #does not exist yet
+source("./simulatie_2021/functions for simulation/simulate_smd.R") #this function is necessary to load as it seems to be
+#different than the function simulate_smd in pema.
+source("./simulatie_2021/functions for simulation/model_accuracy.R")
+source("./simulatie_2021/functions for simulation/mf_sim.R")
+source("./simulatie_2021/functions for simulation/rma_sim.R")
+source("./simulatie_2021/functions for simulation/rma_for_sim.R")
+source("./simulatie_2021/functions for simulation/brma_for_sim.R") #contains both brma_for_sim and brma_sim functions
 
-
-
-# Simulation conditions ---------------------------------------------------
-
+#set conditions for simulation
 hyper_parameters<-list(
   #Number of datasets per condition
   ndataset=2,
@@ -64,26 +62,26 @@ summarydata <- expand.grid(hyper_parameters, stringsAsFactors = FALSE)
 saveRDS(summarydata, file = "summarydata.RData")
 #summarydata<-readRDS("summarydata_2017-09-22_16_06.RData")
 
-#
-#Start clusters and load relevant packages
-#
+
+#Start clusters, load relevant packages and export functions to clusters
 no_cores <- detectCores()
 cl <- makeCluster(no_cores)
 
 clusterEvalQ(cl, library(metaforest))
-clusterEvalQ(cl, library(rstan))
 clusterEvalQ(cl, library(data.table))
 clusterEvalQ(cl, library(sn))
 clusterEvalQ(cl, library(pema))
 clusterEvalQ(cl, library(brms))
+clusterEvalQ(cl, library(rstan))
 
-clusterExport(cl, "simulate_smd") #not necessary since its loaded within pema...?
+clusterExport(cl, "simulate_smd")
 clusterExport(cl, "model_accuracy")
 clusterExport(cl, "rma_for_sim")
 clusterExport(cl, "rma_sim")
 clusterExport(cl, "mf_sim")
-#clusterExport(cl, "brma_sim") #This functions does not exist yet
-
+clusterExport(cl, "brma_sim")
+clusterExport(cl, "pred_brma")
+clusterExport(cl, "brma_for_sim")
 
 set.seed(78326)
 
@@ -102,7 +100,8 @@ while (length(unique(chunk_seeds)) < n_chunks) {
 }
 saveRDS(chunk_seeds, file = "chunk_seeds.RData", compress = FALSE)
 
-#actual simulation
+#actual simulation #PRODUCES ERROR when running brma_sim: object 'x' not found. The brma_sim function is tested and works.
+#I do not know where precisely the error occurs.
 for (chunk in 1:n_chunks) {
   # chunk = 1
   set.seed(chunk_seeds[chunk])
@@ -119,16 +118,16 @@ for (chunk in 1:n_chunks) {
 
 # Conduct MF models -------------------------------------------------------
 
-  mf_sim(cl, simulated_data = simulated_data, file_stem = "mf_r", num.trees = 1000, whichweights = "random")
+  mf_sim(cl, simulated_data = simulated_data, file_stem = "mf_r", num.trees = 10, whichweights = "random")
 
 # Conduct rma models ------------------------------------------------------
 
   rma_sim(cl, simulated_data = simulated_data, file_stem = "rma")
 
 # Conduct pema models ------------------------------------------------------
-  #NOTE: these functions dont exist yet
-  brma_sim(cl, data = simulated_data, file_stem = 'lasso', method = 'lasso')
-  brma_sim(cl, data = simulated_data, file_stem = 'hs', method = 'hs')
+
+  brma_sim(cl, simulated_data = simulated_data, file_stem = 'lasso', method = 'lasso')
+  brma_sim(cl, simulated_data = simulated_data, file_stem = 'hs', method = 'hs')
 
 }
 
