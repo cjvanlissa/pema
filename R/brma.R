@@ -35,7 +35,7 @@
 #' @details Penalization of the regression coefficients occurs either via the
 #' lasso (Park & Casella, 2008) or the regularized horseshoe
 #' (Piironen & Vehtari, 2017) prior. The implementation of both priors is based
-  #' on the [brms::brms-package] package.
+#' on the [brms::brms-package] package.
 #' \describe{
 #'   \item{lasso}{ The Bayesian equivalent of the lasso penalty is obtained when
 #'   placing independent Laplace (i.e., double exponential) priors on the
@@ -109,67 +109,66 @@ brma <-
                           "lasso" = c(df = 1, scale = 1),
                           "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
            ...) {
-    browser()
     vi_column <- NULL
     study_column <- NULL
-  mf <- match.call(expand.dots = FALSE)
-  mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action"), names(mf), 0L))]
-  mf$drop.unused.levels <- TRUE
-  mf[[1L]] <- quote(stats::model.frame)
-  mf <- eval(mf, parent.frame())
-  Y <- mf[[1]]
-  X <- mf[, -1, drop = FALSE]
-  if(inherits(vi, "character")){
-    vi_column <- vi
-    X[[vi]] <- NULL
-    vi <- data[[vi]]
-  }
-  if(is.null(study)){
-    study <- 1:nrow(X)
-  }
-  if(inherits(study, "character")){
-    study_column <- study
-    X[[study]] <- NULL
-    study <- data[[study]]
-  }
-  se <- sqrt(vi)
-  N <- length(Y)
-  # if(isTRUE(standardize)){
-  #   X <- scale(X) # Should there be any fancy standardization for categorical variables?
-  #                 # Should coefficients be transformed back to original scale?
-  #   scale_m <- attr(X, "scaled:center")
-  #   scale_s <- attr(X, "scaled:scale")
-  # }
-  X <- cbind(1, X)
-  standat <- c(
-    list(
-      N = N,
-      Y = Y,
-      se = se,
-      K = ncol(X),
-      X = X),
-    as.list(prior),
-    list(
-      N_1 = length(unique(study)),
-      M_1 = 1,
-      J_1 = study,
-      Z_1_1 = rep(1, N),
-      prior_only = FALSE
+    mf <- match.call(expand.dots = FALSE)
+    mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action"), names(mf), 0L))]
+    mf$drop.unused.levels <- TRUE
+    mf[[1L]] <- quote(stats::model.frame)
+    mf <- eval(mf, parent.frame())
+    Y <- mf[[1]]
+    X <- mf[, -1, drop = FALSE]
+    if(inherits(vi, "character")){
+      vi_column <- vi
+      X[[vi]] <- NULL
+      vi <- data[[vi]]
+    }
+    if(is.null(study)){
+      study <- 1:nrow(X)
+    }
+    if(inherits(study, "character")){
+      study_column <- study
+      X[[study]] <- NULL
+      study <- data[[study]]
+    }
+    se <- sqrt(vi)
+    N <- length(Y)
+    # if(isTRUE(standardize)){
+    #   X <- scale(X) # Should there be any fancy standardization for categorical variables?
+    #                 # Should coefficients be transformed back to original scale?
+    #   scale_m <- attr(X, "scaled:center")
+    #   scale_s <- attr(X, "scaled:scale")
+    # }
+    X <- cbind(1, X)
+    standat <- c(
+      list(
+        N = N,
+        Y = Y,
+        se = se,
+        K = ncol(X),
+        X = X),
+      as.list(prior),
+      list(
+        N_1 = length(unique(study)),
+        M_1 = 1,
+        J_1 = study,
+        Z_1_1 = rep(1, N),
+        prior_only = FALSE
+      )
     )
-  )
-  cl <- do.call("call",
-                c(list(name = "sampling",
-                     object = stanmodels[[c(lasso = "lasso_MA", hs = "horseshoe_MA")[method]]],
-                     data = standat
-                     ),
+    cl <- do.call("call",
+                  c(list(name = "sampling",
+                         object = stanmodels[[c(lasso = "lasso_MA", hs = "horseshoe_MA")[method]]],
+                         data = standat
+                  ),
                   list(...)))
-  fit <- eval(cl)
-  fit <- list(fit = fit,
-              formula = formula,
-              X = X,
-              Y = Y)
-  if(!is.null(vi_column)) fit$vi_column <- vi_column
-  if(!is.null(study_column)) fit$study_column <- study_column
-  class(fit) <- c("brma", class(fit))
-  return(fit)
-}
+    fit <- eval(cl)
+    fit <- list(fit = fit,
+                formula = formula,
+                X = X,
+                Y = Y)
+    if(!is.null(vi_column)) fit$vi_column <- vi_column
+    if(!is.null(study_column)) fit$study_column <- study_column
+    class(fit) <- c("brma", class(fit))
+    return(fit)
+  }
