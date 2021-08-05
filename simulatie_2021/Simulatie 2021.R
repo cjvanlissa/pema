@@ -1,12 +1,12 @@
-# Install packages; skip if already installed -----------------------------
-install.packages('devtools')                #to download pema from source
-devtools::install_github("cjvanlissa/pema") #for brma and simulate_smd functions
-install.packages("metaforest")              #for random effects metaforest and rma function
-install.packages("parallel")                #for parallel computing
-install.packages("sn")                      #for rsn function which allows skewed distributions
-install.packages("brms")                    #for package Rcpp that interfaces C++ code into R
-install.packages("rstan")                   #to compile C++ in Rstudio
-install.packages("rstantools")              #actually not sure if necessary
+# # Install packages; skip if already installed -----------------------------
+# install.packages('devtools')                #to download pema from source
+# devtools::install_github("cjvanlissa/pema") #for brma and simulate_smd functions
+# install.packages("metaforest")              #for random effects metaforest and rma function
+# install.packages("parallel")                #for parallel computing
+# install.packages("sn")                      #for rsn function which allows skewed distributions
+# install.packages("brms")                    #for package Rcpp that interfaces C++ code into R
+# install.packages("rstan")                   #to compile C++ in Rstudio
+# install.packages("rstantools")              #actually not sure if necessary
 
 # Load packages
 packagenames <- c('pema', 'metaforest', 'parallel', 'sn', 'brms', 'rstan')
@@ -64,7 +64,7 @@ saveRDS(summarydata, file = "summarydata.RData")
 
 
 #Start clusters, load relevant packages and export functions to clusters
-no_cores <- detectCores()
+no_cores <- 2#detectCores()
 cl <- makeCluster(no_cores)
 
 clusterEvalQ(cl, library(metaforest))
@@ -110,15 +110,15 @@ for (chunk in 1:n_chunks) {
 
   simulated_data <-
     do.call(clusterMap, append(list(cl = cl, fun = simulate_smd), chunk_conditions))
-
-  file_name <-
-    paste0(paste(c("simdata", chunk), collapse = "_"), ".RData")
-  saveRDS(simulated_data, file = file_name, compress = FALSE)
+#
+#   file_name <-
+#     paste0(paste(c("simdata", chunk), collapse = "_"), ".RData")
+#   saveRDS(simulated_data, file = file_name, compress = FALSE)
 
 
 # Conduct MF models -------------------------------------------------------
 
-  mf_sim(cl, simulated_data = simulated_data, file_stem = "mf_r", num.trees = 10, whichweights = "random")
+  mf_sim(cl, simulated_data = simulated_data, file_stem = "mf_r", num.trees = 100, whichweights = "random")
 
 # Conduct rma models ------------------------------------------------------
 

@@ -129,7 +129,7 @@ model_accuracy <-
 pred_brma <- function(x, data = NULL, ...){
 # Prepare data ------------------------------------------------------------
   if(is.null(data)){
-    X <- fit$X
+    X <- x$X
   } else {
     df <- data
     if(!is.null(x[["vi_column"]])){

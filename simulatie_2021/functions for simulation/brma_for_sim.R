@@ -7,33 +7,35 @@ brma_for_sim <- function(...){
 
 brma_sim <- function(cl, simulated_data = simulated_data, file_stem, method, ...){
   brma_models <- parLapply(cl, simulated_data, function(data) {
-    args <- list(formula = force(as.formula(paste0("yi~", paste0(names(data$training)[-c(1:2)], collapse = "+")))),
-                 data = data$training,
-                 method = method)
-    do.call(brma_for_sim, args)
+    tryCatch({brma(formula = yi~.,
+                   data = data$training,
+                   method = method,
+                   chains = 1,
+                   iter = 6000)},
+             error = function(e){NULL})
   })
-
   #brma fit
   brma_fits <- t(
     clusterMap(
       cl,
       fun = function(models, data) {
-        if(is.na(models)){
-          return(rep(NA, 7))
+        if(is.null(models)){
+          return(rep(NA, 8))
         }
         c(
           model_accuracy(
             fit = models,
-            newdata = data$training[, -c(1:2)],
+            newdata = data$training[, -1],
             observed = data[[1]]$yi
           ),
           model_accuracy(
             fit = models,
-            newdata = data$testing[, -1],
+            newdata = data$testing,
             observed = data$testing$yi,
             ymean = mean(data$training$yi)
           ),
-          tau2 = summary(models$fit)$summary['sd_1[1]', 'mean']
+          tau2 = mean(models$fit@sim$samples[[1]]$`sd_1[1]`),
+          beta1 = mean(models$fit@sim$samples[[1]]$betas[1])
         )
       },
       models = brma_models,
@@ -49,12 +51,12 @@ brma_sim <- function(cl, simulated_data = simulated_data, file_stem, method, ...
       cl = cl,
       brma_models,
       FUN = function(models){
-        CI95 <- summary(models$fit)$summary[paste0("betas[", 1:(ncol(models$X)-1), "]"), c("2.5%", "97.5%")]
+        CI95 <- summary(models$fit)$summary[paste0("betas[", 1:(ncol(models$X)-1), "]"), c("2.5%", "97.5%"), drop = FALSE]
         selected_CI95 <- apply(CI95, 1, function(x){ !(sum(sign(x)) == 0)})
         hpdi <- bayestestR::hdi(models$fit, parameters = "betas")
         hpdi <- cbind(hpdi$CI_low, hpdi$CI_high)
         selected_hpdi <- apply(CI95, 1, function(x){ !(sum(sign(x)) == 0)})
-        selected <- cbind(selected_CI95, selected_hpdi)
+        c(selected_CI95, selected_hpdi)
       }
     )
   )

@@ -3,10 +3,10 @@ rma_sim <- function(cl, simulated_data, file_stem, ...){
     args <- list(yi = data$training$yi,
                  vi = data$training$vi,
                  mods = as.matrix(data$training[,-c(1:2)]))
-    
+
     do.call(rma_for_sim, args)
   })
-  
+  browser()
   rma_fits <- t(
     clusterMap(
       cl,
@@ -35,7 +35,7 @@ rma_sim <- function(cl, simulated_data, file_stem, ...){
       USE.NAMES = FALSE
     )
   )
-  
+
   rma_selected <-
     t(parSapply(
       cl = cl,
@@ -44,16 +44,16 @@ rma_sim <- function(cl, simulated_data, file_stem, ...){
         models[["beta"]][-1,1]
       }
     ))
-  
+
   file_name <-
     paste0(paste(c(file_stem, "fits", chunk), collapse = "_"), ".RData")
   saveRDS(rma_fits, file = file_name, compress = FALSE)
-  
+
   file_name <-
     paste0(paste(c(file_stem, "selected", chunk), collapse = "_"), ".RData")
   saveRDS(rma_selected,
           file = file_name,
           compress = FALSE)
-  
+
   rm(rma_models, rma_fits, rma_selected)
 }
