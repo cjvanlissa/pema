@@ -7,9 +7,10 @@
 # install.packages("brms")                    #for package Rcpp that interfaces C++ code into R
 # install.packages("rstan")                   #to compile C++ in Rstudio
 # install.packages("rstantools")              #actually not sure if necessary
+# install.packages("bayestestR")              #actually not sure if necessary
 
 # Load packages
-packagenames <- c('pema', 'metaforest', 'parallel', 'sn', 'brms', 'rstan')
+packagenames <- c('pema', 'metaforest', 'parallel', 'sn', 'brms', 'rstan', 'bayestestR')
 lapply(packagenames, library, character.only = TRUE)
 
 # Check package versions
@@ -47,7 +48,8 @@ hyper_parameters<-list(
   #Study-level moderators
   moderators= c(1, 2, 5),
   # This model includes effects of the first 10 moderators. The next 10 moderators are irrelevant.
-  model = c("es * x[, 1]", "es * x[, 1] + es * x[, 2] + es * (x[, 1] * x[, 2])",
+  model = c("es * x[, 1]",
+            "es * x[, 1] + es * x[, 2] + es * (x[, 1] * x[, 2])",
             "es * x[, 1] + es * x[, 2] + es * x[, 3] + es * (x[, 1] * x[, 2]) + es * (x[, 1] * x[, 3]) + es * (x[, 2] * x[, 3]) + es * (x[, 1] * x[, 2] * x[, 3])",
             "es * x[, 1] + es * x[, 2] + es * (x[, 1] * x[, 2]) + es * x[, 3] + es * x[, 4] + es * (x[, 3] * x[, 4])",
             "es * x[, 1] + es * (x[, 1] ^ 2) + es * (x[, 1] ^ 3)",
@@ -64,7 +66,7 @@ saveRDS(summarydata, file = "summarydata.RData")
 
 
 #Start clusters, load relevant packages and export functions to clusters
-no_cores <- 2#detectCores()
+no_cores <- 12#detectCores()
 cl <- makeCluster(no_cores)
 
 clusterEvalQ(cl, library(metaforest))
@@ -73,7 +75,7 @@ clusterEvalQ(cl, library(sn))
 clusterEvalQ(cl, library(pema))
 clusterEvalQ(cl, library(brms))
 clusterEvalQ(cl, library(rstan))
-
+clusterEvalQ(cl, library(bayestestR))
 clusterExport(cl, "simulate_smd")
 clusterExport(cl, "model_accuracy")
 clusterExport(cl, "rma_for_sim")
@@ -145,24 +147,74 @@ data <- as.data.table(readRDS(list.files(pattern = "summarydata")))
 
 model_names <- unique(gsub("_fits_\\d+.RData", "", list.files(pattern="fits", all.files=FALSE, full.names=FALSE)))
 
-fit_vars <- c("_train_r2", "_train_mse", "_train_r", "_test_r2", "_test_mse", "_test_r", "_tau2")
-data[, paste0(unlist(lapply(model_names, rep, length(fit_vars))), fit_vars) := double() ]
+# fit_vars <- c("_train_r2", "_train_mse", "_train_r", "_test_r2", "_test_mse", "_test_r", "_tau2")
+# fit_vars <- paste0(unlist(lapply(model_names, rep, length(fit_vars))), fit_vars)
+fit_vars <-
+list(
+  c(
+    "hs_train_r2",
+    "hs_train_mse",
+    "hs_train_r",
+    "hs_test_r2",
+    "hs_test_mse",
+    "hs_test_r",
+    "hs_tau2",
+    "hs_beta1",
+    "hs_div",
+    "hs_rhat",
+    "hs_neff"
+  ),
+  c(
+    "lasso_train_r2",
+    "lasso_train_mse",
+    "lasso_train_r",
+    "lasso_test_r2",
+    "lasso_test_mse",
+    "lasso_test_r",
+    "lasso_tau2",
+    "lasso_beta1",
+    "lasso_div",
+    "lasso_rhat",
+    "lasso_neff"
+  ),
+  c(
+    "mf_r_train_r2",
+    "mf_r_train_mse",
+    "mf_r_train_r",
+    "mf_r_test_r2",
+    "mf_r_test_mse",
+    "mf_r_test_r",
+    "mf_r_tau2"
+  ),
+  c(
+    "rma_train_r2",
+    "rma_train_mse",
+    "rma_train_r",
+    "rma_test_r2",
+    "rma_test_mse",
+    "rma_test_r",
+    "rma_tau2",
+    "rma_beta1"
+  )
+)
+fit_vars <- unlist(fit_vars)
+data[, (fit_vars) := double() ]
 
 for(modelname in model_names){
   for(i in 1:n_chunks){
     fileName<-paste0(c(modelname, "_fits_", i, ".RData"), collapse="")
     if (file.exists(fileName)){
       file_contents <- as.data.table(readRDS(fileName))
-      n_fit_vars <- ncol(file_contents)
+      the_fitvars <- fit_vars[startsWith(fit_vars, modelname)]
       set(x = data,
           i = (1+((i-1)*chunk_length)):(i*chunk_length),
-          j = paste0(rep(modelname, n_fit_vars), fit_vars[1:n_fit_vars]),
+          j = the_fitvars,
           value = file_contents)
     }
   }
 }
 
-
+stop()
 fit_vars <- c("_true_pos", "_true_neg")
 data[, paste0(unlist(lapply(model_names, rep, length(fit_vars))), fit_vars) := double() ]
 

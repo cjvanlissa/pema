@@ -4,7 +4,7 @@ mf_sim <- function(cl, simulated_data, file_stem, ...){
                data = data$training,
                ...)
   })
-  
+
   mf_r_fits <- t(
     clusterMap(
       cl,
@@ -30,24 +30,30 @@ mf_sim <- function(cl, simulated_data, file_stem, ...){
       USE.NAMES = FALSE
     )
   )
-  
+
   mf_r_importance <- parLapply(
     cl = cl,
     mf_r_models,
     fun = function(models) {
-      models$forest$variable.importance
+      if(is.null(models)){
+        NA
+      } else {
+        #importance_pvalues(models$forest, method = "janitza")[, 2] < .05
+        models$forest$variable.importance > 0
+      }
+
     }
   )
-  
+
   file_name <-
     paste0(paste(c(file_stem, "fits", chunk), collapse = "_"), ".RData")
   saveRDS(mf_r_fits, file = file_name, compress = FALSE)
-  
+
   file_name <-
     paste0(paste(c(file_stem, "selected", chunk), collapse = "_"), ".RData")
   saveRDS(mf_r_importance,
           file = file_name,
           compress = FALSE)
-  
+
   rm(mf_r_fits, mf_r_importance, mf_r_models)
 }

@@ -1,18 +1,16 @@
 rma_sim <- function(cl, simulated_data, file_stem, ...){
   rma_models <- parLapply(cl, simulated_data, function(data) {
-    args <- list(yi = data$training$yi,
+    tryCatch(rma(yi = data$training$yi,
                  vi = data$training$vi,
-                 mods = as.matrix(data$training[,-c(1:2)]))
-
-    do.call(rma_for_sim, args)
+                 mods = as.matrix(data$training[,-c(1:2)])),
+             error = function(e){ NULL })
   })
-  browser()
   rma_fits <- t(
     clusterMap(
       cl,
       fun = function(models, data) {
-        if(is.na(models)){
-          return(rep(NA, 7))
+        if(is.null(models)){
+          return(rep(NA, 8))
         }
         c(
           model_accuracy(
@@ -26,7 +24,8 @@ rma_sim <- function(cl, simulated_data, file_stem, ...){
             observed = data$testing$yi,
             ymean = mean(data$training$yi)
           ),
-          tau2 = models$tau2
+          tau2 = models$tau2,
+          beta1 = models$b[2,1]
         )
       },
       models = rma_models,
@@ -41,7 +40,11 @@ rma_sim <- function(cl, simulated_data, file_stem, ...){
       cl = cl,
       rma_models,
       FUN = function(models) {
-        models[["beta"]][-1,1]
+        if(is.null(models)){
+          NA
+        } else {
+          models[["beta"]][-1,1]
+        }
       }
     ))
 
