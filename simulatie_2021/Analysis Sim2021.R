@@ -158,6 +158,9 @@ library(xtable)
 print(xtable(coeftable.testr2), file="coeftable.testr2.tex",sanitize.text.function=function(x){x})
 
 
+## Vanaf hier verder ##
+
+
 ##Figure out which predictors are most important per variable
 as.numeric.factor <- function(x) {as.numeric(levels(x))[x]}
 #sink("output.txt", append = TRUE)
@@ -522,7 +525,7 @@ library(xtable)
 print(xtable(coef.table), file="EtaSq_testR2.tex",sanitize.text.function=function(x){x})
 
 
-##save.image("Analysis_Data.RData")
+#save.image("Analysis_Data.RData")
 ###### TOT HIER GECHEKT ELI 2021 #####
 load("Analysis_Data.RData")
 
