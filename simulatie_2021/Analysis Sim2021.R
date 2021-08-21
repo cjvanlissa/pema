@@ -522,7 +522,7 @@ library(xtable)
 print(xtable(coef.table), file="EtaSq_testR2.tex",sanitize.text.function=function(x){x})
 
 
-#save.image("Analysis_Data.RData")
+##save.image("Analysis_Data.RData")
 ###### TOT HIER GECHEKT ELI 2021 #####
 load("Analysis_Data.RData")
 
