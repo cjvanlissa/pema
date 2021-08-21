@@ -148,49 +148,93 @@ names(coef.table)<-c("Horseshoe", "Lasso", "Metaforest" ,"RMA")
 
 coeftable.testr2 <- coef.table
 #sink("output.txt", append = TRUE)
-#study1.coef.table.withoutmodel1
 #sink()
 
-#study1.coef.table.withoutmodel1 <- study1.coef.table.withoutmodel1[, -c(2,3, 7, 8)]
+write.csv(coef.table, file =  "EtaSq_testR2.csv")
+#sink("output.txt", append = TRUE)
+#sink()
 
 #this makes a nice table in .tex file for the coefficients
 library(xtable)
-print(xtable(coeftable.testr2), file="coeftable.testr2.tex",sanitize.text.function=function(x){x})
+print(xtable(coef.table), file="EtaSq_testR2.tex",sanitize.text.function=function(x){x})
 
 
-## Vanaf hier verder ##
+#save.image("Analysis_Data.RData")
+###### TOT HIER GECHEKT ELI 2021 #####
+load("./simulatie_2021/Analysis_Data.RData")
 
 
 ##Figure out which predictors are most important per variable
-as.numeric.factor <- function(x) {as.numeric(levels(x))[x]}
-#sink("output.txt", append = TRUE)
-lapply(coeftable.testr2, function(x){
-  tmp <- as.numeric.factor(x) #as.numeric.factor() is not an existing function
-  names(tmp)<- names(coeftable.testr2)
-  sort(tmp, decreasing = TRUE)
-})
-#sink()
-
-#functoin that sorts conditions that have highest eta to lowest
+#function that sorts conditions that have highest eta to lowest
 important_predictors <- function(df, column){
-  df.sort <- df[order(df[,column]), , drop = FALSE]
-  rnames <- rownames(df.sort)
-  vals <- sort(df.sort[,column], decreasing = TRUE)
-  memory <- c()
+  df.sort <- df[order(df[,column], decreasing = T), , drop = FALSE] #sort by particular column
+  rnames <- rownames(df.sort) #store row names in variable
+  vals <- sort(df.sort[,column], decreasing = TRUE) #store values in variable
+  condition <- c() #memory for condition names
+  value <- c() #memory for eta square values
   for(i in 1:nrow(df.sort)){
-    elem <- paste0(i, ".) ", rnames[i], "= ", vals[i])
-    memory[i] <- elem
+    condition[i] <- rnames[i]
+    value[i] <- vals[i]
   }
-  return(memory)
+  return(cbind(condition, value)) #return matrix of condition name with corresponding EtaSq from highest to lowest
 }
 
 #for loop to do it for all models
 imp_pred_per_model <- list()
-for(i in 1:ncol(coeftable.testr2)){
-  imp_pred_per_model[[i]] <- important_predictors(coeftable.testr2, names(coeftable.testr2[i]))
+for(i in 1:ncol(coef.table)){
+  imp_pred_per_model[[i]] <- important_predictors(coef.table, names(coef.table[i]))
 }
 names(imp_pred_per_model) <- c('Horseshoe', 'Lasso', 'Metaforest', 'RMA')
 imp_pred_per_model
+#write.csv(imp_pred_per_model, file = "important_predictors_per_model.csv")
+
+
+######################################
+#test R2 per condition per algorithm #
+######################################
+measure.vars <- names(analyzedat_test)[-c(1:lc)] #test_r2 values
+grouping.vars <- quote(list(k_train,
+                            mean_n,
+                            es,
+                            tau2,
+                            alpha_mod,
+                            moderators,
+                            model))
+
+#obtain mean R2 per condition (so mean over 100 datasets)
+testR2_per_condition <- analyzedat_test[,lapply(.SD, mean),by=eval(grouping.vars), .SDcols=measure.vars]
+
+#below I want to obtain per condition a rankorder in which algorithm has highest test R2
+mean_R2s <- testR2_per_condition[,(lc+1):ncol(testR2_per_condition)] #obtain dataframe without condition names
+
+#obtain maximum value for R2 comparing the algoritms
+for(i in 1:nrow(mean_R2s)){
+  mean_R2s$highest[i] <- max(mean_R2s[i,1],mean_R2s[i,2],mean_R2s[i,3],mean_R2s[i,4])
+}
+
+#if R2 value == highest for that row, then add name to variable algname
+for(i in 1:nrow(mean_R2s)){
+  if(mean_R2s[i,1] == mean_R2s[i,5]){
+    mean_R2s$algnames[i] <- 'Horseshoe'
+  } else if(mean_R2s[i,2] == mean_R2s[i,5]){
+    mean_R2s$algnames[i] <- 'Lasso'
+    } else if(mean_R2s[i,3] == mean_R2s[i,5]){
+      mean_R2s$algnames[i] <- 'Metaforest'
+    } else if(mean_R2s[i,4] == mean_R2s[i,5]){
+      mean_R2s$algnames[i] <- 'RMA'}
+  else{stop(paste0('there is no highest value, inspect case ', i))}
+}
+
+testR2_per_condition$highestR2 <- mean_R2s$algnames
+testR2_per_condition$R2value <- mean_R2s$highest
+
+best_pred_per_condition <- within(testR2_per_condition, rm('hs_test_r2','lasso_test_r2', 'mf_r_test_r2', 'rma_test_r2'))
+#write.csv(best_pred_per_condition, file = 'best_performing_algorithm_per_condition.csv')
+
+#save.image("Analysis_Data.RData")
+###### TOT HIER GECHEKT ELI 2021 #####
+load("./simulatie_2021/Analysis_Data.RData")
+
 
 ##################
 # Power analysis #
@@ -202,16 +246,8 @@ analyzedatt <- dat[ , .SD, .SDcols=c(conditions, 'mf_r_test_r2', "lasso_test_r2"
 #make conditions factors
 analyzedat[, c(1:lc):=lapply(.SD, factor), .SDcols=c(1:lc)]
 
-measure.vars <- names(analyzedat)[-c(1:lc)] #test_r2 values
-grouping.vars <- quote(list(k_train,
-                            mean_n,
-                            es,
-                            tau2,
-                            alpha_mod,
-                            moderators,
-                            model))
 
-#for every condition seperately; if the 20% quantile from the test_r2 > 0, then give 1, otherwise 0
+#for every condition seperately; if the 20% quantile from the test_r2 > 0, then give 1, otherwise
 power2<-analyzedatt[,lapply(.SD, function(x){ifelse(quantile(x, probs = .2, na.rm = TRUE)>0, 1, 0)}),by=eval(grouping.vars), .SDcols=measure.vars]
 plotdat<-power2
 
@@ -524,10 +560,6 @@ write.csv(coef.table, file =  "EtaSq_testR2.csv")
 library(xtable)
 print(xtable(coef.table), file="EtaSq_testR2.tex",sanitize.text.function=function(x){x})
 
-
-#save.image("Analysis_Data.RData")
-###### TOT HIER GECHEKT ELI 2021 #####
-load("Analysis_Data.RData")
 
 #Standardize importances
 plotdat<-res
