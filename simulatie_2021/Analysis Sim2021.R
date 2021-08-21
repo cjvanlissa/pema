@@ -1,7 +1,7 @@
 
-###################################
-# Predictive performance analyses #
-###################################
+##################################################
+# Predictive performance analyses - Descriptives #
+##################################################
 library(data.table)
 dat <- as.data.table(readRDS(r"(C:\Users\e_lib\OneDrive\Documents\Caspar Repositories\simulatie_2021\sim_results_2021-08-11.RData)"))
 newnames <- c('hs', 'lasso', 'mf_r', 'rma') #names of models
@@ -9,44 +9,66 @@ conditions <- c("k_train", "mean_n", "es", "tau2","alpha_mod", "moderators", "mo
 lc <- length(conditions) #length of conditions, handy for further code
 
 #subsets the data based on particular performance criterion
-#in this case train_r2
-analyzedat <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_train_r2"))]
+#in this case train_r2 and test_r2
+analyzedat_train <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_train_r2"))]
+analyzedat_test <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_test_r2"))]
+
 
 #converts the condition variables to factors
-analyzedat[, c(1:lc):=lapply(.SD, factor), .SDcols=c(1:7)]
+analyzedat_train[, c(1:lc):=lapply(.SD, factor), .SDcols=c(1:7)]
+analyzedat_test[, c(1:lc):=lapply(.SD, factor), .SDcols=c(1:7)]
+
 
 setwd("./simulatie_2021")
 #sink("output.txt") #makes connection with a .txt file, use it later
 #unlink('output.txt') #unlinks the connection and deletes .txt file.
 
 
-#there are missing values in the data
-apply(analyzedat, 2, function(x){sum(is.na(x))}) #17 missing values in rma_train_r2
-cases_rma_mis <- which(is.na(analyzedat$rma_train_r2)) #which cases are missing
-rma_mis <- analyzedat[cases_rma_mis,] #subset data for missing cases
-summary(rma_mis) #at first sight, I do not see an obvious pattern to why these cases are missing
+#there are missing values in the data for train
+library(mice) #load in library
+
+#show where missings are and prodivde summary of the dataset to check for patterns
+misdat_pat <- function(df){
+  varmis <- (apply(df, 2, function(x){sum(is.na(x))})) #shows where missings are
+  cases_mis <- which(is.na(df)) #which cases are missing
+  missdat <- df[cases_rma_mis,] #subset data for missing cases
+  varmis_pat <- summary(missdat)
+  mispat <- md.pattern(missdat, plot = T) #shows where missings are and how many
+  return(list(variables_missing = varmis, pattern = varmis_pat))
+}
+
+misdat_pat(analyzedat_train) #17 missing in rma_train r2
+misdat_pat(analyzedat_test) #the same for the test data
+
 
 #Since only 17 cases out of 4000000 are missing, I do not think it will have a big impact on further analyses
 #Although it might be interesting to see why the cases are missing, for now I will continue with the observed data
-analyzedat <- na.omit(analyzedat)
+analyzedat_train <- na.omit(analyzedat_train)
+analyzedat_test <- na.omit(analyzedat_test)
 
 #obtain mean and standard deviations
-tmp<-rbind(round(analyzedat[model != "1", lapply(.SD, mean), .SDcols=c((lc+1):ncol(analyzedat))], 2),
-           round(analyzedat[model !="1", lapply(.SD, sd), .SDcols=c((lc+1):ncol(analyzedat))], 2))
-tmp<-data.frame(names(tmp), t(tmp))
-apply(tmp, 1, function(x){paste(x, collapse=", ")})
-colnames(tmp) <- c('alg', 'mean', 'sd')
-View(tmp) #r2 does not seems to make much sense for hs and lasso
-sink()
+mean_sd <- function(df){
+  tmp<-rbind(round(df[, lapply(.SD, mean), .SDcols=c((lc+1):ncol(df))], 2),
+             round(df[, lapply(.SD, sd), .SDcols=c((lc+1):ncol(df))], 2))
+  tmp<-data.frame(names(tmp), t(tmp))
+  apply(tmp, 1, function(x){paste(x, collapse=", ")})
+  colnames(tmp) <- c('alg', 'mean', 'sd')
+  return(tmp)
+}
+tmp_train <- mean_sd(analyzedat_train)
+View(tmp_train)
+
+tmp_test <- mean_sd(analyzedat_test)
+View(tmp_test)
 
 #this functions plots densities for the chains and provides descriptives
 pre_analysis <- function(subdat = analyzedat, lb = -Inf, ub = Inf){ #lb = lowerbound, ub = upperbound for the boundaries of impossible values
   #plot densities for chains in one window
-  par(mfrow = c(2, 2))
-  subdat <- as.data.frame(subdat)
-  for(column in (lc+1):ncol(subdat)){
+  par(mfrow = c(2, 2)) #we have 4 algorithms, so 4 plots will be produced
+  subdat <- as.data.frame(subdat) #convert to dataframe
+  for(column in (lc+1):ncol(subdat)){ #plot densities for all algorithms
     col_obs <- na.omit(subdat[,column]) #there are sometimes missings so omit them
-    prop.impvals <- sum(col_obs < lb | col_obs > ub) / length(col_obs) #proportion of impossible values
+    prop.impvals <- sum(col_obs < lb | col_obs > ub) / length(col_obs) #proportion of theoretically impossible values
     plot(density(col_obs),
          main = paste0('histogram of ', colnames(subdat)[column]),
          xlab = paste0('proportion impossible values: ', round(prop.impvals, 3)))
@@ -54,9 +76,10 @@ pre_analysis <- function(subdat = analyzedat, lb = -Inf, ub = Inf){ #lb = lowerb
   print(psych::describe(subdat[,(lc+1):ncol(subdat)])) #print descriptives of chains
 }
 
-pre_analysis(analyzedat, lb = 0 , ub = 1) #chains fo rma and mf look fine, not so much for hs and lasso.
+pre_analysis(analyzedat_train, lb = 0 , ub = 1) #chains fo rma and mf look fine, not so much for hs and lasso.
 #also, both hs and lasso have ~60% of r2 value that are impossible to obtain.
-
+pre_analysis(analyzedat_test, lb = 0 , ub = 1) #both hs and lasso have ~55% of r2 value that should be impossible to obtain.
+#although both mf and rma also contain impossible values.
 
 
 
@@ -64,38 +87,16 @@ pre_analysis(analyzedat, lb = 0 , ub = 1) #chains fo rma and mf look fine, not s
 #Predictive performance on testing data#
 ########################################
 
-analyzedat <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_test_r2"))]
-
-#converts the condition variables to factors
-analyzedat[, c(1:lc):=lapply(.SD, factor), .SDcols=c(1:lc)]
+analyzedat_test <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_test_r2"))]
+analyzedat_test[, c(1:lc):=lapply(.SD, factor), .SDcols=c(1:lc)]
 
 setwd("./simulatie_2021")
 #sink("output.txt") #makes connection with a .txt file, use it later
 #unlink('output.txt') #unlinks the connection and deletes .txt file.
 
+analyzedat_test <- na.omit(analyzedat_test)
 
-#there are missing values in the data
-apply(analyzedat, 2, function(x){sum(is.na(x))}) #17 missing values in rma_test_r2 as well
-cases_rma_mis2 <- which(is.na(analyzedat$rma_test_r2)) #which cases are missing
-sum(cases_rma_mis != cases_rma_mis2) #exacly the same cases are missing for rma_train_r2 as for rma_test_r2
-
-analyzedat <- na.omit(analyzedat)
-
-#obtain mean and standard deviations
-tmp<-rbind(round(analyzedat[model != "1", lapply(.SD, mean), .SDcols=c((lc+1):ncol(analyzedat))], 2),
-           round(analyzedat[model !="1", lapply(.SD, sd), .SDcols=c((lc+1):ncol(analyzedat))], 2))
-tmp<-data.frame(names(tmp), t(tmp))
-apply(tmp, 1, function(x){paste(x, collapse=", ")})
-colnames(tmp) <- c('alg', 'mean', 'sd')
-View(tmp) #r2 does not seems to make much sense for hs and lasso
-sink()
-
-pre_analysis(analyzedat, lb = 0 , ub = 1) #same problem,
-#both hs and lasso have ~55% of r2 value that should be impossible to obtain.
-#although both mf and rma also contain impossible values.
-
-###checked until here, Eli 2021
-#Check for significant moderators
+#Check for significant moderators using eta squared
 EtaSq<-function (x)
 {
   anovaResults <- summary.aov(x)[[1]]
@@ -114,23 +115,12 @@ EtaSq<-function (x)
   return(res)
 }
 
-yvars<-c(paste0(newnames, "_test_r2"), paste(newnames[1], newnames[-1], sep = "_")) #I do not really get how this helps
+#the dependent variables (the test r2)
 yvars <- paste0(newnames, "_test_r2")
-
-
-withoutmodel1<-analyzedat[model!="1",] # I do not think this is necessary
-fittest <- aov(hs_test_r2 ~ (k_train + es) ^ 2, analyzedat)#the ^2 signifies that we want all possible effects
-summary(fittest)
-EtaSq(fittest)
-
-##lets first do the anovas for a subsample of the data to check how and if everything works
-set.seed(6164900)
-subdat <- analyzedat[sample(nrow(analyzedat), 100), ]
-
 #creates a list for every Anova with the results for the anova and the effect sizes for the conditions on the algorithms
 anovas<-lapply(yvars, function(yvar){
-  form<-paste(yvar, '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2")
-  thisaov<-aov(as.formula(form), data=subdat) #change data according to dataframe you are using
+  form<-paste(yvar, '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2") #the ^2 signifies that we want all possible effects
+  thisaov<-aov(as.formula(form), data=analyzedat_test) #change data according to dataframe you are using
   thisetasq<-EtaSq(thisaov)[ , 2]
   list(thisaov, thisetasq)
 })
@@ -202,36 +192,50 @@ imp_pred_per_model
 ##################
 # Power analysis #
 ##################
-analyzedat <- data[ , .SD, .SDcols=c("k_studies", "mean_study_n", "es", "residual_heterogeneity", "moderators", "model", "mf_test_r2", "ca_test_r2")]
-analyzedat[, c(1:6):=lapply(.SD, factor), .SDcols=c(1:6)]
+#subset for test_r2 values
+analyzedat <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_test_r2"))]
+analyzedatt <- dat[ , .SD, .SDcols=c(conditions, 'mf_r_test_r2', "lasso_test_r2")]
 
-measure.vars <- names(analyzedat)[-c(1:6)]
-grouping.vars <- quote(list(k_studies,
-                            mean_study_n,
+#make conditions factors
+analyzedat[, c(1:lc):=lapply(.SD, factor), .SDcols=c(1:lc)]
+
+measure.vars <- names(analyzedat)[-c(1:lc)] #test_r2 values
+grouping.vars <- quote(list(k_train,
+                            mean_n,
                             es,
-                            residual_heterogeneity,
-                            moderators, model))
+                            tau2,
+                            alpha_mod,
+                            moderators,
+                            model))
 
-power2<-analyzedat[,lapply(.SD, function(x){ifelse(quantile(x, probs = .2, na.rm = TRUE)>0, 1, 0)}),by=eval(grouping.vars), .SDcols=measure.vars]
-
+#for every condition seperately; if the 20% quantile from the test_r2 > 0, then give 1, otherwise 0
+power2<-analyzedatt[,lapply(.SD, function(x){ifelse(quantile(x, probs = .2, na.rm = TRUE)>0, 1, 0)}),by=eval(grouping.vars), .SDcols=measure.vars]
 plotdat<-power2
 
-plotdat[, power := "Neither"]
-plotdat[mf_test_r2 == 1 & ca_test_r2 == 0, power := "Only MetaForest"]
-plotdat[mf_test_r2 == 0 & ca_test_r2 == 1, power := "Only metaCART"]
-plotdat[mf_test_r2 == 1 & ca_test_r2 == 1, power := "Both"]
+bin_cond <- function()
+
+plotdat[, power := "Neither"] #create variable with value 'Neither'
+plotdat[mf_r_test_r2 == 1 & lasso_test_r2 == 0, power := "Only MetaForest"]
+plotdat[mf_r_test_r2 == 0 & lasso_test_r2 == 1, power := "Only lasso"]
+plotdat[mf_r_test_r2 == 1 & lasso_test_r2 == 1, power := "Both"]
 plotdat[, power := factor(power)]
-plotdat$power <- ordered(plotdat$power, levels = c("Neither", "Only MetaForest", "Only metaCART", "Both"))
+plotdat$power <- ordered(plotdat$power, levels = c("Neither", "Only MetaForest", "Only lasso", "Both"))
 table(plotdat$power)
-names(plotdat)[c(1:6)]<-c("k", "n", "es", "tau2", "M", "Model")
 
-categorical<-c("k", "n", "es", "tau2", "M", "Model")
+condnames <- c("k", "n", "es", "tau2", "alpha", "M", "Model")
+names(plotdat)[c(1:lc)]<- condnames
 
-plotdat[, (categorical) := lapply(.SD, factor), .SDcols=categorical]
-plotdat$tau2 <- factor(plotdat$tau2, labels = c("tau^2:~.00", "tau^2:~.04", "tau^2:~.28"))
-plotdat$es <- factor(plotdat$es, labels = c("beta:~0.2", "beta:~0.5", "beta:~0.8"))
-levels(plotdat$Model)<-c("a", "b", "c", "d", "e")
+categorical<-condnames
+
+plotdat[, (categorical) := lapply(.SD, factor), .SDcols=categorical] #make conditions factors
+plotdat$tau2 <- factor(plotdat$tau2, labels = c("tau^2:~.00", "tau^2:~.04", "tau^2:~.1")) #change value names for tau2
+plotdat$es <- factor(plotdat$es, labels = c("beta:~0","beta:~0.2", "beta:~0.5", "beta:~0.8")) #for effect size
+
+table(analyzedat$model) #there are 4 models, denote them with a, b, c and d
+levels(plotdat$Model)<-c("a", "b", "c", "d")
+
 table(plotdat$power)
+library(ggplot2)
 thisplot <- ggplot(plotdat, aes(x=n, y=k, fill = power)) +
   geom_raster(hjust = 0, vjust = 0)+
   facet_grid(Model+M ~ es+tau2, labeller = labeller(es = label_parsed, tau2 = label_parsed, Model=label_both, M = label_both))+
@@ -242,6 +246,7 @@ thisplot <- ggplot(plotdat, aes(x=n, y=k, fill = power)) +
 #theme(legend.title = element_blank()) +
 #thisplot+annotate("text", label = "p[mf<mc]", parse=TRUE)
 
+#have to adapts width and height
 ggsave("power_plot.pdf", plot=thisplot, device="pdf", width=210, height=297, units="mm")
 
 #Percentage table
@@ -250,10 +255,13 @@ powertmp <- analyzedat[model==1,lapply(.SD, function(x){sum(x < 0)/length(x)}),b
 power <- rbindlist(list(powertmp, power))
 
 power <- power
-power <- melt(power, measure.vars = c("mf_test_r2", "ca_test_r2"))
+power <- melt(power, measure.vars = c("mf_r_test_r2", "lasso_test_r2")) #melt() makes wide to long format for data.table, but
+#only for the measure.vars
 
-tmp <- dcast(power, model+moderators+residual_heterogeneity~variable+ es + k_studies + mean_study_n)
-write.csv(tmp, "study1 power.csv")
+tmp <- dcast(power, model+moderators+tau2~variable+ es + k_train + mean_n + alpha_mod) #dcast() is wide to long
+#the conditoins on the left side of the formula remain in long format, while the conditions on the right side will
+#be put in variable names and thus wide format
+write.csv(tmp, "study1 power.csv") #writes tmp to excel file .csv format
 
 ###################################################
 #               R-squared plots                   #
@@ -495,25 +503,28 @@ coef.table<-etasqs
 names(coef.table)<-yvars
 
 table.names<-row.names(coef.table)
-table.names<-gsub("_studies", "", table.names)
-table.names<-gsub("moderators", "M", table.names)
-table.names<-gsub("residual_heterogeneity", "$\\tau^2$", table.names)
-table.names<-gsub("es", "$\\beta$", table.names)
-table.names<-gsub("mean_study_n", "$\\mean{n}$", table.names)
-table.names<-gsub("model", "Model ", table.names)
+#table.names<-gsub("_studies", "", table.names)
+#table.names<-gsub("moderators", "M", table.names)
+#table.names<-gsub("residual_heterogeneity", "$\\tau^2$", table.names)
+#table.names<-gsub("es", "$\\beta$", table.names)
+#table.names<-gsub("mean_study_n", "$\\mean{n}$", table.names)
+#table.names<-gsub("model", "Model ", table.names)
 
 row.names(coef.table)<-table.names
-names(coef.table)<-c("MetaForest", "CA importance")
+names(coef.table)<-c("Horseshoe", "Lasso", "Metaforest", "RMA")
 
-study1.coef.table<-coef.table
-sink("output.txt", append = TRUE)
-study1.coef.table
-sink()
+
+write.csv(coef.table, file =  "EtaSq_testR2.csv")
+#sink("output.txt", append = TRUE)
+#sink()
 
 library(xtable)
+print(xtable(coef.table), file="EtaSq_testR2.tex",sanitize.text.function=function(x){x})
 
-print(xtable(study1.coef.table), file="table_study1_importance.tex",sanitize.text.function=function(x){x})
 
+#save.image("Analysis_Data.RData")
+###### TOT HIER GECHEKT ELI 2021 #####
+load("Analysis_Data.RData")
 
 #Standardize importances
 plotdat<-res
