@@ -72,7 +72,7 @@ pre_analysis <- function(subdat = analyzedat, lb = -Inf, ub = Inf){ #lb = lowerb
     plot(density(col_obs),
          main = paste0('histogram of ', colnames(subdat)[column]),
          xlab = paste0('proportion impossible values: ', round(prop.impvals, 3)),
-         xlim = c(-30,1)
+         #xlim = c(-30,1)
          )
   }
   print(psych::describe(subdat[,(lc+1):ncol(subdat)])) #print descriptives of chains
@@ -84,15 +84,41 @@ pre_analysis(analyzedat_test, lb = 0 , ub = 1) #both hs and lasso have ~55% of r
 #although both mf and rma also contain impossible values.
 
 #note that no algorithms produces r2 above 1, but the lowest value for rma is -0.33, so lets take that as a reference
-sum(analyzedat_test$hs_test_r2 < -0.02) / nrow(analyzedat_test) #31.2%
+sum(analyzedat_train$hs_train_r2 < -1) / nrow(analyzedat_train) #34.2%
+sum(analyzedat_train$lasso_train_r2 < -1) / nrow(analyzedat_train) #9%
 #more severe outliers
 sum(analyzedat_test$hs_test_r2 < -1) / nrow(analyzedat_test) #still 23%
+sum(analyzedat_test$lasso_test_r2 < -1) / nrow(analyzedat_test) #still 23%
+
 
 #Which conditions show most of these problems?
 #create 1 if r2 < -0.05
-analyzedat_test$hs_fault <- ifelse(analyzedat_test$hs_test_r2 < -0.05, 1, 0)
-analyzedat_test$lasso_fault <- ifelse(analyzedat_test$lasso_test_r2 < -0.05, 1, 0)
 
+cre_tab <- function(lb){
+  analyzedat_test$lasso_fault <- ifelse(analyzedat_test$lasso_test_r2 < lb, 1, 0) #for lasso
+  analyzedat_test$hs_fault <- ifelse(analyzedat_test$hs_test_r2 < lb, 1, 0) #give 1 or zero dependend on if lowerbound is exceeded
+  prop_same <- sum(analyzedat_test$hs_fault == analyzedat_test$lasso_fault) / nrow(analyzedat_test)
+  conditions_lasso <- analyzedat_test[analyzedat_test$lasso_fault == 1, ] #subset for when newly created var = 1
+  conditions_hs <- analyzedat_test[analyzedat_test$hs_fault == 1, ]
+  conditions_lasso <- as.data.frame(conditions_lasso) #convert to df
+  conditions_hs <- as.data.frame(conditions_hs)
+  table_lasso <- apply(conditions_lasso[,conditions], 2, table) #create tables
+  table_hs <- apply(conditions_hs[,conditions], 2, table)
+  print(paste0("proportion of cases that go wrong for both PEMA's: ", round(prop_same, 3)))
+  return(list(table_lasso = table_lasso, table_hs = table_hs))
+}
+
+analyzedat_test$lasso_fault <- ifelse(analyzedat_test$lasso_test_r2 < -0.33, 1, 0) #for lasso
+analyzedat_test$hs_fault <- ifelse(analyzedat_test$hs_test_r2 < -0.33, 1, 0)
+sum(analyzedat_test$hs_fault == analyzedat_test$lasso_fault) / nrow(analyzedat_test) #almost all cases (99%)
+#where lasso goes wrong, horseshoe also goes wrong
+
+lowerbounds<- c(0, -0.33, -1, -10, -20)
+MOAL <- list()
+for(i in 1:length(lowerbounds)){
+  MOAL[[i]] <- cre_tab(lowerbounds[i]) #creates list containing table for specific lowerbounds
+}
+names(MOAL) <- as.character(lowerbounds)
 
 # run logistic regression on lasso, takes a while
 # logreglasso <- glm(paste("lasso_fault", '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2")
@@ -110,9 +136,6 @@ saveRDS(dfloglasso, file = 'logistic_reg_lasso.RData')
 
 
 
-#subsetting data for when r2 < 0.05
-conditions_lasso <- analyzedat_test[analyzedat_test$lasso_fault == 1, ]
-conditions_lasso <- as.data.frame(conditions_lasso)
 
 
 ########################################
