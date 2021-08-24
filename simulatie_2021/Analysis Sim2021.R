@@ -71,7 +71,9 @@ pre_analysis <- function(subdat = analyzedat, lb = -Inf, ub = Inf){ #lb = lowerb
     prop.impvals <- sum(col_obs < lb | col_obs > ub) / length(col_obs) #proportion of theoretically impossible values
     plot(density(col_obs),
          main = paste0('histogram of ', colnames(subdat)[column]),
-         xlab = paste0('proportion impossible values: ', round(prop.impvals, 3)))
+         xlab = paste0('proportion impossible values: ', round(prop.impvals, 3)),
+         xlim = c(-30,1)
+         )
   }
   print(psych::describe(subdat[,(lc+1):ncol(subdat)])) #print descriptives of chains
 }
@@ -81,6 +83,36 @@ pre_analysis(analyzedat_train, lb = 0 , ub = 1) #chains fo rma and mf look fine,
 pre_analysis(analyzedat_test, lb = 0 , ub = 1) #both hs and lasso have ~55% of r2 value that should be impossible to obtain.
 #although both mf and rma also contain impossible values.
 
+#note that no algorithms produces r2 above 1, but the lowest value for rma is -0.33, so lets take that as a reference
+sum(analyzedat_test$hs_test_r2 < -0.02) / nrow(analyzedat_test) #31.2%
+#more severe outliers
+sum(analyzedat_test$hs_test_r2 < -1) / nrow(analyzedat_test) #still 23%
+
+#Which conditions show most of these problems?
+#create 1 if r2 < -0.05
+analyzedat_test$hs_fault <- ifelse(analyzedat_test$hs_test_r2 < -0.05, 1, 0)
+analyzedat_test$lasso_fault <- ifelse(analyzedat_test$lasso_test_r2 < -0.05, 1, 0)
+
+
+# run logistic regression on lasso, takes a while
+# logreglasso <- glm(paste("lasso_fault", '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2")
+# , data = analyzedat_test, family = 'binomial')
+
+library(broom)
+dfloglasso <- tidy(logreglasso)
+dfloglasso <- na.omit(dfloglasso)
+dfloglasso$positive <- ifelse(dfloglasso$estimate > 0, 1, 0)
+dfloglasso$sig <- ifelse(dfloglasso$p.value < 0.001, 1, 0)
+relevant_cond <- dfloglasso[dfloglasso$positive == 1 & dfloglasso$sig == 1,]
+saveRDS(dfloglasso, file = 'logistic_reg_lasso.RData')
+### ---- subset for positive coefficients to see whih wan increase the odds of R > 0.05
+### --- also subset for when pvalue < 0.001
+
+
+
+#subsetting data for when r2 < 0.05
+conditions_lasso <- analyzedat_test[analyzedat_test$lasso_fault == 1, ]
+conditions_lasso <- as.data.frame(conditions_lasso)
 
 
 ########################################
