@@ -13,11 +13,9 @@ lc <- length(conditions) #length of conditions, handy for further code
 analyzedat_train <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_train_r2"))]
 analyzedat_test <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_test_r2"))]
 
-
 #converts the condition variables to factors
 analyzedat_train[, c(1:lc):=lapply(.SD, factor), .SDcols=c(1:7)]
 analyzedat_test[, c(1:lc):=lapply(.SD, factor), .SDcols=c(1:7)]
-
 
 setwd("./simulatie_2021")
 #sink("output.txt") #makes connection with a .txt file, use it later
@@ -47,19 +45,19 @@ analyzedat_train <- na.omit(analyzedat_train)
 analyzedat_test <- na.omit(analyzedat_test)
 
 #obtain mean and standard deviations
-mean_sd <- function(df){
-  tmp<-rbind(round(df[, lapply(.SD, mean), .SDcols=c((lc+1):ncol(df))], 2),
-             round(df[, lapply(.SD, sd), .SDcols=c((lc+1):ncol(df))], 2))
-  tmp<-data.frame(names(tmp), t(tmp))
-  apply(tmp, 1, function(x){paste(x, collapse=", ")})
-  colnames(tmp) <- c('alg', 'mean', 'sd')
-  return(tmp)
-}
-tmp_train <- mean_sd(analyzedat_train)
-View(tmp_train)
-
-tmp_test <- mean_sd(analyzedat_test)
-View(tmp_test)
+# mean_sd <- function(df){
+#   tmp<-rbind(round(df[, lapply(.SD, mean), .SDcols=c((lc+1):ncol(df))], 2),
+#              round(df[, lapply(.SD, sd), .SDcols=c((lc+1):ncol(df))], 2))
+#   tmp<-data.frame(names(tmp), t(tmp))
+#   apply(tmp, 1, function(x){paste(x, collapse=", ")})
+#   colnames(tmp) <- c('alg', 'mean', 'sd')
+#   return(tmp)
+# }
+# tmp_train <- mean_sd(analyzedat_train)
+# View(tmp_train)
+#
+# tmp_test <- mean_sd(analyzedat_test)
+# View(tmp_test)
 
 #this functions plots densities for the chains and provides descriptives
 pre_analysis <- function(subdat = analyzedat, lb = -Inf, ub = Inf){ #lb = lowerbound, ub = upperbound for the boundaries of impossible values
@@ -84,9 +82,9 @@ pre_analysis(analyzedat_test, lb = 0 , ub = 1) #both hs and lasso have ~55% of r
 #although both mf and rma also contain impossible values.
 
 #note that no algorithms produces r2 above 1, but the lowest value for rma is -0.33, so lets take that as a reference
-sum(analyzedat_train$hs_train_r2 < -1) / nrow(analyzedat_train) #34.2%
-sum(analyzedat_train$lasso_train_r2 < -1) / nrow(analyzedat_train) #9%
-#more severe outliers
+sum(analyzedat_train$hs_train_r2 < -0.33) / nrow(analyzedat_train) #34.2%
+sum(analyzedat_train$lasso_train_r2 < -0.33) / nrow(analyzedat_train) #9%
+#for test data
 sum(analyzedat_test$hs_test_r2 < -1) / nrow(analyzedat_test) #still 23%
 sum(analyzedat_test$lasso_test_r2 < -1) / nrow(analyzedat_test) #still 23%
 
@@ -94,12 +92,23 @@ sum(analyzedat_test$lasso_test_r2 < -1) / nrow(analyzedat_test) #still 23%
 #Which conditions show most of these problems?
 #create 1 if r2 < -0.05
 
-cre_tab <- function(lb){
-  analyzedat_test$lasso_fault <- ifelse(analyzedat_test$lasso_test_r2 < lb, 1, 0) #for lasso
-  analyzedat_test$hs_fault <- ifelse(analyzedat_test$hs_test_r2 < lb, 1, 0) #give 1 or zero dependend on if lowerbound is exceeded
-  prop_same <- sum(analyzedat_test$hs_fault == analyzedat_test$lasso_fault) / nrow(analyzedat_test)
-  conditions_lasso <- analyzedat_test[analyzedat_test$lasso_fault == 1, ] #subset for when newly created var = 1
-  conditions_hs <- analyzedat_test[analyzedat_test$hs_fault == 1, ]
+cre_tab <- function(ToTr, lb){
+
+  if(ToTr == 'train'){
+    df <- analyzedat_train
+    las <- 'lasso_train_r2'
+    hs <- 'hs_train_r2'
+  } else{
+    df <- analyzedat_test
+    las <- 'lasso_test_r2'
+    hs <- 'hs_test_r2'
+  }
+  df <- as.data.frame(df)
+  df$lasso_fault <- ifelse(df[,las] < lb, 1, 0) #for lasso
+  df$hs_fault <- ifelse(df[,hs] < lb, 1, 0) #give 1 or zero dependend on if lowerbound is exceeded
+  prop_same <- sum(df$hs_fault == df$lasso_fault) / nrow(df)
+  conditions_lasso <- df[df$lasso_fault == 1, ] #subset for when newly created var = 1
+  conditions_hs <- df[df$hs_fault == 1, ]
   conditions_lasso <- as.data.frame(conditions_lasso) #convert to df
   conditions_hs <- as.data.frame(conditions_hs)
   table_lasso <- apply(conditions_lasso[,conditions], 2, table) #create tables
@@ -108,31 +117,40 @@ cre_tab <- function(lb){
   return(list(table_lasso = table_lasso, table_hs = table_hs))
 }
 
-analyzedat_test$lasso_fault <- ifelse(analyzedat_test$lasso_test_r2 < -0.33, 1, 0) #for lasso
-analyzedat_test$hs_fault <- ifelse(analyzedat_test$hs_test_r2 < -0.33, 1, 0)
-sum(analyzedat_test$hs_fault == analyzedat_test$lasso_fault) / nrow(analyzedat_test) #almost all cases (99%)
-#where lasso goes wrong, horseshoe also goes wrong
-
-lowerbounds<- c(0, -0.33, -1, -10, -20)
-MOAL <- list()
+lowerbounds<- c(0, -0.33, -1, -10, -20) #lowerbounds to test against
+MOAL_train <- list() #create memeory
+MOAL_test <- list() #create memeory
 for(i in 1:length(lowerbounds)){
-  MOAL[[i]] <- cre_tab(lowerbounds[i]) #creates list containing table for specific lowerbounds
+  MOAL_train[[i]] <- cre_tab('train', lowerbounds[i]) #creates list containing table for specific lowerbounds
+  MOAL_test[[i]] <- cre_tab('test', lowerbounds[i]) #creates list containing table for specific lowerbounds
 }
-names(MOAL) <- as.character(lowerbounds)
+
+# give appropriate names to everything
+names(MOAL_train) <- as.character(lowerbounds)
+names(MOAL_test) <- as.character(lowerbounds)
+saveRDS(c(MOAL_test, MOAL_train), file = 'lists_faultyR2.RData')
+
+# for(i in 1:3){
+#   names(MOAL_test[[i]][["table_lasso"]][["model"]]) <- c("1", "2", "3", "4")
+#   names(MOAL_test[[i]][["table_hs"]][["model"]]) <- c("1", "2", "3", "4")
+# }
+# names(MOAL[["-10"]][["table_lasso"]][["model"]]) <- c("1", "3", "4")
+# names(MOAL[["-20"]][["table_lasso"]][["model"]]) <- c("1", "3")
+# names(MOAL[["-10"]][["table_hs"]][["model"]]) <- c("1", "3", "4")
+# names(MOAL[["-20"]][["table_hs"]][["model"]]) <- c("1", "3")
 
 # run logistic regression on lasso, takes a while
 # logreglasso <- glm(paste("lasso_fault", '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2")
 # , data = analyzedat_test, family = 'binomial')
 
-library(broom)
-dfloglasso <- tidy(logreglasso)
-dfloglasso <- na.omit(dfloglasso)
-dfloglasso$positive <- ifelse(dfloglasso$estimate > 0, 1, 0)
-dfloglasso$sig <- ifelse(dfloglasso$p.value < 0.001, 1, 0)
-relevant_cond <- dfloglasso[dfloglasso$positive == 1 & dfloglasso$sig == 1,]
-saveRDS(dfloglasso, file = 'logistic_reg_lasso.RData')
-### ---- subset for positive coefficients to see whih wan increase the odds of R > 0.05
-### --- also subset for when pvalue < 0.001
+# library(broom)
+# summary(logreglasso)
+# dfloglasso <- tidy(logreglasso)
+# dfloglasso <- na.omit(dfloglasso)
+# dfloglasso$positive <- ifelse(dfloglasso$estimate > 0, 1, 0)
+# dfloglasso$sig <- ifelse(dfloglasso$p.value < 0.001, 1, 0)
+# relevant_cond <- dfloglasso[dfloglasso$positive == 1 & dfloglasso$sig == 1,]
+# saveRDS(dfloglasso, file = 'logistic_reg_lasso.RData')
 
 
 
