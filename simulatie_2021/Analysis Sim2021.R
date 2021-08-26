@@ -130,6 +130,27 @@ names(MOAL_train) <- as.character(lowerbounds)
 names(MOAL_test) <- as.character(lowerbounds)
 saveRDS(c(MOAL_test, MOAL_train), file = 'lists_faultyR2.RData')
 
+Traceplot <- function(test, train, param, alg){
+  plot(x = 1:length(test), y = test, type = 'n', main = paste('Traceplot Test and Train', param , ' for', alg), xlab = 'iterations', ylab = paste('values for ', param)) #empty plot with correct dimensions for the traced values
+  lines(x = 1:length(test),  y = test, col = 'red') #superimpose traced values for testing r2
+  lines(x= 1: length(train), y = train, col = 'blue') #superimpose traced values for training r2
+  legend('bottomleft', c('Train R2', 'Test R2'), lty = 1, col = c('blue', 'red'), bg = 'white') #add informative legend
+}
+
+Traceplot(analyzedat_test$rma_test_r2, analyzedat_train$rma_train_r2, "R2", "RMA") #looks okay
+Traceplot(analyzedat_test$mf_r_test_r2, analyzedat_train$mf_r_train_r2, "R2", "Metaforest") #also looks okay
+Traceplot(analyzedat_test$lasso_test_r2, analyzedat_train$lasso_train_r2, "R2", "Lasso") #most problems in iterations 200K - 300K
+Traceplot(analyzedat_test$hs_test_r2, analyzedat_train$hs_train_r2, "R2", "Horseshoe") #most problems in middle range too
+
+analyzetest_mid <- analyzedat_test[200000:300000,]
+analyzetest_mid <- as.data.frame(analyzetest_mid)
+ttmid <- apply(analyzetest_mid[,conditions], 2, table)
+
+analyzetest_end <- analyzedat_test[c(80000:100000, 180000:200000, 280000:300000, 350000:288783),]
+analyzetest_end <- as.data.frame(analyzetest_end)
+ttend <- apply(analyzetest_end[,conditions], 2, table)
+
+###MISS
 # for(i in 1:3){
 #   names(MOAL_test[[i]][["table_lasso"]][["model"]]) <- c("1", "2", "3", "4")
 #   names(MOAL_test[[i]][["table_hs"]][["model"]]) <- c("1", "2", "3", "4")
