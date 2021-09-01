@@ -129,7 +129,7 @@ model_accuracy <-
 pred_brma <- function(x, data = NULL, ...){
 # Prepare data ------------------------------------------------------------
   if(is.null(data)){
-    X <- fit$X
+    X <- x$X
   } else {
     df <- data.frame(yi = 1, data) #I changed df <- data to df <- data.frame(yi=1, data)
     if(!is.null(x[["vi_column"]])){
@@ -153,6 +153,6 @@ pred_brma <- function(x, data = NULL, ...){
   coefs <- coefs[startsWith(names(coefs), "betas[")]
 
 # Produce prediction ------------------------------------------------------
-  int + rowSums(X * outer(rep.int(1L, nrow(X)), coefs))
+  int + rowSums(X[,-1] * outer(rep.int(1L, nrow(X)), coefs)) # Note! The intercept was still included in X
 }
 
