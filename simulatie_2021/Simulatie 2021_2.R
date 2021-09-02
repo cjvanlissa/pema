@@ -33,15 +33,15 @@ source("./simulatie_2021/functions for simulation/model_accuracy.R")
 #set conditions for simulation
 hyper_parameters<-list(
   #Number of datasets per condition
-  ndataset=2,
+  ndataset=1:100,
   #Number of studies per dataset, normally distributed with mean n and sd n/3
-  k_train=c(20, 40),
+  k_train=c(20, 40, 100),
   #Average n per study (k)
-  mean_n=c(40, 80),
+  mean_n=c(40, 80, 160),
   #Effect size
-  es=c(.2, .5),
+  es = c(0, .2, .5, .8),
   #Residual heterogeneity
-  tau2=c(0, .04),
+  tau2=c(0, .04, .1),
   # Slant parameter alpha
   alpha_tau = c(0),
   alpha_mod = c(0, 2, 10),
@@ -55,10 +55,9 @@ hyper_parameters<-list(
   distribution = "sn"
 )
 
-
-
 # Create grid with simulation parameters and save it
 summarydata <- expand.grid(hyper_parameters, stringsAsFactors = FALSE)
+
 # Add moderators so there's always sufficient predictors
 summarydata$moderators <-  summarydata$moderators + c(1, 2, 1, 1)[factor(summarydata$model, levels = c("es * x[, 1]",
                                                                                                        "es * x[, 1] + es * x[, 2] + es * (x[, 1] * x[, 2])",
@@ -86,7 +85,7 @@ library(doSNOW)
 
 set.seed(78326)
 library(foreach)
-cl<-makeCluster(10) #change the 2 to your number of CPU cores
+cl<-makeCluster(40) #change the 2 to your number of CPU cores
 registerDoSNOW(cl)
 
 # f <- list.files("./simulatie_2021/results", full.names = TRUE)
@@ -188,7 +187,7 @@ foreach(rownum = 1:nrow(summarydata), .packages = c("pema", "sn", "metaforest", 
           ymean = mean(data$training$yi)
         ),
         tau2 = mean(models$fit@sim$samples[[1]]$`sd_1[1]`),
-        beta1 = mean(models$fit@sim$samples[[1]]$betas[1]),
+        beta1 = mean(models$fit@sim$samples[[1]]$`betas[1]`),
         divergent = {
           np = nuts_params(models$fit); sum(np$Parameter == "divergent__" & np$Value == 1)
         },
@@ -236,7 +235,7 @@ foreach(rownum = 1:nrow(summarydata), .packages = c("pema", "sn", "metaforest", 
           ymean = mean(data$training$yi)
         ),
         tau2 = mean(models$fit@sim$samples[[1]]$`sd_1[1]`),
-        beta1 = mean(models$fit@sim$samples[[1]]$betas[1]),
+        beta1 = mean(models$fit@sim$samples[[1]]$`betas[1]`),
         divergent = {
           np = nuts_params(models$fit); sum(np$Parameter == "divergent__" & np$Value == 1)
         },
@@ -271,7 +270,7 @@ stop("End of simulation")
 
 # Merge files -------------------------------------------------------------
 library(data.table)
-data <- as.data.table(readRDS(list.files(pattern = "summarydata")))
+res <- as.data.table(readRDS(list.files(pattern = "summarydata")))
 
 model_names <- unique(gsub("_fits_\\d+.RData", "", list.files(pattern="fits", all.files=FALSE, full.names=FALSE)))
 
@@ -331,19 +330,19 @@ for(mod in names(fit_vars)){
   f <- list.files("./simulatie_2021/results", pattern = paste0("^", mod, "_\\d"), full.names = TRUE)
   tab <- fread_many(f)
   setorderv(tab, cols = "V1", order=1L, na.last=FALSE)
-  if(!(tab$V1[1] == 1 & tail(tab$V1, 1) == nrow(data) & length(unique(tab$V1)) == nrow(data))){
+  if(!(tab$V1[1] == 1 & tail(tab$V1, 1) == nrow(res) & length(unique(tab$V1)) == nrow(res))){
     stop()
   }
   names(tab) <- fit_vars[[mod]]
   tab[, "rownum" := NULL]
-  data <- cbind(data, tab)
+  res <- cbind(res, tab)
 }
 
 for(mod in names(fit_vars)){
   f <- list.files("./simulatie_2021/results", pattern = paste0("^", mod, "_sel_\\d"), full.names = TRUE)
   tab <- fread_many(f)
   setorderv(tab, cols = "V1", order=1L, na.last=FALSE)
-  if(!(tab$V1[1] == 1 & tail(tab$V1, 1) == nrow(data) & length(unique(tab$V1)) == nrow(data))){
+  if(!(tab$V1[1] == 1 & tail(tab$V1, 1) == nrow(res) & length(unique(tab$V1)) == nrow(res))){
     stop()
   }
   tab[, "V1" := NULL]
@@ -352,16 +351,16 @@ for(mod in names(fit_vars)){
   } else {
     names(tab) <- paste0(mod, "_sel_", 1:ncol(tab))
   }
-  data <- cbind(data, tab)
+  res <- cbind(res, tab)
 }
 
-
-saveRDS(data, paste0("sim_results_", Sys.Date(), ".RData"))
+fwrite(res, file.path("simulatie_2021", paste0("sim_results_", Sys.Date(), ".csv")))
+saveRDS(res, file.path("simulatie_2021", paste0("sim_results_", Sys.Date(), ".RData")))
 f <- list.files("./simulatie_2021/results", full.names = TRUE)
 file.remove(f)
 
 # Delete alle variabelen waar jij niets mee hoeft
-data[, grep("(_train_r2|_r|_mse)$", names(data), value = TRUE) := NULL]
+res[, grep("(_train_r2|_r|_mse)$", names(res), value = TRUE) := NULL]
 
 
 # Tot hier is alles gekuisd -----------------------------------------------
@@ -762,13 +761,13 @@ for(i in 1:length(plots)){
 #
 #Merge files
 #
-data<-data.table(readRDS(list.files(pattern = "summarydata")))
+res<-data.table(readRDS(list.files(pattern = "summarydata")))
 
 n_chunks<-400
 chunk_length<-405
 
 
-data[,c(paste("mf_V", c(1:20), sep="")):=double() ]
+res[,c(paste("mf_V", c(1:20), sep="")):=double() ]
 
 for(i in 1:n_chunks){
   fileName<-paste0(c("metaforest_importance_", i, ".RData"), collapse="")
@@ -776,12 +775,12 @@ for(i in 1:n_chunks){
     imp.values<-readRDS(fileName)
     imp.values<-lapply(imp.values, function(x){c(x, rep(NA, 20-length(x)))})
     imp.values<-as.data.table(t(do.call(cbind, imp.values)))
-    set(x=data, i=(1+((i-1)*chunk_length)):(i*chunk_length), j=c(paste("mf_V", c(1:20), sep="")), value=imp.values)
+    set(x=res, i=(1+((i-1)*chunk_length)):(i*chunk_length), j=c(paste("mf_V", c(1:20), sep="")), value=imp.values)
   }
 }
 
 #Metacart
-data[,c(paste("ca_V", c(1:20), sep="")):=double() ]
+res[,c(paste("ca_V", c(1:20), sep="")):=double() ]
 for(i in 1:n_chunks){
   fileName<-paste0(c("cart_importance_", i, ".RData"), collapse="")
   if (file.exists(fileName)){
@@ -797,9 +796,9 @@ for(i in 1:n_chunks){
   }
 }
 
-data[,nvars:=moderators]
-for(nv in as.numeric(names(table(data$nvars)))[-3]){
-  set(data, i=which(data$nvars==nv), j=c((min(grep("^ca_V", names(data)))+nv):max(grep("^ca_V", names(data)))), value=NA)
+res[,nvars:=moderators]
+for(nv in as.numeric(names(table(res$nvars)))[-3]){
+  set(res, i=which(res$nvars==nv), j=c((min(grep("^ca_V", names(res)))+nv):max(grep("^ca_V", names(res)))), value=NA)
 }
 
 
@@ -810,7 +809,7 @@ yvars<-list("mf_V1", "ca_V1")
 
 anovas<-lapply(yvars, function(yvar){
   form<-paste(yvar, "(es + residual_heterogeneity + k_studies + mean_study_n + moderators + model) ^ 2", sep="~")
-  thisaov<-aov(as.formula(form), data=data)
+  thisaov<-aov(as.formula(form), data=res)
   thisetasq<-EtaSq(thisaov)[ , 2]
   list(thisaov, thisetasq)
 })
@@ -844,7 +843,7 @@ print(xtable(study1.coef.table), file="table_study1_importance.tex",sanitize.tex
 
 
 #Standardize importances
-plotdat<-data
+plotdat<-res
 
 for(var in c("mf", "ca")){
   plotdat[, imp.sum := rowSums(abs(.SD), na.rm=TRUE), .SDcols=grep(paste0("^", var, "_V"), names(plotdat), value = TRUE)]
@@ -897,33 +896,33 @@ for(i in 1:length(plots)){
 #
 #Merge files
 #
-data<-data.table(readRDS(list.files(pattern = "summarydata")))
+res<-data.table(readRDS(list.files(pattern = "summarydata")))
 
 n_chunks<-400
 chunk_length<-405
 
 ###Read files
 #Metaforest
-data[,c("tau2"):=double() ]
+res[,c("tau2"):=double() ]
 
 for(i in 1:n_chunks){
   #i=279
   fileName<-paste0(c("res_tau2s_", i, ".RData"), collapse="")
   if (file.exists(fileName)){
     imp.values<-unlist(readRDS(fileName))
-    set(x=data, i=(1+((i-1)*chunk_length)):(i*chunk_length), j=c("tau2"), value=imp.values)
+    set(x=res, i=(1+((i-1)*chunk_length)):(i*chunk_length), j=c("tau2"), value=imp.values)
   }
 }
 
 
-anovas <- aov(tau2 ~ (es + residual_heterogeneity + k_studies + mean_study_n + moderators + model) ^ 2, data=data)
+anovas <- aov(tau2 ~ (es + residual_heterogeneity + k_studies + mean_study_n + moderators + model) ^ 2, data=res)
 etasqs <- EtaSq(anovas)[ , 2]
 etasqs <- formatC(etasqs, 2, format="f")
 
 coef.table<-etasqs
 names(coef.table)<-yvars
 
-plotdat <- data
+plotdat <- res
 names(plotdat)[2:8]<-c("k", "n", "es", "tau2", "Moderators", "Model", "tau2_est")
 
 plotdat[, c(2:7) := lapply(.SD, factor), .SDcols=c(2:7)]
