@@ -1,6 +1,7 @@
 ^pema\.Rproj$
 ^\.Rproj\.user$
 dev/
+paper/
 ^\.travis\.yml
 ^\.github$
 ^simulatie_2021$

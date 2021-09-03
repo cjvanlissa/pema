@@ -1,0 +1,220 @@
+---
+title             : "Select relevant moderators in meta-regression using Bayesian penalization"
+shorttitle        : "Title"
+
+author:
+  - name: "Caspar J. Van Lissa"
+    affiliation: "1,2"
+    corresponding: yes
+    address: "Padualaan 14, 3584CH Utrecht, The Netherlands"
+    email: "c.j.vanlissa@uu.nl"
+    role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
+      - Conceptualization
+      - Writing - Original Draft Preparation
+      - Writing - Review & Editing    
+  - name: "Andreas M. Brandmaier"
+    affiliation: "3,4"
+    
+
+  - name          : "Ernst-August Doelle"
+    affiliation   : "1,2"
+    role:
+      - Writing - Review & Editing
+
+affiliation:
+  - id            : "1"
+    institution   : "Wilhelm-Wundt-University"
+  - id            : "2"
+    institution   : "Konstanz Business School"
+
+authornote: |
+  Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
+
+  Enter author note here.
+
+abstract: |
+  One or two sentences providing a **basic introduction** to the field,  comprehensible to a scientist in any discipline.
+  
+  Two to three sentences of **more detailed background**, comprehensible  to scientists in related disciplines.
+  
+  One sentence clearly stating the **general problem** being addressed by  this particular study.
+  
+  One sentence summarizing the main result (with the words "**here we show**" or their equivalent).
+  
+  Two or three sentences explaining what the **main result** reveals in direct comparison to what was thought to be the case previously, or how the  main result adds to previous knowledge.
+  
+  One or two sentences to put the results into a more **general context**.
+  
+  Two or three sentences to provide a **broader perspective**, readily comprehensible to a scientist in any discipline.
+  
+  <!-- https://tinyurl.com/ybremelq -->
+  
+keywords          : "keywords"
+wordcount         : "X"
+
+bibliography      : ["r-references.bib"]
+
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+---
+
+```{r setup, include = FALSE}
+library("papaja")
+r_refs("r-references.bib")
+```
+
+```{r analysis-preferences}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+
+Skeleton lasso/pema paper
+1.) What is Meta-analysis?
+2.) What is meta-regression and how does it complement meta-analysis?
+	a.) Introduce Moderators
+	b.) Study Heterogeneity + Random Sampling Error (and their difference)	
+2.5.) Fixed vs. random effects
+	a.) Shortcomings of fixed effect models
+3.) Shortcomings of current meta regressions w.r.t. estimating coefficients and heterogeneity:
+	a.) Small sample size / overfitting
+	b.) Non-normal data
+4.) Various methods to estimate heterogeneity (and coefficients)
+	a.) The use of WLS and REML
+5.) Intro to Frequentist linear methods/Bayesian methods and Random forests, along with their 
+(dis-)advantages:
+	a.) Rma: uses WLS for estimation
+	b.) MetaForest (Random Effects): Uses Random Forest Algorithm
+	c.) Lasso Pema: uses penalized Lasso
+	d.) Horseshoe Pema: uses horseshoe priors
+6.) Goal of the current study
+7.) Means of attaining goal and evaluation of performance:
+	a.) simulation study
+	b.) algorithmic performance
+	c.) design factors
+	d.) Impact of design factors on algorithim performance
+	e.) Hypotheses of algorithmic performances
+
+
+colour coding: I colour coded the text as to know from which file the text is copied
+GREEN = derived from ‘Thesis_Metaforest’
+BLUE = Thesis_lasso
+BLACK = internship_report
+RED = Inserted myself
+Short Introduction to the study
+Meta-analysis is a statistical method which utilizes several tools to synthesize the data of multiple studies on the same topic, with the purpose of finding a result that is more trustworthy. What meta-analysis does is simply weighting all the observed effect sizes of the individual studies and averaging them to one summary effect. Although this explanation is a bit too simplistic, in essence this is what meta-analysis is about. Meta-analysis assigns weights to each individual study based on different assumptions which are set in advance. These weights determine to what extent an individual study takes part in the eventual summary effect. 
+Nevertheless, a serious concern is heterogeneity that is included between the studies in meta-analysis, which is caused due to clinical and/or methodological diversity. Heterogeneity causes a challenge to aggregate data, but it also offers a way to find characteristics of a study or “moderators” that could have impact on the found effect size.
+The process of examining the relationship between study characteristics and the effect sizes is most often done by a meta-regression (Viechtbauer & López-López, 2015). Meta-regression aims to relate the size of the effect to one or more characteristics of the studies involved. As multiple regression is used to assess the relationship between subject-level covariates and an outcome, meta-regression in meta-analysis is used to assess the relationship between study-level covariates and the effect size.
+However, when performing such an analysis, a lot of moderators are measured and it may be unclear which are relevant and which are not. There are a couple of reasons to explain this: Riley, Higgins & Deeks (2011) concluded that the number of studies is oftentimes overly small. As a result of this heterogeneity cannot be inspected accurately. Also, there is an insufficiency in regard to techniques to downgrade the amount of possible moderators to a feasible number (Thompson & Higgins, 2002). This results in a large amount of moderators to be examined and a low quantity of studies. These kinds of conditions do not have a solid fit and predictive power in the classic meta-analysis approaches (van Lissa, 2017). For this obstacle there is a variable selection technique needed, that identifies moderators as strong or weak influencers of the observed effect size.
+Thus, there is a need of a regularization method to curtail overfitting. LASSO (L1-norm regularization) can fulfill this role, since it has an advantage in terms of feature selection. The goal of this project is to implement L1-norm regularization in the weighted meta-regression, developing an new estimator for penalized meta-regression.
+More detailed explanation of methods and theoretical concepts
+
+
+Fixed vs Random effects
+The two classic approaches of meta-analysis refer to fundamental different assumptions made about the underlying data. These assumptions define the weights and will also determine which methods are used for the weighting of individual studies and for the creation a summary effect.
+The first approach is referred to as the as the fixed-effect model. This model assumes that each observed effect size, obtained from each individual study, is an estimate of an underlying true effect size (Hedges & Vevea, 1998). The true effect sizes are treated as, unknown, constants. The only source that causes the deviation of the observed effect from the, unknown, true effects is sampling error. Thus, for a collection of k studies, the observed effects size yi of each individual study i (for i = 1,2, . . . k) is given by:
+y_i=θ+ϵ_i  						(1)
+Where 𝜃 is the true effect size of each individual study i and 𝜖i follows the distribution of N(0 , vi) with vi being the sampling error or within-study variance, which is treated as a known factor.
+
+Fixed-effects meta-analysis considers sampling error to be the only cause of variance that influences the observed effect size. Studies with a large sample size will, as a result of this, produce more precise estimations of the underlying true effect size (Schmidt, Oh & Hayes, 2009). Therefore, large sample sizes will contribute more to the weighted mean than small sample sizes. With that said, fixed-effects weights are defined by van Lissa (2017): “as the reciprocal of the effect size variances”:
+			   W_i=  1/(σ_i^2 )						  (2)
+	For an accurate estimate of the fixed-effects meta-analysis model, it starts with the assumption that the true effect is even in al studies. However, this assumption is implausible in plenty of meta-analysis. Especially in social sciences, the behaviour of people is extremely diverse and the contextual conditions for all humans vary to a great degree (Aronson, Wilson & Akert, 2016). A highly likely consequence is that this will lead to a huge amount of possible moderators (Caserio, 2014). Also studies that examine same or similar research questions often differ. Caused by differences in for example cultures of research populations and used methods or instruments (Neuman, 2011). Even in replication studies there are sometimes moderators that are unanticipated (Kunert, 2016). This leads very often to an eventual poor performance of the fixed-effects meta-analysis model (Snijders, 2005). 
+The second model is the random-effects model. This approach makes an additional assumption, namely about the true effect sizes. Where the fixed-effect model treats the true effects as constants, the random-effect model assumes that the true effects are random and follow a distribution of their own (Hedges & Vevea, 1998). This means that variation in the observed effects (yi) in the random model incorporates not only the sampling error but also the variation of the true effect sizes (󠅵𝜏2) between the studies. In the case of the random effect model the observed effect size of yi is, given by:
+
+y_i= θ_i+ϵ_i 						(2)
+With 𝜖i ~ N(0 , vi) but, in this case 𝜃i on itself is given by:
+θ_i=μ+ζ_i 						(3)
+With 𝜇 being the mean of the distribution of the true effect sizes and 𝜁i following the distribution N(0 , 𝜏2) with 𝜏2 being the variance of the population of true effect sizes. It could also be explained as the variance between the individual studies. 
+However, in the case of random-effects, the true effects also follow a distribution, so therefore the between study variance is also taken into account when composing the weights for the individual studies. The individual weights for the random-effect model are given by:
+W_i=1/(v_i+τ ̂^2 )						(5)
+In the case of the random-effect model, the within-study- and between-study variance is necessary for the calculation of the weights. It is important to note that in the calculation of the individual weights, an estimation of study heterogeneity is used (τ ̂^2). While the sampling error is known for each individual study, the true effect heterogeneity (󠅵𝜏2) remains unknown. Therefore, an estimation of the heterogeneity value needs to be made to effectively calculate the weights. This estimation of the between-study variance is thus represented by τ ̂^2.
+
+Meta-regression
+In the case of fixed- and random-effect meta-analysis, the observed effects are treated as estimations of the underlying true effect. In meta-regression the observed effects are estimated by the including the moderators. In other words, the true effect is now replaced by the moderator effects. This is expressed with the following equation, where θ_i represents the underlying true effect, xi the moderators, βi the coefficients, with p being the number of moderators:
+θ_i=β_0+β_1 x_1+β_2 x_2+⋯+β_p x_p+ζ_i			(6)
+When this is substituted in the original equation it will result in:
+y_i=β_0+β_1 x_1+β_2 x_2+⋯+β_p x_p+ζ_i+ϵ_i			(7)
+The error term 𝜁i captures the residual heterogeneity after accounting for the moderators. This term is still included because it is often the case that there still remains heterogeneity unexplained after accounting for the moderators (Thompson & Sharp, 1999). In this model the moderator effects are treated as fixed and the residual heterogeneity as random. Therefore, it is referred to as a mixed-effect meta-regression analysis model, in short, ME-MRA (Viechtbauer & López-López, 2015). To solve this ME-MRA model, both the residual heterogeneity and the moderator coefficients need to be estimated. An accurate estimation of the residual heterogeneity contributes to a better interpretation of the effect of the moderators (Panityakul, Bumrungsup & Knapp, 2013).
+Estimating residual heterogeneity
+The topic of estimating the residual heterogeneity is a highly discussed one (Veroniki et al., 2016; Viechtbauer & López-López, 2015; Panityakul et al., 2013). The ability of the estimators to predict the residual heterogeneity is influenced by different factors, such as the number of studies (Guolo & Varin, 2017; Panityakul et al., 2013; Hardy & Thompson, 1996) included and the sample size of the individual studies (Panityakul et al., 2013).
+A third, and obvious factor, that is classified as relevant to model performance is heterogeneity among studies being meta-analysed (Kontopantelis & Reeves, 2011; Jackson & White, 2018). Coverage from models degrades when the residual heterogeneity increases, mostly when the amount of studies is small (Brockwell & Gorden, 2001). Considering that all models their performance is linked to the accuracy of the estimate. According to Sidik & Jonkman (2007), it is generally the case that the larger true between-study variance is, the more biased the estimate can be, which diminishes the performance of the method.
+Methods for estimating residual heterogeneity
+Numerous methods have been proposed to accurately estimate the residual heterogeneity, including the Hedges (HE), DerSimonian–Laird/Method of Moments (DL), Sidik and Jonkman (SJ), Maximum Likelihood (ML), Restricted Maximum Likelihood (REML), and Empirical Bayes (EB) method. These methods are mostly divided into two groups: closed-form or non-iterative methods and iterative methods. The main difference between these groups is that the closed form group uses a predetermined number of steps to provide an estimation for the residual heterogeneity, whereas the iterative methods run multiple iteration, as the name suggests, to converge to a solution when a specific criterion is met. It is important to note that some iterative methods do not produce a solution when they fail to converge after a predetermined amount of iteration. 
+
+In our scenario we are especially interested in an estimator which performs well under the condition of a relative low number of studies. The Restricted Maximum Likelihood (REML) seems to produce the lowest bias under this condition and is therefore preferred (Panityakul et al., 2013; Hardy & Thompson, 1996).
+The REML is an iterative method. This iterative method needs a starting estimation of 𝜏2 to start, usually it gets estimated by one of the non-iterative methods (Viechtbauer & López-López, 2015). Besides the starting value of 𝜏2, it needs in every iteration an estimation of the regression coefficients of the moderators. These are typically estimated by using the Weighted Least Squares (WLS) method. This is a variation of the Ordinary Least Squares (OLS), but in the case of meta-analysis it is necessary to assess weights to the coefficients. In systematic reviews large variation in standard errors is often observed, which will result in large heteroscedasticity in the estimation of the effects (Stanley & Doucouliagos, 2017). The addition of weights is a way to adjust for this heteroscedasticity. The weights are formulated as presented in equation (5). 
+The usage of a WLS method to estimate the regression coefficient may be problematic in the situation where a lot of moderators are measured without their specific effects, when the amount of studies is low and when moderators are dichotomous. The use of a least squares method will cause problems with the prediction accuracy and the model interpretability (James, Witten, Hastie, & Tibshirani, 2013). In the situation where a lot of moderators are measured and blindly included in the model, it may as well be the case that variables are included that are in fact not associated with the response. Including irrelevant variables in the model lowers the interpretability of the model (James et al., 2013). An approach is necessary that automatically excludes the variables that are irrelevant i.e. performs variable selection. As explained before, in meta-analysis it is often the case that the number of moderators closely approaches or even exceeds the number of studies included in the analysis. A least squares method will display a lot variability in the fit when the number of variables is not much smaller than the number of studies (James et al., 2013). This means that the least squares method over fits the data and loses its power to be generalizable to future observations. When the number of variables exceeds the number of studies, the least squares method fails to produce one unique estimate and the method should not be used at all. 
+However, a least squares method could still be somewhat valuable in some situations. It is extremely suitable to estimate a linear relationship. In the case of dichotomous moderators, the relationship is always perfectly linear. A powerful non-linear estimation tool is in the situation of dichotomous moderators unnecessary and would not perform better at all. Whenever a non-linear relation gets fitted on data with an underlying linear relation, it will cause problems when this fit gets used for the prediction of future data. Given the various arguments, this paper provides an approach to tackle this problem of the least squares methods whilst still making use of a linear method. The weighted least squares are replaced with the so-called LASSO (least absolute shrinkage and selection operator) regression for the estimation of the regression coefficients. This algorithm shrinks or penalizes the regression coefficients and performs variable selection (James et al., 2013; Hesterberg, Choi, Meier, & Fraley, 2008). 
+
+
+Intro rma
+The rma algorithm is part of the software-package metafor in R, which is developed by Wolfgang Viechtbauer (2010, 2019). This algorithm is specifically developed to perform a meta-analysis or met-regression. It allows to include different models, such as the fixed-, random- and mixed-effect model. It is also possible to account for moderators (Viechtbauer, 2010). The mixed-effect model, which is used is this study, requires a two-step approach to fit a meta-analytic model. First the residual heterogeneity is estimated. The package developed by Viechtbauer does provide multiple methods for the estimation of the residual heterogeneity. In this study the Restricted Maximum-likelihood is used, but this has already been discussed earlier. The second step is estimating the moderator coefficients, which is done by using the Weighted Least Squares (WLS) method. The weights are described in equation (5). The lma is a variation of the rma algorithm which is created by Caspar van Lissa. As explained before, the REML is an iterative procedure for the estimation of the residual heterogeneity. In every step of the process, instead of estimating the coefficients of the moderators by using a WLS, a weighted lasso regression is performed. Then again, the residual heterogeneity gets estimated with the rma algorithm by using the new values of the coefficients. With these new values of 𝜏2, a new weighted lasso is performed for the estimations of the coefficients. This process continuous, until the residual heterogeneity converges to a certain value. 
+
+Intro Lasso
+The lasso is a technique that regularizes or constrains the coefficient estimates, better known as shrinking (James et al., 2013). It possesses the ability to reduce the regression coefficient even to a value of zero. By doing this it automatically performs variable selection. It does not seem to be immediately clear why shrinking the coefficients should be an improvement to the model. However, by shrinking the parameters, it lowers the variance of the model by increasing the bias only a little bit. In other words, the model sacrifices some of its ability to fit the current data, to greatly increase the ability to predict future data with the same fit (James et al., 2013). This is better known as the bias/variance tradeoff (Briscoe & Feldman, 2011). 
+The Lasso shrinkage method is not the only shrinkage method, there do exist some others. Nevertheless, the lasso is in the case the best option. It possesses, as opposed to other methods, the ability to shrink the parameter not towards zero, but to be exactly zero (James et al., 2013; Hesterberg, Choi, Meier, & Fraley, 2008). This means that the lasso can perform variable selection, something that is specifically aimed for in this study. 
+In line with other shrinkage methods the lasso makes use of a shrinkage penalty. This penalty is added in the process of the OLS calculation of the regression coefficients. The OLS method estimates the coefficients by minimizing the Residual Sum of Squares (RSS). The following equation shows how the calculation of the RSS together with the shrinkage penalty: 
+RSS=∑_(i=1)^n▒〖(y_i-β_0-∑_(j=1)^p▒〖β_j x_ij )^2+λ∑_(j=1)^p▒|β_j | 〗〗			(8)
+This equation shows that the shrinkage penalty consists of two variables, the tuning parameter lambda (𝜆) and the regression coefficients (𝛽). This means that, while the OLS tries to find the coefficients which explain as much variance as possible, due to the minimization of the RSS, the shrinkage penalty punishes this. Therefore, the coefficients are forced to shrink a certain amount, depending on the parameter lambda. If the lambda increases, it grows the impact of the shrinkage penalty on the RSS, with 𝜆 → ∞ shrinking all the coefficient to be zero, producing the null model. But, if the lambda is zero, the shrinkage penalty has no impact at all and it will produce the OLS estimates.
+
+
+Alternative to linear model: Tree Based models
+An alternative that can perform variable selection, are tree-based models. These kinds of models have numerous other advantages over linear models. Tree-based models can be used for any data type, are easy to represent visually, require little data preparation and got larger power than linear regressions when moderators exceed observations in quantity. They are also more flexible in handling moderator interactions and non-linearity. As a result of that, they are better in modelling the complicated nature of human behaviour (Earp & Trafimow, 2015). Decision trees split from the top down and group data in so-called ‘sub-nodes’, in which the data’s aspects are most homogeneous. The goal is to split to get the sub-nodes as uniform as possible, which can be until fully homogenous groups, or if a pre-specified touchstone is reached. 
+Still, singletree based models have some limitations. First of all, tree models are unstable, small fluctuations that are utilized to make the model have a possibility to lead to considerable alterations in the constructions of the tree (Dwyer and Holte, 2007). Second, it has problems with seizing linearity, because it only makes ‘twofold splits’ (Steyerberg, 2019). At last, tree-based models are susceptible to overfitting (Hastie et al, 2009). 
+There are also more complex tree-based models, known as random-forests, which surmount most of the disadvantages of singletree. This variant incorporates multiple decision trees, and combines results from those trees to create a single model with a more accurate estimate (Breiman, 2001). The essential idea behind is know as the ‘wisdom of crowds’, a large number of relatively uncorrelated trees operating as a group will outperform any of the individual elements. The somewhat low correlation between the models is fundamental, because uncorrelated models are able to produce ensemble predictions with a higher accuracy that any individual prediction. This is because the trees preserve each other from their own singular errors (Genuer, Poggi & Tuleau-Malot, 2010). The lower tendency to overfitting is another advantage of random forests over single trees (Bühlmann & Yu, 2002). As well as the possibility to predict cases that are not components of the bootstrap sample of the tree. This kind of measure is known as out-of-bag error, which is an approximation of the cross-validation error, and provides proper estimates of the prediction accuracy in further samples (Hastie et al., 2009). 
+An alternative to explore heterogeneity in meta-analysis with a singletree-based method is MetaForest. A technique developed by van Lissa (2017), designed to overcome the lacking’s of singletrees by using random forests. MetaForest applies random-effects or fixed-effects weights to random forests.
+Based on two simulation studies, van Lissa (2017) examined the performance of fixed-effects, random-effects and unweighted MetaForest
+The study displayed also other advantages from random forests over singletrees. It had greater power, was able to make better predictions, gave estimates of the cross-validation error and yielded useful measures of variable importance and partial prediction plots (van Lissa, 2017). MetaForest can at the moment be considered as the best working technique to explore heterogeneity in meta-analysis.
+in van Lissa (2017), that only presented estimates of τ2 based on the raw data, we saw that MetaForest had certain robustness against a low number of studies. If moderators were continuously distributed, MetaForest had sufficient power at approximately 20 studies.
+However, there is an important feature to prove before we can make such an assumption. The underlying data generating models in the two simulation studies of van Lissa (2017) only included normal distributed moderators. Renouncing from normal distributions may affect the performance of the model, but since normal distribution in real-life data is more an exception than a normal state of affairs (Micceri, 1989), it is entirely possible that procedures are affected by skewness, leverage, balance etc. It is important to know how MetaForest performs in these kinds of situations.
+Algorithms and simulation + goal study
+The goal of the present study was to test whether a ME-MRA model with the lasso algorithm is able to outperform the ME-MRA with least squares regression. More specifically, if the lasso is able to outperform the least squares when in situation where the amount studies included in the analysis is fairly low. To test this, two different algorithms are used; one called the rma, which makes use of the WLS regression, and the lma, which makes use of a penalized lasso regression.
+To test the lma and rma algorithms on the performance criteria, a simulation study is performed. A simulation of the data is preferred over the use of real data. Simulated data can be shaped to such an extent that it will have the all desired characteristics to test the performance of the algorithm. Besides that, if simulated correctly, it will not have any systematic errors or noise due to underlying models and it is more cost efficient. 
+simulations are useful for evaluation of new methods like MetaForest and for the comparison with alternative methods like metaCART and the classic approaches. 
+
+Performance Criteria
+The algorithms are evaluated on three different performance criteria: The algorithms’ predictive performance, their ability to estimate the residual heterogeneity and their ability to detect and select the right moderators.
+The predictive performance of the algorithms is defined by how well the algorithm is able to predict future data. The algorithms have to estimate a model on a “training” dataset and then use this model to see how well it fits on a second “testing” dataset. This is operationalized as the cross-validated R_cv^2 (Van Lissa, 2017). The R_cv^2 is calculated using the fraction of variance explained by the model on the testing dataset, relative to faction of variance explained by the mean of the testing dataset. The mean of the testing dataset is the best prediction for the testing data when there is no model present (van Lissa, 2017). The calculation of R_cv^2 is expressed by the following equation:
+R_cv^2=1-(∑_(i=1)^n▒〖(y_i-y ̂_i )^2 〗)/(∑_(i=1)^n▒〖(y_i-y ̅)^2 〗)					(9)
+With n being the number of studies in the testing dataset, y ̂_i being the estimation for study i, and y ̅ being the mean of the training dataset. 
+	The ability of the algorithms to estimate the residual heterogeneity is by simply taking the value of 𝜏2 which the algorithm produces. The true value of the residual heterogeneity is subtracted of the estimated value, solely to make the values more interpretable. This means that a correct estimation of the residual heterogeneity will be expressed by a value which exactly or close to zero. The residual heterogeneity is used as a performance criterion because it is suspected that the lma model might not always be able to predict residual heterogeneity correctly. 
+	Variable selection is defined in terms of the algorithms ability to accredit positive variable importance values to relevant moderators. Variable importance measures capture the relative contribution of various moderators.	
+
+Design factors
+In the simulation study, meta analytic datasets will be simulated. These datasets consist of two separate sub-datasets, a training- and a testing dataset. Both sub-datasets will have the same characteristics with the exception of the number of studies included. Certain characteristics of the sub-datasets will be manipulated to test how well the algorithms perform under certain conditions. For each combination of characteristics, or design factors, 100 datasets will be simulated. The design factors that will be manipulated are the number of studies in the training data k (22, 40 and 80), the average within-study sample size n ̅ (40, 100 and 200), the population effect size β (.2, .5 and .8) and the residual heterogeneity 𝜏2 (.01, .04 and .1). All the datasets will contain 20 moderators of which 10 are relevant and 10 are irrelevant. The moderators are binary and are randomly drawn form a Bernoulli distribution with probability p=.5, which corresponds to an equal chance of being either one or zero. The dependent variable y_i represented by a Hedges’ g. This is an estimator which takes the standardized mean difference between a treatment and control group and is commonly used in meta-analysis (Van Lissa, 2017). The true effect size θ_i  is sampled out of a normal distribution. The mean is computed by the assessing the values of the coefficients β, with the values of the moderators and with the residual heterogeneity τ^2 (Van Lissa, 2017).  This is in line with the calculation of θ_i represented in equation (6). The sampling error v_i is formed by varying the sizes of the samples of each study. The sample sizes n_i are drawn from a normal distribution with mean n ̅ and standard deviation n ̅⁄3 (Van Lissa, 2017). 
+Data were simulated using the random-effects model, based on six models:
+(A) Main effect of one moderator, μ_i= βx_1i 
+(B) Two-way interaction, μ_i= βx_1i+ βx_2i+ βx_1i x_2i
+(C) Three-way interaction, 
+μ_i= βx_1i+ βx_2i+ βx_3i+ βx_1i x_2i+βx_1i x_3i+βx_2i x_3i+βx_1i x_2i x_3i
+(D) Two two-way interactions, μ_i= βx_1i+ βx_2i+ βx_3i+βx_4i+βx_1i x_2i+βx_3i x_4i
+(E) Non-linear, cubic relationship, μ_i= βx_1i+ βx_1i^2+βx_1i^3
+(F) Exponential relationship, μ_i= βe^x1i
+
+Impact of design factors and hypotheses
+These design factors are chosen on purpose, because they are hypothesized to have an influence on the predictive performance of the algorithms. The effect of the design factors ought to be either positive or negative on the data. This means that some factor should, by increasing, make the data easier to be analyzed, or make it more difficult to analyze. The amount of studies included in the training data k has a positive influence on the variance explained by the different algorithms. This is due to the fact that there are simply more data points available to fit a model on. The lma algorithm should be superior on the low value of k over the rma algorithm. The effect size β has a positive impact on the ability of the algorithms to explain variance. It can be hypothesized that the lma performs better at lower values of β because it is better equipped to detect and select variables when even when the amount of signal is low. The residual heterogeneity τ^2 should have a negative influence on the interpretability of the data. Differences between the two algorithms could be present, but it remains unclear which would perform better. The lma might perform better when the amount of signal in the data is low or the noise is high, but it is also suspected to overestimate the amount of heterogeneity and this could worsen if the τ^2 increases. The n ̅ greatly influences the quality of the data. Higher values of within-study sample sizes reduce the sampling error. This will lead to a better prediction by the algorithms. In conclusion: higher values of k, β and n ̅ will increase the quality of the data, where higher values of  τ^2 decrease the quality of the data. The lma is suspected to perform significantly better when the quality of the data is low, especially when the amount of studies in the sample is low, with the exception of the performance of the lma on the estimation of the residual heterogeneity
+
+
+Results
+  
+
+\newpage
+
+# References
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id="refs" custom-style="Bibliography"></div>
+\endgroup
