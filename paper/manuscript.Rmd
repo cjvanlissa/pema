@@ -105,37 +105,52 @@ Skeleton lasso/pema paper
 	d.) Impact of design factors on algorithim performance
 	e.) Hypotheses of algorithmic performances
 
-
 colour coding: I colour coded the text as to know from which file the text is copied
 GREEN = derived from ‘Thesis_Metaforest’
 BLUE = Thesis_lasso
 BLACK = internship_report
 RED = Inserted myself
-Short Introduction to the study
+
+#introduction
+**intro to meta-analysis**
 Meta-analysis is a statistical method which utilizes several tools to synthesize the data of multiple studies on the same topic, with the purpose of finding a result that is more trustworthy. What meta-analysis does is simply weighting all the observed effect sizes of the individual studies and averaging them to one summary effect. Although this explanation is a bit too simplistic, in essence this is what meta-analysis is about. Meta-analysis assigns weights to each individual study based on different assumptions which are set in advance. These weights determine to what extent an individual study takes part in the eventual summary effect. 
+
 Nevertheless, a serious concern is heterogeneity that is included between the studies in meta-analysis, which is caused due to clinical and/or methodological diversity. Heterogeneity causes a challenge to aggregate data, but it also offers a way to find characteristics of a study or “moderators” that could have impact on the found effect size.
+
 The process of examining the relationship between study characteristics and the effect sizes is most often done by a meta-regression (Viechtbauer & López-López, 2015). Meta-regression aims to relate the size of the effect to one or more characteristics of the studies involved. As multiple regression is used to assess the relationship between subject-level covariates and an outcome, meta-regression in meta-analysis is used to assess the relationship between study-level covariates and the effect size.
+
 However, when performing such an analysis, a lot of moderators are measured and it may be unclear which are relevant and which are not. There are a couple of reasons to explain this: Riley, Higgins & Deeks (2011) concluded that the number of studies is oftentimes overly small. As a result of this heterogeneity cannot be inspected accurately. Also, there is an insufficiency in regard to techniques to downgrade the amount of possible moderators to a feasible number (Thompson & Higgins, 2002). This results in a large amount of moderators to be examined and a low quantity of studies. These kinds of conditions do not have a solid fit and predictive power in the classic meta-analysis approaches (van Lissa, 2017). For this obstacle there is a variable selection technique needed, that identifies moderators as strong or weak influencers of the observed effect size.
+
 Thus, there is a need of a regularization method to curtail overfitting. LASSO (L1-norm regularization) can fulfill this role, since it has an advantage in terms of feature selection. The goal of this project is to implement L1-norm regularization in the weighted meta-regression, developing an new estimator for penalized meta-regression.
 More detailed explanation of methods and theoretical concepts
 
 
-Fixed vs Random effects
+**Fixed vs Random effects**
 The two classic approaches of meta-analysis refer to fundamental different assumptions made about the underlying data. These assumptions define the weights and will also determine which methods are used for the weighting of individual studies and for the creation a summary effect.
-The first approach is referred to as the as the fixed-effect model. This model assumes that each observed effect size, obtained from each individual study, is an estimate of an underlying true effect size (Hedges & Vevea, 1998). The true effect sizes are treated as, unknown, constants. The only source that causes the deviation of the observed effect from the, unknown, true effects is sampling error. Thus, for a collection of k studies, the observed effects size yi of each individual study i (for i = 1,2, . . . k) is given by:
-y_i=θ+ϵ_i  						(1)
-Where 𝜃 is the true effect size of each individual study i and 𝜖i follows the distribution of N(0 , vi) with vi being the sampling error or within-study variance, which is treated as a known factor.
+
+The first approach is referred to as the as the fixed-effect model. This model assumes that each observed effect size, obtained from each individual study, is an estimate of an underlying true effect size (Hedges & Vevea, 1998). The true effect sizes are treated as, unknown, constants. The only source that causes the deviation of the observed effect from the, unknown, true effects is sampling error. Thus, for a collection of k studies, the observed effects size $y_{i}$ of each individual study i (for i = 1,2, . . . k) is given by:
+
+ *$y_{i}$ = θ + $ϵ_{i}$ * 						(1)
+
+Where 𝜃 is the true effect size of each individual study i and $ϵ_{i}$ follows the distribution of N(0 , $v_{i}$) with $v_{i}$ being the sampling error or within-study variance, which is treated as a known factor.
 
 Fixed-effects meta-analysis considers sampling error to be the only cause of variance that influences the observed effect size. Studies with a large sample size will, as a result of this, produce more precise estimations of the underlying true effect size (Schmidt, Oh & Hayes, 2009). Therefore, large sample sizes will contribute more to the weighted mean than small sample sizes. With that said, fixed-effects weights are defined by van Lissa (2017): “as the reciprocal of the effect size variances”:
-			   W_i=  1/(σ_i^2 )						  (2)
+
+ *$W_{i}$=  1/($σ^2_{i}$)*						  (2)
+			   
 	For an accurate estimate of the fixed-effects meta-analysis model, it starts with the assumption that the true effect is even in al studies. However, this assumption is implausible in plenty of meta-analysis. Especially in social sciences, the behaviour of people is extremely diverse and the contextual conditions for all humans vary to a great degree (Aronson, Wilson & Akert, 2016). A highly likely consequence is that this will lead to a huge amount of possible moderators (Caserio, 2014). Also studies that examine same or similar research questions often differ. Caused by differences in for example cultures of research populations and used methods or instruments (Neuman, 2011). Even in replication studies there are sometimes moderators that are unanticipated (Kunert, 2016). This leads very often to an eventual poor performance of the fixed-effects meta-analysis model (Snijders, 2005). 
+	
 The second model is the random-effects model. This approach makes an additional assumption, namely about the true effect sizes. Where the fixed-effect model treats the true effects as constants, the random-effect model assumes that the true effects are random and follow a distribution of their own (Hedges & Vevea, 1998). This means that variation in the observed effects (yi) in the random model incorporates not only the sampling error but also the variation of the true effect sizes (󠅵𝜏2) between the studies. In the case of the random effect model the observed effect size of yi is, given by:
 
-y_i= θ_i+ϵ_i 						(2)
-With 𝜖i ~ N(0 , vi) but, in this case 𝜃i on itself is given by:
-θ_i=μ+ζ_i 						(3)
+ *$y_{i}$ = $θ_{i}$+$ϵ_{i}$* 						(3)
+        
+With $ϵ_{i}$ ~ N(0 , $v_{i}$) but, in this case $𝜃_{i}$ on itself is given by:
+
+ *$θ_{i}$= μ + $ζ_{i}$*						(4)
+
 With 𝜇 being the mean of the distribution of the true effect sizes and 𝜁i following the distribution N(0 , 𝜏2) with 𝜏2 being the variance of the population of true effect sizes. It could also be explained as the variance between the individual studies. 
 However, in the case of random-effects, the true effects also follow a distribution, so therefore the between study variance is also taken into account when composing the weights for the individual studies. The individual weights for the random-effect model are given by:
+
 W_i=1/(v_i+τ ̂^2 )						(5)
 In the case of the random-effect model, the within-study- and between-study variance is necessary for the calculation of the weights. It is important to note that in the calculation of the individual weights, an estimation of study heterogeneity is used (τ ̂^2). While the sampling error is known for each individual study, the true effect heterogeneity (󠅵𝜏2) remains unknown. Therefore, an estimation of the heterogeneity value needs to be made to effectively calculate the weights. This estimation of the between-study variance is thus represented by τ ̂^2.
 
@@ -205,8 +220,28 @@ Impact of design factors and hypotheses
 These design factors are chosen on purpose, because they are hypothesized to have an influence on the predictive performance of the algorithms. The effect of the design factors ought to be either positive or negative on the data. This means that some factor should, by increasing, make the data easier to be analyzed, or make it more difficult to analyze. The amount of studies included in the training data k has a positive influence on the variance explained by the different algorithms. This is due to the fact that there are simply more data points available to fit a model on. The lma algorithm should be superior on the low value of k over the rma algorithm. The effect size β has a positive impact on the ability of the algorithms to explain variance. It can be hypothesized that the lma performs better at lower values of β because it is better equipped to detect and select variables when even when the amount of signal is low. The residual heterogeneity τ^2 should have a negative influence on the interpretability of the data. Differences between the two algorithms could be present, but it remains unclear which would perform better. The lma might perform better when the amount of signal in the data is low or the noise is high, but it is also suspected to overestimate the amount of heterogeneity and this could worsen if the τ^2 increases. The n ̅ greatly influences the quality of the data. Higher values of within-study sample sizes reduce the sampling error. This will lead to a better prediction by the algorithms. In conclusion: higher values of k, β and n ̅ will increase the quality of the data, where higher values of  τ^2 decrease the quality of the data. The lma is suspected to perform significantly better when the quality of the data is low, especially when the amount of studies in the sample is low, with the exception of the performance of the lma on the estimation of the residual heterogeneity
 
 
-Results
-  
+#Results
+There were 20 cases out of 388800 that had missing values for the RMA algorithm. Closer inspection showed that both the cubic and exponential model each contributed 10 times to the missing values and only when 2, 3 or 6 moderators were taken up in the model. However, since this makes up 0.005% of the data, the missing values were chosen to be omitted from further analysis.  
+
+*Predictive performance*
+Because the densities for the R2 values were either bimodal or skewed, it was chosen to use the median $R^{2}$ as the metric for predictive performance, rather than the mean. The spread of the data was described using the Mean Absolute Deviation [MAD], rather than the standard deviation. It was found that the Horseshoe, Lasso and RMA algorithm performed similarly overall, $Med_{hs}$ = 0.51, MAD = 0.36; $Med_{Lasso}$ = 0.50, MAD = 0.37; $Med_{RMA}$ = 0.50, MAD = 0.37. The random forest algorithm performed worst $Med_{rf}$ = 0.35, MAD = 0.38. 
+
+To determine the effect of the design factors on predictive performance of all algorithms, four separate ANOVA’s was performed. The $η^{2}$ per condition per algorithm can be found in table 1. 
+
+Not too surprisingly, It was found that the true effect size *β* had the largest effect on the predictive $R^{2}$ for all algorithms. As *β* increased, the performance of all algorithms increased as well. However, *β* did seem to interact with the model that was estimated, being either a linear, two-way interaction, cubic or an exponential model. The image of the interaction is shown in image 1. The major difference seems to be that for all models, except the linear, the increase of *R2* slows for every higher value for *β*. The steepest increase for the linear model is when *β* increases from 0.2 to 0.4. Also noteworthy is that the two-way interaction model seems to stagnate as the effect size goes up to 0.4 onwards, while the other models do keep increasing, although not as severely. There seemed to be little difference in performance between Horsehoe, Lasso and RMA, while the random forest algorithm performed worst.
+
+The second largest marginal effect was that of the estimated model. All algorithms performed best under the 2-way interaction model, followed by a similar performance on the cubic and exponential models. The linear model predicted worst performance for all algorithms. Horseshoe and Lasso performed best under all models, followed closely by RMA and lastly the random forest. Image 2 shows the relationship. 
+
+There also was a moderate interaction effect between the estimated model and the amount of skewness of the data [α], especially for the Pema algorithms. Again, the Horseshoe and Lasso algorithms performed best, followed by RMA and MetaForest in all conditions. Most obvious to note is that under all model, except the linear model, the algorithms benefitted when the $R^{2}$ was estimated on more skewed data. The two-way interaction model performs best under all levels of *α*, but is getting caught up by the exponential and cubic model as *α* increases. Image 3 shows the relationship.
+
+The true residual heterogeneity $τ^{2}$ had a negative linear relationship for all algorithms on $R^{2}$. i.e. as $τ^{2}$ increases, $R^{2}$ decreased. The effect was slightly bigger for the Pema algorithms than for the other two. Still, both Horseshoe and Lasso performed best, followed by RMA and MetaForest. Image 4 shows the relationship.
+
+The mean sample size per study [n] also had a moderate effect, again namely for the Pema algorithms. For all algorithms the effect of *n* was positively linearly related to $R^{2}$ with the Pema algorithms performing best for all levels of *n*. Image 5 shows the relationship.
+
+An especially large effect was found for the number of studies used in the training data for MetaForest, $η^{2}$ = 0.27, while this effect was substantially smaller for RMA, $η^{2}$ = 0.11; Lasso, $η^{2}$ = 0.06 and; Horseshoe, $η^{2}$ = 0.05. The relationship is positively linear for all algorithms, but the slope is especially steep for MetaForest. Image 6 shows the relationship.
+
+Finally, the number of moderators did not have a big effect for the Pema algorithms, $η^{2}$ = 0.01 for both Horseshoe and Lasso while for RMA and Metaforest $η^{2}$ = 0.05. This relationship is generally negative with more moderators meaning worse performance, although a slight increase can be observed as the number of moderators increase from 6 to 7. The image and $η^{2}$ values indicate that the Pema algorithms seem more robust against number of moderators than RMA and MetaForest.
+
 
 \newpage
 
