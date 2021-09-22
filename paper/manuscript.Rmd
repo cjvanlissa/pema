@@ -240,7 +240,7 @@ The mean sample size per study [$n$] also had a moderate effect. For all algorit
 
 An especially large effect was found for the number of studies used in the training data for MetaForest, $η^{2}$ = 0.27, while this effect was substantially smaller for RMA, $η^{2}$ = 0.11; Lasso, $η^{2}$ = 0.06 and; Horseshoe, $η^{2}$ = 0.05. The relationship is positively linear for all algorithms, but the slope is especially steep for MetaForest. Image 6 shows the relationship.
 
-Finally, the number of moderators did not have a big effect for the Pema algorithms, $η^{2}$ = 0.01 for both Horseshoe and Lasso while for RMA and Metaforest $η^{2}$ = 0.05. This relationship is generally negative with more moderators meaning worse performance, although an increase can be observed as the number of moderators increase from 4 to 6 for all algorithms except Metaforest. This increase in performance for Metaforest appears when the number of moderators go from 3 to 4. Image 7 and $η^{2}$ values indicate that the Pema algorithms seem more robust against number of moderators than RMA and MetaForest.
+Finally, the number of moderators did not have a big effect for the Pema algorithms, $η^{2}$ = 0.01 for both Horseshoe and Lasso while for RMA and Metaforest $η^{2}$ = 0.05. This relationship is generally negative with more moderators meaning worse performance, although an increase can be observed as the number of moderators increase from 4 to 6 for all algorithms except Metaforest. This increase in performance for Metaforest appears when the number of moderators go from 3 to 4. Image 7 and $η^{2}$ values indicate that the Pema algorithms are more robust against number of moderators than RMA and MetaForest.
 
 
 #Estimating residual heterogeneity ($τ^{2}$)
