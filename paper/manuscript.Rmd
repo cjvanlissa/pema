@@ -112,14 +112,49 @@ BLACK = internship_report
 RED = Inserted myself
 
 # introduction
-**intro to meta-analysis**
-Meta-analysis is a statistical method which utilizes several tools to synthesize the data of multiple studies on the same topic, with the purpose of finding a result that is more trustworthy. What meta-analysis does is simply weighting all the observed effect sizes of the individual studies and averaging them to one summary effect. Although this explanation is a bit too simplistic, in essence this is what meta-analysis is about. Meta-analysis assigns weights to each individual study based on different assumptions which are set in advance. These weights determine to what extent an individual study takes part in the eventual summary effect. 
 
-Nevertheless, a serious concern is heterogeneity that is included between the studies in meta-analysis, which is caused due to clinical and/or methodological diversity. Heterogeneity causes a challenge to aggregate data, but it also offers a way to find characteristics of a study or “moderators” that could have impact on the found effect size.
+Meta-analysis is the practice of aggregating effect sizes from multiple similar studies.
+In its simplest form, a summary effect is computed as a weighted average of the observed effect sizes. 
+The weight assigned to each effect size is based on certain assumptions,
+and determines how influential it is in calculating the summary effect.
+For example, the *fixed effect* model assumes that all observed effect sizes reflect one underlying true population effect size.
+This assumption may be reasonable for close replication studies [@higgins_re-evaluation_2009, fabrigar_conceptualizing_2016, maxwell_is_2015]. 
+The *random effects* model, by contrast, assumes that population effect sizes follow a normal distribution.
+Each observed effect size provides information about the mean and standard deviation of this distribution of population effect sizes.
+This assumption is appropriate when studies are conceptually similar and differences between them are random [@higgins_re-evaluation_2009, fabrigar_conceptualizing_2016, maxwell_is_2015]. 
 
-The process of examining the relationship between study characteristics and the effect sizes is most often done by a meta-regression (Viechtbauer \& López-López, 2015). Meta-regression aims to relate the size of the effect to one or more characteristics of the studies involved. As multiple regression is used to assess the relationship between subject-level covariates and an outcome, meta-regression in meta-analysis is used to assess the relationship between study-level covariates and the effect size.
+Aside from random heterogeneity in effect sizes, quantifiable between-study differences may introduce systematic heterogeneity.
+Such between-study differences are known as "moderators".
+For example, if studies have been replicated in Europe and the Americas, this difference can be captured by a binary moderator called "continent".
+Alternatively, if studies have used different dosages of the same drug, this may be captured by a continuous moderator called "dosage".
+Systematic heterogeneity in the observed effect sizes can be accounted for using *meta-regression* (Viechtbauer \& López-López, 2015).
+This technique provides estimates of the effect of one or more study characteristics on the overall effect size,
+as well as of the overall effect size and residual heterogeneity after controlling for their influence.
 
-However, when performing such an analysis, a lot of moderators are measured and it may be unclear which are relevant and which are not. There are a couple of reasons to explain this: Riley, Higgins \& Deeks (2011) concluded that the number of studies is oftentimes overly small. As a result of this heterogeneity cannot be inspected accurately. Also, there is an insufficiency in regard to techniques to downgrade the amount of possible moderators to a feasible number (Thompson \& Higgins, 2002). This results in a large amount of moderators to be examined and a low quantity of studies. These kinds of conditions do not have a solid fit and predictive power in the classic meta-analysis approaches (van Lissa, 2017). For this obstacle there is a variable selection technique needed, that identifies moderators as strong or weak influencers of the observed effect size.
+Meta-analysis is often used to summarize existing bodies of literature.
+In such situations, the number of moderators is often relatively high because similar research questions have been studied in different laboratories,
+using different methods, instruments, and samples.
+Each of these between-study differences could be coded as a moderator, and some of these moderators may explain systematic heterogeneity.
+
+It is often not known beforehand which moderators are relevant and which are not.
+This introduces a methodological challenge,
+because the number of studies in meta-analyses is typically small (Riley, Higgins \& Deeks, 2011),
+resulting in low power to identify relevant moderators (Thompson \& Higgins, 2002).
+There is thus a need for a technique that can perform variable selection in meta-analysis, and which is relatively robust to small sample sizes.
+
+
+$$
+\begin{aligned}
+y_i &= \theta_i + \epsilon_i &\text{where } \epsilon_i \sim N(0, \sigma^2_i)\\ % \text{ and } 
+%\theta_1 &= \theta_2 \dots = \theta_k
+\end{aligned}
+$$
+
+., and methods have been developed to account for their influence. However, extant approaches lack the power to assess more than a handful of known moderators, or to investigate interactions between moderators, and non-linear effects. Heterogeneity between studies thus presents a non-trivial challenge to data aggregation using classic meta-analytic methods. At the same time, it also offers an unexploited opportunity to learn which differences between studies have an impact on the effect size found, if adequate exploratory techniques can be developed. 
+
+
+
+
 
 Thus, there is a need of a regularization method to curtail overfitting. Least Absolute Shrinkage and Selection Operator [LASSO] (L1-norm regularization) can fulfill this role, since it has an advantage in terms of feature selection. The goal of this project is to implement L1-norm regularization in the weighted meta-regression, developing an new estimator for penalized meta-regression.
 
