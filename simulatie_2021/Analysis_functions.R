@@ -38,7 +38,7 @@ EtaSq<-function (x)
 }
 
 #functions for plotting marginal and conditional effects of design factors for algorithms
-plot_marginal_mean <- function(condition, df, lonames, metric){
+plot_marginal_mean <- function(condition, df, lonames, metric, pointsize = 5, linesize = 2){
   condition <- as.name(condition)
   hs <- as.name(lonames[1])
   las <- as.name(lonames[2])
@@ -54,8 +54,8 @@ plot_marginal_mean <- function(condition, df, lonames, metric){
     pivot_longer(cols = !all_of(condition), names_to = 'alg', values_to = metric)
 
   ggplot(data = cond, aes(x = !!condition,y = !!as.name(metric), linetype = alg, group = alg, shape = alg)) +
-    geom_line(size = 1, ) +
-    geom_point(size = 2.5) +
+    geom_line(size = linesize, ) +
+    geom_point(size = pointsize) +
     theme_classic(base_size = 25)
 }
 
@@ -82,7 +82,7 @@ plot_interaction_mean <- function(condition, intcond, df, lonames, metric){
     theme_classic(base_size = 25)
 }
 
-plot_marginal_median <- function(condition, df, lonames, metric){
+plot_marginal_median <- function(condition, df, lonames, metric, pointsize = 5, linesize = 1.5){
   condition <- as.name(condition)
   hs <- as.name(lonames[1])
   las <- as.name(lonames[2])
@@ -98,8 +98,8 @@ plot_marginal_median <- function(condition, df, lonames, metric){
     pivot_longer(cols = !all_of(condition), names_to = 'alg', values_to = metric)
 
   ggplot(data = cond, aes(x = !!condition,y = !!as.name(metric), linetype = alg, group = alg, shape = alg)) +
-    geom_line(size = 1, ) +
-    geom_point(size = 2.5) +
+    geom_line(size = linesize, ) +
+    geom_point(size = pointsize) +
     theme_classic(base_size = 25)
 }
 
