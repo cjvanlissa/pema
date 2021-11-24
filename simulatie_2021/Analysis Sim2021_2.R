@@ -3,7 +3,7 @@
 ####################
 dependencies <- c('data.table', 'tidyverse', 'stringr', 'ggplot2')
 lapply(dependencies, function(x) library(x, character.only = T))
-dat <- as.data.table(readRDS(r"(C:\Users\e_lib\OneDrive\Documents\Caspar Repositories\simulatie_2021\sim_results_2021-09-08.RData)"))
+dat <- as.data.table(readRDS(r"(C:\Users\e_lib\OneDrive\Documents\Caspar Repositories\PEMA\simulatie_2021\sim_results_2021-09-08.RData)"))
 
 # load in needed functions
 source('./simulatie_2021/Analysis_functions.R') #created functions used for analysis
@@ -140,12 +140,12 @@ testR2_per_condition <- analyzedat_test[,lapply(.SD, median),by=eval(grouping.va
 metrics_r2 <- names(testR2_per_condition)[grep("r2", colnames(testR2_per_condition))]
 
 plot_interaction_median('es', 'model', testR2_per_condition, metrics_r2, "R2")
-plot_marginal_median('model', testR2_per_condition, metrics_r2, "R2")
+plot_marginal_median('model', testR2_per_condition, metrics_r2, "R2", pointsize = 5, linesize = 2)
 plot_interaction_median('alpha_mod', 'model', testR2_per_condition, metrics_r2, "R2")
-plot_marginal_median('tau2', testR2_per_condition, metrics_r2, "R2")
-plot_marginal_median('mean_n', testR2_per_condition, metrics_r2, "R2")
-plot_marginal_median('k_train', testR2_per_condition, metrics_r2, "R2")
-plot_marginal_median('moderators', testR2_per_condition, metrics_r2, "R2")
+plot_marginal_median('tau2', testR2_per_condition, metrics_r2, "R2", 5, 2)
+plot_marginal_median('mean_n', testR2_per_condition, metrics_r2, "R2", 5, 2)
+plot_marginal_median('k_train', testR2_per_condition, metrics_r2, "R2", 5, 2)
+plot_marginal_median('moderators', testR2_per_condition, metrics_r2, "R2", 5, 2)
 
 
 
@@ -282,23 +282,15 @@ sig_model <- sel_per_condition[sel_per_condition$es != 0,] #subset to model when
 metrics_tp_names <- names(sig_model)[grep("TP", colnames(sig_model))]
 metrics_tp <- c(metrics_tp_names[1], metrics_tp_names[2], metrics_tp_names[4], metrics_tp_names[3]) #here too
 
-#marginal plots TN
-plot_marginal_mean('k_train', sel_per_condition, metrics_tn, 'TN')
-plot_marginal_mean('moderators', sel_per_condition, metrics_tn, 'TN')
-plot_marginal_mean('model', sel_per_condition, metrics_tn, 'TN')
 
-#these seem to be noteworthy interactions TN
+#plotsTN
 plot_interaction_mean('es', 'model', sel_per_condition, metrics_tn, 'TN')
-plot_interaction_mean('es', 'moderators', sel_per_condition, metrics_tn, 'TN')
 plot_interaction_mean('moderators', 'model', sel_per_condition, metrics_tn, 'TN')
 
 #marginal plots TP
-plot_marginal_mean('k_train', sig_model, metrics_tp, 'TP')
 plot_marginal_mean('mean_n', sig_model, metrics_tp, 'TP')
-plot_marginal_mean('es', sig_model, metrics_tp, "TP")
 plot_marginal_mean('tau2', sig_model, metrics_tp, 'TP')
-plot_marginal_mean('moderators', sig_model, metrics_tp, 'TP')
-plot_marginal_mean('model', sig_model, metrics_tp, 'TP')
+
 
 #these seem to be noteworthy interactions TP
 plot_interaction_mean('k_train', 'model', sig_model, metrics_tp, 'TP')
