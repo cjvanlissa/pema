@@ -5,3 +5,5 @@
 *.xlsx
 *.Rda
 !simulatie_2021/results/*.txt
+*.log
+*.tex
