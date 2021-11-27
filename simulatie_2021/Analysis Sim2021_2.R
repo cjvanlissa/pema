@@ -1,7 +1,7 @@
 ####################
 # Data exploration #
 ####################
-dependencies <- c('data.table', 'tidyverse', 'stringr', 'ggplot2')
+dependencies <- c('data.table', 'tidyverse', 'stringr', 'ggplot2', 'cowplot')
 lapply(dependencies, function(x) library(x, character.only = T))
 dat <- as.data.table(readRDS(r"(C:\Users\e_lib\OneDrive\Documents\Caspar Repositories\PEMA\simulatie_2021\sim_results_2021-09-08.RData)"))
 
@@ -14,7 +14,7 @@ conditions <- c("k_train", "mean_n", "es", "tau2","alpha_mod", "moderators", "mo
 lc <- length(conditions) #length of conditions, handy for further code
 dat[, c(1:lc):=lapply(.SD, factor), .SDcols=c(1:lc)] #convert to factor
 dat$model <- as.factor(dat$model)
-levels(dat$model) <- c('exponential', 'linear', 'cubic', 'Twoway_interaction') #rename to more understandable levels
+levels(dat$model) <- c('exponential', 'linear', 'cubic', 'Two_way') #rename to more understandable levels
 
 
 #there are duplicated columns which contain the same values, we can omit those
@@ -139,14 +139,28 @@ testR2_per_condition <- analyzedat_test[,lapply(.SD, median),by=eval(grouping.va
 
 metrics_r2 <- names(testR2_per_condition)[grep("r2", colnames(testR2_per_condition))]
 
+
 plot_interaction_median('es', 'model', testR2_per_condition, metrics_r2, "R2")
-plot_marginal_median('model', testR2_per_condition, metrics_r2, "R2", pointsize = 5, linesize = 2)
+r21 <- plot_marginal_median('model', testR2_per_condition, metrics_r2, "R2", pointsize = 5, linesize = 2)
 plot_interaction_median('alpha_mod', 'model', testR2_per_condition, metrics_r2, "R2")
-plot_marginal_median('tau2', testR2_per_condition, metrics_r2, "R2", 5, 2)
-plot_marginal_median('mean_n', testR2_per_condition, metrics_r2, "R2", 5, 2)
-plot_marginal_median('k_train', testR2_per_condition, metrics_r2, "R2", 5, 2)
+r22 <- plot_marginal_median('tau2', testR2_per_condition, metrics_r2, "R2", 5, 2)
+r23 <- plot_marginal_median('mean_n', testR2_per_condition, metrics_r2, "R2", 5, 2)
+r24 <- plot_marginal_median('k_train', testR2_per_condition, metrics_r2, "R2", 5, 2)
 plot_marginal_median('moderators', testR2_per_condition, metrics_r2, "R2", 5, 2)
 
+legendr2 <- get_legend(
+  # create some space to the left of the legend
+  r21 + theme(legend.box.margin = margin(0, 0, 0, 12))
+)
+
+plotr2 <- plot_grid(r21 + theme(legend.position = "none"),
+                      r22 + theme(legend.position = "none"),
+                      r23 + theme(legend.position = "none"),
+                      r24 + theme(legend.position = "none"),
+                      labels = c("A", "B", "C", "D"),
+                      label_size = 25)
+
+plot_grid(plotr2, legendr2, rel_widths = c(3, .4))
 
 
 #---End R2---------------------------------------------------------------------------
@@ -211,14 +225,29 @@ write.csv(coef.table.sort, file =  "./simulatie_2021/Analysis Results/EtaSq_tau2
 tau2_per_condition <- analyzedat_tau[,lapply(.SD, median),by=eval(grouping.vars), .SDcols=measure.vars]
 metrics_tau2 <- names(tau2_per_condition)[grep("diff_tau2", colnames(tau2_per_condition))]
 
-plot_marginal_median('model', tau2_per_condition, metrics_tau2, "\U0394Tau2")
+tau21 <- plot_marginal_median('model', tau2_per_condition, metrics_tau2, "\U0394Tau2")
 plot_interaction_median('es', 'model', tau2_per_condition, metrics_tau2, "\U0394Tau2")
-plot_marginal_median('es',tau2_per_condition, metrics_tau2, "\U0394Tau2")
+tau22 <- plot_marginal_median('es',tau2_per_condition, metrics_tau2, "\U0394Tau2")
 plot_interaction_median('alpha_mod', 'model', tau2_per_condition, metrics_tau2, "\U0394Tau2")
-plot_marginal_median('tau2', tau2_per_condition, metrics_tau2, "\U0394Tau2")
+tau23 <- plot_marginal_median('tau2', tau2_per_condition, metrics_tau2, "\U0394Tau2")
 plot_interaction_median('moderators', 'model', tau2_per_condition, metrics_tau2, "\U0394Tau2")
 plot_interaction_median('k_train', 'model', tau2_per_condition, metrics_tau2, "\U0394Tau2")
-plot_marginal_median('mean_n', tau2_per_condition, metrics_tau2, "\U0394Tau2")
+tau24 <- plot_marginal_median('mean_n', tau2_per_condition, metrics_tau2, "\U0394Tau2")
+
+legendtau2 <- get_legend(
+  # create some space to the left of the legend
+  tau21 + theme(legend.box.margin = margin(0, 0, 0, 12))
+)
+
+plottau2 <- plot_grid(tau21 + theme(legend.position = "none"),
+          tau22 + theme(legend.position = "none"),
+          tau23 + theme(legend.position = "none"),
+          tau24 + theme(legend.position = "none"),
+          labels = c("A", "B", "C", "D"),
+          label_size = 25)
+
+plot_grid(plottau2, legendtau2, rel_widths = c(3, .4))
+
 
 
 #---End tau2-----------------------
@@ -288,8 +317,20 @@ plot_interaction_mean('es', 'model', sel_per_condition, metrics_tn, 'TN')
 plot_interaction_mean('moderators', 'model', sel_per_condition, metrics_tn, 'TN')
 
 #marginal plots TP
-plot_marginal_mean('mean_n', sig_model, metrics_tp, 'TP')
-plot_marginal_mean('tau2', sig_model, metrics_tp, 'TP')
+tp1 <- plot_marginal_mean('mean_n', sig_model, metrics_tp, 'TP')
+tp2 <- plot_marginal_mean('tau2', sig_model, metrics_tp, 'TP')
+
+legendtp <- get_legend(
+  # create some space to the left of the legend
+  tp1 + theme(legend.box.margin = margin(0, 0, 0, 12))
+)
+
+tpplot <- plot_grid(tp1 + theme(legend.position = "none"),
+                    tp2 + theme(legend.position = "none"),
+                    labels = c("A", "B"),
+                    label_size = 25)
+
+plot_grid(tpplot, legendtp, rel_widths = c(3, .4))
 
 
 #these seem to be noteworthy interactions TP
