@@ -3,7 +3,7 @@
 ####################
 dependencies <- c('data.table', 'tidyverse', 'stringr', 'ggplot2')
 lapply(dependencies, function(x) library(x, character.only = T))
-dat <- as.data.table(readRDS(r"(C:\Users\e_lib\OneDrive\Documents\Caspar Repositories\PEMA\simulatie_2021\sim_results_2021-09-08.RData)"))
+dat <- as.data.table(readRDS("simulatie_2021/results/sim_results_2021-09-08.RData"))
 
 # load in needed functions
 source('./simulatie_2021/Analysis_functions.R') #created functions used for analysis

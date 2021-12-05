@@ -65,7 +65,10 @@ output            : papaja::apa6_pdf
 
 ```{r setup, include = FALSE}
 library("papaja")
+library(tidySEM)
+library(kableExtra)
 r_refs("r-references.bib")
+out <- readRDS("output.RData")
 ```
 
 ```{r analysis-preferences}
@@ -377,36 +380,106 @@ and the variance is given by the variance of this deviation.
 
 ## Design factors
 
-The simulation conditions consist of all unique combinations of the following design factors: the number of studies in the training data $k \in (22, 40, 80)$, average within-study sample size $\bar{n} \in (40, 100, 200)$, the population effect size of relevant moderators $\beta \in (.2, .5, .8)$, the number of standard normally distributed moderators $p \in (2, 3, 6)$, and residual heterogeneity $\tau^{2} \in (.01, .04, .1)$.
+The simulation conditions consist of all unique combinations of the following design factors: the number of studies in the training data $k \in (22, 40, 80)$, average within-study sample size $\bar{n} \in (40, 100, 200)$, the population effect size of relevant moderators $\beta \in (0, .2, .5, .8)$, the number of skewed normally distributed moderators $p \in (2, 3, 6)$, and residual heterogeneity $\tau^{2} \in (.01, .04, .1)$.
+The scale parameters of the skewed normal moderators were selected from $\omega \in (0, 2, 10)$, where $\omega = 0$ corresponds to a standard normal distribution.
 The true effect size was simulated using two models:
-one with a main effect of one moderator, $T_{i}= \beta x_{1i} + \epsilon_i$, and one with a non-linear, cubic effect of one moderator, $T_{i}= \beta x_{1i} + \beta x_{1i}^{2} + \beta x_{1i}^{3} + \epsilon_i$,
+one with a linear effect of one moderator, $T_{i}= \beta x_{1i} + \epsilon_i$, and one with a non-linear (cubic) effect of one moderator, $T_{i}= \beta x_{1i} + \beta x_{1i}^{2} + \beta x_{1i}^{3} + \epsilon_i$,
 where $\epsilon_i \sim N(0, \tau^2)$.
 The observed effect size $y_i$ was then simulated as a standardized mean difference (SMD),
 sampled from a non-central t-distribution.
+The design factors combined to produce `r out$conditions` unique conditions.
 For all simulation conditions, 100 datasets were generated. 
+<!-- x = rnorm(1000) -->
+<!-- func <- function(x, b){b*x+(b*(x^2))+(b*(x^3))} -->
+<!-- dat <- data.frame(x = x, -->
+<!--                   y = c(func(x, .2), func(x, .5), func(x, .8)), -->
+<!--                   es = rep(c(".2", ".5", ".8"), each = 1000)) -->
 
+
+
+<!-- ggplot(dat, aes(x, y, color = es))+geom_smooth() -->
 # Results
 
-There were 3888 condition combinations in total. The algorithms ran on 100 different datasets on each of those, leaving 388800 cases to analyze. There were 20 of those cases for which the RMA algorithm had missing values on all metrics. Closer inspection showed that both the cubic and exponential model each contributed ten times to the missing values and only when 2, 3 or 6 moderators were taken up in the model. However, since the missing cases make up only 0.005% of the data, the cases were chosen to be omitted from further analysis entirely. Another observation is that the two-way interaction model only had results when the number of moderators in the model was either 3, 4 or 7, while the other models only had results when there were 2, 3 or 6 moderators. It is therefor more challenging to compare and interpret the effect the moderators had on the performance criteria between the two-way interaction and the other models.
+The RMA algorithm failed to converge for `r out$missing` replications, all of which were characterized by low number of cases ($k \leq 40$) and high effect sizes $\beta \geq .5$.
+These cases were omitted from further analysis.
 
 ## Predictive performance
-Predictive performance was operationalized by calculating the $R^2_{test}$ and $MSE_{test}$ for every combination of design factors, in further test denoted as $R^2$ and $MSE$ respectively. The densities for the $R^{2}_{test}$ and $MSE_{test}$ values were skewed however, which is why it was chosen to use the median $R^2$ as the metric for predictive performance, rather than the mean. The spread of the metrics was described using the Mean Absolute Deviation [MAD], rather than the standard deviation. It was found that the Horseshoe, Lasso and RMA algorithm performed similarly overall, $R^2_{Hs} = 0.51 \pm 0.36$, $MSE_{Hs} = 0.21 \pm 0.18$ ; $R^2_{Lasso} = 0.50 \pm 0.37$, $MSE_{Lasso} = 0.21\pm 0.19$; $R^2_{RMA} = 0.50 \pm 0.37$, $MSE_{RMA} = 0.22 \pm 0.23$ . The MetaForest algorithm performed worst on $R^2$: $R^2_{Mf} = 0.35 \pm 0.38$, $MSE_{Mf} = 0.22 \pm 0.19$ 
+```{r}
+out <- readRDS("output.RData")
+```
 
-To determine the effect of the design factors on $R^2$ for all algorithms, four separate ANOVA’s were performed; one per algorithm. The effect size $\eta^{2}$ per condition per algorithm, including for all two-way interactions can be found in table 1. Do note that the ANOVA's were performed with the normality assumption violated. The estimates serve mostly as a guidance, rather than an absolute result. 
+Results indicated that the overall $R^2_{test}$ was highest for BRMA with a Horseshoe prior and lowest for RMA, see \@ref(tab:tabr2).
+This difference was driven in part by the fact that explained variance was somewhat higher for the BRMA models when the true effect was not null, and by the fact that RMA had larger negative explained variance when the true effect was equal to zero (i.e., there was no effect to detect).
 
-Not too surprisingly, It was found that the true effect size $\beta$ had the largest effect on $R^{2}$ for all algorithms. As $\beta$ increased, the performance of all algorithms increased as well. However, $\beta$ did interact with the model that was estimated, being either a linear, two-way interaction, cubic or an exponential model. A graphical representation of the interaction is shown in image 1. When the exponential and cubic model were estimated, the increase of $R^{2}$ slowed for every higher value of $\beta$. For the estimation of the two-way interaction model the increase only slowed when $\beta$ went from 0.5 to 0.8, while the steepest increase for the linear model estimation was when $\beta$ increased from 0.2 to 0.5. Also noteworthy is that $R^2$ stagnated during estimation of the cubic model as $\beta$ went up to 0.5, while for the other models $R^2$ did keep increasing. There was little difference in median $R^2$ between Horsehoe, Lasso and RMA, while MetaForest performed worst.
+```{r tabr2, results= "asis"}
+tab <- read.csv("r2.csv")[1:7][c(1, 2,5,3,6,4,7)]
+#[, c(seq(1, 9, by = 3), seq(2, 9, by = 3),
+#                                                                  seq(3, 9, by = 3))]
+names(tab)[1] <- ""
+names(tab) <- gsub(".", " ", names(tab), fixed = T)
+names(tab)[grepl("Mean", names(tab))] <- paste0(names(tab)[grepl("Mean", names(tab))], "}$")
+names(tab) <- gsub("Mean R2", "$\\bar{R^2}_{", names(tab), fixed = T)
+names(tab) <- gsub("SD R2.*", "$SD$", names(tab))
+names(tab) <- gsub("CI.*", "$CI_{95}$", names(tab))
+kbl(tab[, ], caption = "Mean and SD of predictive R2 for BRMA with a horseshoe (HS) and LASSO prior, and for RMA, for models with a true effect (ES != 0) and without (ES = 0).", digits = 2, row.names = FALSE, escape = FALSE, booktabs = TRUE, col.names = gsub("\\.\\d", "", names(tab)))
+  
+```
 
-The second largest marginal effect was that of the estimated model. All algorithms had the highest $R^2$ under the cubic model, followed by a similar performance on the two-way interaction and exponential models. All algorithms performed worst for the linear model. There again was little difference in performance between the Pema algorithms and RMA, although MetaForest performed worst. Image 2A shows the relationship. 
+To determine the effect of the design factors on $R^2_{test}$, ANOVA’s were performed; one per algorithm.
+Note that p-values are likely not informative due to the large sample size and violation of the assumptions of normality and homoscedasticity.
+The results should thus be interpreted as descriptive, not inferential, statistics.
+Table \@ref(tab:tabr2eta) reports the effect size  $\eta^{2}$ of main effects and two-way interactions between simulation conditions.
+As many effects of design factors were monotonously positive or negative for all algorithms,
+we provide an overview of the interpretation of those effects in the Table.
+Interpretation was less straightforward for a number of interactions;
+for these, the median $R^2_{test}$ is graphed in Figure \@ref(fig:figanova).
 
-There also was a moderate interaction effect between the estimated model and the amount of skewness of the input data $\alpha$, especially for the Pema algorithms. Again, Pema and RMA algorithms performed best, followed by MetaForest in all conditions. Most obvious to note is that all algorithms, except for when the linear model was estimated, generally performed better on more skewed data, although the algorithms did perform worse during estimation of the two-way interaction model when $\alpha$ went from 5 to 10. Overall performance was best during estimation of the cubic model, but the performance difference between estimated models decreased as $\alpha$ increased. Image 3 shows the relationship.
+```{r tabr2eta, results= "asis", eval = TRUE}
+tabanova <- readRDS("anova.RData")
+#tabanova$condition <- gsub("alpha", "omega", tabanova$condition, fixed = T)
+#tabanova$condition <- gsub("$mean{n}$", "$n$", tabanova$condition, fixed = T)
+tabanova$Factor <- gsub("\\$(omega|beta|tau)", "\\$\\\\\\1", tabanova$Factor)
+tabanova$HS.vs..LASSO <- NULL
+tabanova <- tabanova[, c(ncol(tabanova), 2:(ncol(tabanova)-1))]
+# kbl(tabanova, caption = "Effect size of design factors and their two-way interactions on R2 the different algorithms, and of the difference between algorithms. The comparison between HS and LASSO was zero in the second decimal for all conditions. Interpretation indicates whether the effect was uniformly positive or negative (for interactions, the effect of the second design factor in the interaction) for all algorithms.", digits = 2, row.names = FALSE, escape = FALSE, booktabs = TRUE, col.names = gsub("(?<!vs)\\.", " ", names(tabanova), perl = TRUE)) |>
+#   kable_styling(latex_options = c("scale_down"))
+apa_table(tabanova, caption = "Effect size of design factors and their two-way interactions on R2 the different algorithms, and of the difference between algorithms. The comparison between HS and LASSO was zero in the second decimal for all conditions. Interpretation indicates whether the effect was uniformly positive or negative (for interactions, the effect of the second design factor in the interaction) for all algorithms.", digits = 2, escape = FALSE, col.names = gsub("(?<!vs)\\.", " ", names(tabanova), perl = TRUE), longtable = TRUE)
+```
 
-The true residual heterogeneity $\tau^{2}$ had a negative linear relationship for all algorithms on $R^{2}$. That is, as $\tau^{2}$ increased, $R^{2}$ decreased. Image 2B shows the relationship.
+```{r figanova, fig.cap="Predictive R2 for HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) for interactions. One design factor is displayed in different panels, the other on the x-axis."}
+knitr::include_graphics("other_effects.png")
+```
 
-The mean sample size per study $\bar{n}$ also had a moderate effect. For all algorithms the effect of $\bar{n}$ was positively linearly related with $R^{2}$. Again, the Pema and RMA algorithms performed better than MetaForest. Image 2C shows the relationship.
+To establish difference in predictive performance between the three algorithms,
+the interactions of algorithm (HS vs. LASSO, HS vs. RMA and LASSO vs. RMA) were estimated.
+The $\eta^2$ of these differences between algorithms are also displayed in Table \@ref(tab:tabr2eta).
+Note that $\eta^2$ for the comparison between HS and LASSO was zero in the second decimal for all conditions; thus, this comparison was omitted from the Table.
+Results show that the largest differences between algorithms were due to the effect size $\beta$, number of cases in the training data $k$, and the number of irrelevant moderators $M$.
+The effect of these factors by algorithm is displayed in Figure \@ref(fig:figmaindif).
+Evidently, predictive performance increased most for the HS algorithm when the effect size increased above zero.
+As noted previously, predictive performance of RMA was most negative (negative explained variance) when the effect size was zero.
+The HS algorithm furthermore had the consistently highest predictive performance regardless of number of cases in the training data or number of irrelevant moderators, and was relatively less affected by increases in the number of training cases (panel b) or in the number of irrelevant moderators (panel c).
+Similarly, the HS algorithm furthermore had the consistently highest predictive performance regardless of number of cases in the training data, and thus also increased less when the number of training cases increased (panel b).
+Conversely, RMA had relatively poor predictive performance on average, and was more responsive to increases in the number of training cases and irrelevant moderators. 
 
-An especially large effect was found for the number of studies used in the training data $\kappa$ for MetaForest, while this effect was substantially smaller for RMA, Lasso and Horseshoe. The relationship is positively linear for all algorithms, but the slope is especially steep for MetaForest. Image 2D shows the relationship.
+```{r figmaindif, fig.cap="Predictive R2 for design factors with largest differences in predictive performance across the HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) algorithms."}
+knitr::include_graphics("main_diff.png")
+```
 
-Finally, the number of moderators did not have a big effect for the Pema algorithms, while for RMA and MetaForest the effect was more noticeable. The relationship is shown in image 7. The relationship is generally negative with more moderators meaning worse performance, although an increase can be observed as the number of moderators increase from 4 to 6 for all algorithms except MetaForest. This increase in performance for MetaForest appears when the number of moderators go from 3 to 4.
+<!-- Results show that the true effect size $\beta$ had the largest marginal effect on $R^{2}$ for all algorithms. -->
+<!-- As $\beta$ increased, each algorithm's performance increased as well. -->
+<!-- Predictably, the effect of $\beta$ interacted with the model used to simulate data. -->
+<!-- Compared to the linear model, $R^{2}_{test}$ for the cubic model showed diminishing increases with $\beta$. -->
+<!-- The third largest marginal effect was that of the simulation model. -->
+<!-- All algorithms had higher $R^2_{test}$ under the cubic model than under the linear model, which makes sense because $\beta$ had an additional effect through the polynomials of the relevant moderator. -->
+<!-- There was an interaction between the model and the amount of skewness of the predictor variable $\omega$: -->
+<!-- For all algorithms, the association between skewness and $R^2_{test}$ was negative for the linear model, and positive for the cubic model. -->
+<!-- <!-- Figure \@ref(fig:skewness) shows the relationship. --> -->
+<!-- The residual heterogeneity $\tau^{2}$ had a negative linear relationship with $R^{2}_{test}$ for all algorithms. -->
+<!-- The mean sample size per study $\bar{n}$ also had a moderate effect for all algorithms, indicating that a greater number of participants within studies was positively linearly related with $R^{2}_{test}$. -->
+<!-- Similarly, the number of studies in the training data $k$ was positively related with $R^{2}_{test}$. -->
+
+<!-- Finally, the number of moderators did not have a big effect for the Pema algorithms, while for RMA and MetaForest the effect was more noticeable. The relationship is shown in image 7. The relationship is generally negative with more moderators meaning worse performance, although an increase can be observed as the number of moderators increase from 4 to 6 for all algorithms except MetaForest. This increase in performance for MetaForest appears when the number of moderators go from 3 to 4. -->
 
 ## Estimating residual heterogeneity
 The ability of the algorithms to correctly estimate $\tau^{2}$ was operationalized by subtracting the true value for $\tau^{2}$ from the $\tau^{2}$ estimated by the algorithms. Again, the median and Mean Absolute Deviation were used as metrics for performance. The RMA algorithm showed the best results, $\Delta\tau^2_{RMA} = 0.02 \pm 0.06$, followed by the MetaForest algorithm $\Delta\tau^2_{Mf} = 0.09 \pm 0.13$. The Pema algorithms performed worst $\Delta\tau^2_{Lasso} = 0.23 \pm 0.18$; $\Delta\tau^2_{Hs} = 0.23 \pm 0.17$. The finding that all medians are positive implies that all algorithms have a bigger tendency to overestimate $\tau^{2}$ than underestimate it. One comment to make is that uncertainty of the estimates generally increased as $\Delta\tau^{2}$ also increased. This implies that there was more variation in performance as median performance worsened.

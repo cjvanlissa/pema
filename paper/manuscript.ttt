@@ -1,0 +1,63 @@
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+\caption{\label{tab:tabr2}Mean and SD of predictive R2 for BRMA with a horseshoe (HS) and LASSO prior, and for RMA, for models with a true effect (ES != 0) and without (ES = 0).}
+\centering
+\begin{tabular}[t]{lrlrlrl}
+\toprule
+ & $\bar{R^2}_{ HS}$ & $CI_{95}$ & $\bar{R^2}_{ LASSO}$ & $CI_{95}$ & $\bar{R^2}_{ RMA}$ & $CI_{95}$\\
+\midrule
+Overall & 0.42 & {}[-0.03, 0.87] & 0.42 & {}[-0.01, 0.87] & 0.39 & {}[-0.30, 0.87]\\
+ES = 0 & 0.57 & {}[0.04, 0.89] & 0.56 & {}[0.03, 0.88] & 0.55 & {}[-0.01, 0.88]\\
+ES != 0 & -0.01 & {}[-0.04, -0.00] & -0.01 & {}[-0.02, 0.00] & -0.10 & {}[-0.40, -0.01]\\
+\bottomrule
+\end{tabular}
+\end{table*}
+\efloatseparator
+ 
+\begin{ThreePartTable}
+
+\begin{longtable}{lllllll}\noalign{\getlongtablewidth\global\LTcapwidth=\longtablewidth}
+\caption{\label{tab:tabr2eta}Effect size of design factors and their two-way interactions on R2 the different algorithms, and of the difference between algorithms. The comparison between HS and LASSO was zero in the second decimal for all conditions. Interpretation indicates whether the effect was uniformly positive or negative (for interactions, the effect of the second design factor in the interaction) for all algorithms.}\\
+\toprule
+Factor & HS & LASSO & RMA & HS vs. RMA & LASSO vs. RMA & Interpretation\\
+\midrule
+\endfirsthead
+\caption*{\normalfont{Table \ref{tab:tabr2eta} continued}}\\
+\toprule
+Factor & HS & LASSO & RMA & HS vs. RMA & LASSO vs. RMA & Interpretation\\
+\midrule
+\endhead
+$\omega$ & 0.04 & 0.04 & 0.02 & 0.00 & 0.00 & negative\\
+$\omega$ :Model & 0.18 & 0.18 & 0.09 & 0.00 & 0.00 & positive\\
+$\omega$ :M & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & other\\
+$\beta$ & 0.89 & 0.89 & 0.80 & 0.02 & 0.03 & positive\\
+$\beta$:$\omega$ & 0.02 & 0.02 & 0.01 & 0.00 & 0.00 & other\\
+$\beta$:Model & 0.51 & 0.51 & 0.32 & 0.00 & 0.00 & other\\
+$\beta$:M & 0.00 & 0.00 & 0.02 & 0.01 & 0.01 & other\\
+$\beta$:$\tau^2$ & 0.04 & 0.04 & 0.02 & 0.00 & 0.00 & other\\
+$k$ & 0.04 & 0.05 & 0.11 & 0.02 & 0.01 & positive\\
+$k$ :$\omega$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & negative\\
+$k$ :$\beta$ & 0.00 & 0.01 & 0.03 & 0.01 & 0.01 & positive\\
+$k$ :$n$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & positive\\
+$k$ :Model & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & positive\\
+$k$ :M & 0.00 & 0.00 & 0.04 & 0.01 & 0.01 & other\\
+$k$ :$\tau^2$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & negative\\
+$n$ & 0.11 & 0.10 & 0.04 & 0.00 & 0.00 & positive\\
+$n$:$\omega$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & other\\
+$n$:$\beta$ & 0.04 & 0.04 & 0.02 & 0.00 & 0.00 & positive\\
+$n$:Model & 0.04 & 0.04 & 0.02 & 0.00 & 0.00 & positive\\
+$n$:M & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & negative\\
+$n$:$\tau^2$ & 0.01 & 0.01 & 0.01 & 0.00 & 0.00 & negative\\
+Model & 0.33 & 0.34 & 0.18 & 0.00 & 0.00 & positive\\
+M & 0.00 & 0.01 & 0.06 & 0.02 & 0.01 & negative\\
+M:Model & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & positive\\
+$\tau^2$ & 0.12 & 0.12 & 0.06 & 0.00 & 0.00 & negative\\
+$\tau^2$:$\omega$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & other\\
+$\tau^2$:Model & 0.07 & 0.07 & 0.03 & 0.00 & 0.00 & positive\\
+$\tau^2$:M & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & other\\
+\bottomrule
+\end{longtable}
+
+\end{ThreePartTable}

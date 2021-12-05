@@ -86,44 +86,41 @@ plot_marginal_median <- function(condition, df, lonames, metric, pointsize = 5, 
   condition <- as.name(condition)
   hs <- as.name(lonames[1])
   las <- as.name(lonames[2])
-  mf <- as.name(lonames[3])
-  rma <- as.name(lonames[4])
+  rma <- as.name(lonames[3])
 
   cond <- df %>%
     group_by(!!condition)%>%
     summarise(Horseshoe = median(!!hs),
               Lasso = median(!!las),
-              Metaforest = median(!!mf),
               RMA = median(!!rma)) %>%
     pivot_longer(cols = !all_of(condition), names_to = 'alg', values_to = metric)
 
   ggplot(data = cond, aes(x = !!condition,y = !!as.name(metric), linetype = alg, group = alg, shape = alg)) +
     geom_line(size = linesize, ) +
     geom_point(size = pointsize) +
-    theme_classic(base_size = 25)
+    theme_bw(base_size = 25)
 }
+
 
 plot_interaction_median <- function(condition, intcond, df, lonames, metric){
   condition <- as.name(condition)
   intcond <- as.name(intcond)
   hs <- as.name(lonames[1])
   las <- as.name(lonames[2])
-  mf <- as.name(lonames[3])
-  rma <- as.name(lonames[4])
+   rma <- as.name(lonames[3])
 
   cond <- df %>%
     group_by(!!condition, !!intcond)%>%
     summarise(Horseshoe = median(!!hs),
               Lasso = median(!!las),
-              Metaforest = median(!!mf),
               RMA = median(!!rma)) %>%
-    pivot_longer(cols = c(Horseshoe, Lasso, Metaforest, RMA), names_to = 'alg', values_to = metric)
+    pivot_longer(cols = c(Horseshoe, Lasso, RMA), names_to = 'alg', values_to = metric)
 
   ggplot(data = cond, aes(x = !!condition,y = !!as.name(metric), linetype = alg, group = alg, shape = alg)) +
     geom_line(size = 1, ) +
     geom_point(size = 2.5) +
-    facet_wrap(~cond[[intcond]], scales = 'free') +
-    theme_classic(base_size = 25)
+    facet_wrap(~cond[[intcond]]) +
+    theme_bw(base_size = 25) + theme(legend.position = "none")
 }
 
 
