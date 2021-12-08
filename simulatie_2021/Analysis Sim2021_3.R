@@ -3,51 +3,40 @@
 ####################
 library(latex2exp)
 library(cowplot)
+library(data.table)
+library(ggplot2)
+library(tidySEM)
+library(rcompanion)
+# load in needed functions
+source('./simulatie_2021/Analysis_functions.R') #created functions used for analysis
+
 out <- list()
-dependencies <- c('data.table', 'tidyverse', 'stringr', 'ggplot2')
-lapply(dependencies, function(x) library(x, character.only = T))
+
 dat <- as.data.table(readRDS("simulatie_2021/results/sim_results_2021-09-08.RData"))
 dat <- dat[dat$model %in% c("es * x[, 1]", "es * x[, 1] + es * (x[, 1] ^ 2) + es * (x[, 1] ^ 3)"),]
 dat[, grep("^mf", names(dat)) := NULL]
 
-# load in needed functions
-source('./simulatie_2021/Analysis_functions.R') #created functions used for analysis
 
 #some data preprocessing
 newnames <- c('hs', 'lasso', 'rma') #names of algorithms
 conditions <- c("k_train", "mean_n", "es", "tau2","alpha_mod", "moderators", "model") #conditions that vary
 lc <- length(conditions) #length of conditions, handy for further code
-dat[, (conditions):=lapply(.SD, factor), .SDcols=conditions] #convert to factor
+dat[, (conditions):=lapply(.SD, ordered), .SDcols=conditions] #convert to factor
 levels(dat$model) <- c('linear', 'cubic') #rename to more understandable levels
 
 #there are duplicated columns which contain the same values, we can omit those
-last <- function(x) { return( x[length(x)] ) } #function to obtain last element from vector
 unique_cols <- which(!duplicated(colnames(dat)))
-dat <- dat[ , unique_cols[1]:last(unique_cols)]
+dat <- dat[ , unique_cols[1]:tail(unique_cols, 1)]
 
-#Checking for missing values
-#first we omit the columns that should contain missing values which are the 'sel' columns
-lashs <- colnames(dat)[grep(pattern = "_(ci|hdi)_sel_\\d", colnames(dat))]
-mfrma <- colnames(dat)[grep(pattern = "(mf|rma)_sel_\\d", colnames(dat))]
-
-#create df without sel columns and subset it for rows that contain more than 1 missing
-wo_sel_cols <- colnames(dat)[!colnames(dat) %in% c(lashs, mfrma)]
-dat_no_sel <- dat[ , .SD, .SDcols=c(conditions, wo_sel_cols)] #subset data
+#Checking for non converged models
+dat_no_sel <- dat[ , .SD, .SDcols=c(conditions,
+                                    grep("test_r2", names(dat), fixed = T, value = T))] #subset data
 MD <- dat_no_sel[rowSums(is.na(dat_no_sel)) > 0, ]
-out$missing <- sum(MD$model == "cubic")
+out$missing <- nrow(MD)
 #View(MD) # issue is with rma
 
 #where is the issue?
 #apply(MD[, 1:lc], 2, table) #cubic model
-
-#design factors we need for further code
-grouping.vars <- quote(list(k_train,
-                            mean_n,
-                            es,
-                            tau2,
-                            alpha_mod,
-                            moderators,
-                            model))
 
 ##################################################
 # Predictive performance analyses - MSE & R2     #
@@ -56,32 +45,14 @@ grouping.vars <- quote(list(k_train,
 #subsets the data based on particular performance criterion
 #in this case test and train_r2
 analyzedat_test <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_test_r2"))]
-analyzedat_train <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_train_r2"))]
-
-#delete the 20 cases for which RMA is missing
 analyzedat_test <- na.omit(analyzedat_test)
-analyzedat_train <- na.omit(analyzedat_train)
-
-# #convergence checks, traceplots
-# Traceplot(analyzedat_test$rma_test_r2, analyzedat_train$rma_train_r2, "R2", "RMA")
-# Traceplot(analyzedat_test$lasso_test_r2, analyzedat_train$lasso_train_r2, "R2", "Lasso")
-# Traceplot(analyzedat_test$hs_test_r2, analyzedat_train$hs_train_r2, "R2", "Horseshoe")
-#
-# #convergence checks, densities
-# par(mfrow = c(2, 2))
-# plotdens(analyzedat_test)
-# plotdens(analyzedat_train)
-#
-# #obtain descriptives for train and test R2
-# psych::describe(analyzedat_train[,(lc+1):ncol(analyzedat_train)])
-# psych::describe(analyzedat_test[,(lc+1):ncol(analyzedat_test)])
-
 
 #the dependent variables (the test r2)
 yvars <- paste0(newnames, "_test_r2")
 #creates a list for every Anova with the results for the anova and the effect sizes for the conditions on the algorithms
 anovas<-lapply(yvars, function(yvar){
-  form<-paste(yvar, '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2") #the ^2 signifies that we want all possible effects up until interactions
+  form<-paste(yvar, '~', paste(conditions, collapse = "+"))
+  # form<-paste(yvar, '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2") #the ^2 signifies that we want all possible effects up until interactions
   thisaov<-aov(as.formula(form), data=analyzedat_test) #change data according to dataframe you are using
   thisetasq<-EtaSq(thisaov)[ , 2]
   list(thisaov, thisetasq)
@@ -96,7 +67,8 @@ comps <- t(apply(comps, 1, sort))
 comps <- comps[!duplicated(comps), ]
 #creates a list for every Anova with the results for the anova and the effect sizes for the conditions on the algorithms
 diffanovas <- sapply(1:nrow(comps), function(i){
-  form<-as.formula(paste(yvar, '~ algo * ((', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2)")) #the ^2 signifies that we want all possible effects up until interactions
+  form<-as.formula(paste("r2", '~ algo * (', paste(conditions, collapse = "+"), ")")) #the ^2 signifies that we want all possible effects up until interactions
+  # form<-as.formula(paste("r2", '~ algo * ((', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2)")) #the ^2 signifies that we want all possible effects up until interactions
   tmp <- analyzedat_test
   tmp <- tmp[, .SD, .SDcols = c(names(tmp)[1:7], comps[i, , drop = TRUE])]
   names(tmp) <- gsub("^(.+?)_r2", "r2_\\1", names(tmp))
@@ -112,7 +84,7 @@ diffanovas <- sapply(1:nrow(comps), function(i){
 colnames(diffanovas) <- paste0(gsub("_.+$", "", toupper(comps[,1])), " vs. ", gsub("_.+$", "", toupper(comps[,2])))
 diffanovas <- data.frame(condition = gsub("algo:", "", rownames(diffanovas), fixed = T), diffanovas)
 diffanovas$condition <- trimws(diffanovas$condition)
-write.csv(diffanovas, "paper/diffanovas.csv", row.names = FALSE)
+
 
 out$difference <- diffanovas[1, ]
 #creates dataframe with effect sizes for all conditions for all algorithms
@@ -120,186 +92,130 @@ etasqs<-data.frame(sapply(anovas, `[[`, 2))
 etasqs$condition <- trimws(rownames(etasqs))
 etasqs <- merge(etasqs, diffanovas, by = "condition", all.x = TRUE)
 
-coef.table<-copy(etasqs)
+table_anova<-copy(etasqs)
 
-# row.names(coef.table)<-table.names
-names(coef.table)[2:4]<-c("HS", "LASSO", "RMA")
-coef.table.sort <- coef.table#[order(coef.table[,"HS"], decreasing = T), , drop = FALSE]
-
-
-
-# etasq <- read.csv2(file =  "./simulatie_2021/Analysis Results/EtaSq_testR2.csv", sep = ",", row.names = 'X')
-
-#subsets the data based on particular performance criterion
-#in this case test and mse
-analyzedat_test_mse <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_test_mse"))]
-analyzedat_train_mse <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_train_mse"))]
-
-analyzedat_test_mse <- na.omit(analyzedat_test_mse)
-analyzedat_train_mse <- na.omit(analyzedat_train_mse)
-
-#obtain descriptives for train and test mse
-# psych::describe(analyzedat_train_mse[,(lc+1):(lc+4)])
-# psych::describe(analyzedat_test_mse[,(lc+1):(lc+4)])
+# row.names(table_anova)<-table.names
+names(table_anova)[2:4]<-c("HS", "LASSO", "RMA")
+# table_anova <- table_anova[order(table_anova[,"HS"], decreasing = T), , drop = FALSE]
 
 
 ############
 # R2 plots #
 ############
-measure.vars <- names(analyzedat_test)[-c(1:lc)] #test_r2 values
 
 #based on median
-testR2_per_condition <- analyzedat_test[,lapply(.SD, median),by=eval(grouping.vars), .SDcols=measure.vars]
-out$conditions <- nrow(testR2_per_condition)
+r2bycond <- analyzedat_test[,lapply(.SD, median),by=conditions, .SDcols=yvars]
+out$conditions <- nrow(r2bycond)
 
-interpret <- function(out){
-  tmp <- out[[2]][order(out[[1]])]
-  if(is.na(tmp[1])) return(NA)
-  tmp <- sum(sign(diff(tmp)))
-  if(tmp == (nrow(out)-1)){
-    return("positive")
+int_main <- sapply(names(r2bycond)[1:7], function(n){
+  tmp <- r2bycond[, list(median(hs_test_r2), median(lasso_test_r2), median(rma_test_r2)), by=n]
+  x <- sapply(as.data.frame(tmp)[2:4], interpret)
+  if(length(unique(x)) == 1){
+    return(x[1])
+  } else{
+    "other"
   }
-  if(tmp == (-1*(nrow(out)-1))){
-    return("negative")
-  }
-  return("other")
-}
-int_main <- sapply(names(testR2_per_condition)[1:7], function(n){
-  c(interpret(testR2_per_condition[, median(hs_test_r2), by=n]),
-    interpret(testR2_per_condition[, median(lasso_test_r2), by=n]),
-    interpret(testR2_per_condition[, median(rma_test_r2), by=n]))
   })
-int_main <- apply(int_main, 2, function(x){if(length(unique(x)) == 1){
-  return(x[1])
-} else{
-  "other"
-}})
+names(int_main) <- names(r2bycond)[1:7]
 
-ints_names <- grep(":", coef.table$condition, fixed = TRUE, value = TRUE)
-ints <- do.call(rbind, lapply(strsplit(ints_names, ":"), unlist))
-int_int <- mapply(function(n1, n2){
-  out <- testR2_per_condition[, list(median(hs_test_r2), median(lasso_test_r2), median(rma_test_r2)), by=eval(parse(text = paste0("list(", n1, ",", n2, ")")))]
-  sapply(unique(out[[1]]), function(val){
-    tmp <- as.data.frame(out[out[[1]] == val, ])
-    tmp <- sapply(tmp[3:5], function(x){interpret(data.frame(tmp[[2]], x))})
-    if(length(unique(tmp)) == 1){
-      return(tmp[1])
-    } else {
-      return("other")
-    }
-  })
-}, n1 = ints[, 1], n2 = ints[,2])
+# ints_names <- grep(":", table_anova$condition, fixed = TRUE, value = TRUE)
+# ints <- do.call(rbind, lapply(strsplit(ints_names, ":"), unlist))
+# int_int <- mapply(function(n1, n2){
+#   eff <- "spreading"
+#   out <- r2bycond[, list(median(hs_test_r2), median(lasso_test_r2), median(rma_test_r2)), by=eval(parse(text = paste0("list(", n1, ",", n2, ")")))]
+#   for(val in unique(out[[1]])){
+#     tmp <- as.data.frame(out[out[[1]] == val, ])
+#     tmp <- sapply(tmp[3:5], interpret)
+#     if(!all(tmp == int_main[names(out)[2]])){
+#       eff <- "crossover"
+#     }
+#   }
+#   for(val in unique(out[[2]])){
+#     tmp <- as.data.frame(out[out[[2]] == val, ])
+#     tmp <- sapply(tmp[3:5], interpret)
+#     if(!all(tmp == int_main[names(out)[1]])){
+#       eff <- "crossover"
+#     }
+#   }
+#   return(eff)
+# }, n1 = ints[, 1], n2 = ints[,2])
 
-int_int <- sapply(int_int, function(i){
-  if(length(unique(i)) == 1){
-    return(i[1])
-    } else {
-      return("other")
-      }
-  })
+# cond_name <- mapply(function(x, y){
+#   out <- c(paste0(x, ":", y), paste0(y, ":", x))
+#   out[which(out %in% diffanovas$condition)]
+# }, x = ints$Var1, y = ints$Var2)
 
-int_main <- apply(int_main, 2, function(x){if(length(unique(x)) == 1){
-  return(x[1])
-} else{
-  "other"
-}})
+interpretations <- #rbind(
+  data.frame(condition = names(int_main),
+             Interpretation = int_main)#,
+  # data.frame(condition = ints_names,
+  #            Interpretation = int_int)
+  # )
+table_anova <- merge(table_anova, interpretations, by= "condition", all.x = TRUE)
 
-cond_name <- mapply(function(x, y){
-  out <- c(paste0(x, ":", y), paste0(y, ":", x))
-  out[which(out %in% diffanovas$condition)]
-}, x = ints$Var1, y = ints$Var2)
+table.names<-renamefactors(table_anova$condition)
+table_anova$Factor<-table.names
 
-interpretations <- rbind(
-  data.frame(condition = names(testR2_per_condition)[1:7],
-             Interpretation = int_main),
-  data.frame(condition = ints_names,
-             Interpretation = int_int)
-  )
-coef.table.sort <- merge(coef.table.sort, interpretations, by= "condition", all.x = TRUE)
+saveRDS(table_anova, "paper/anova.RData")
+write.csv(table_anova, file =  "paper/anova.csv", row.names = FALSE)
 
-table.names<-coef.table.sort$condition
-table.names<-gsub("moderators", "M", table.names) #this changes 'moderators' to M
-table.names<-gsub("tau2", "$\\tau^2$", table.names) #nothing
-table.names<-gsub("es", "$\\beta$", table.names) #changes 'es'to '$beta$ but I do not know why
-table.names<-gsub("mean_n", "$n$", table.names) #nothing
-table.names<-gsub("model", "Model ", table.names) #capitalizes 'model'
-table.names<-gsub("k_train", "$k$ ", table.names)
-table.names<-gsub("alpha_mod", "$\\omega$ ", table.names)
-coef.table.sort$Factor<-table.names
-
-saveRDS(coef.table.sort, "paper/anova.RData")
-write.csv(coef.table.sort, file =  "paper/anova.csv", row.names = FALSE)
-
-plotthese <- coef.table.sort$condition[coef.table.sort$Interpretation == "other"]
-p <- lapply(1:length(plotthese), function(i){
-  x = plotthese[i]
-  namfct <- paste0(gsub("^.+?:", "", x), " (facets)")
-  namx <- gsub(":.+$", "", x)
-  namfct<-gsub("moderators", "$M$", namfct, fixed = T)
-  namfct<-gsub("tau2", "$\\tau^2$", namfct, fixed = T)
-  namfct<-gsub("es", "$\\beta", namfct, fixed = T)
-  namfct<-gsub("mean_n", "$n$", namfct, fixed = T)
-  namfct<-gsub("model", "Model", namfct, fixed = T)
-  namfct<-gsub("k_train", "$k", namfct, fixed = T)
-  namfct<-gsub("alpha_mod", "$\\omega$", namfct, fixed = T)
-  namx<-gsub("moderators", "$M$", namx, fixed = T)
-  namx<-gsub("tau2", "$\\tau^2$", namx, fixed = T)
-  namx<-gsub("es", "$\\beta", namx, fixed = T)
-  namx<-gsub("mean_n", "$n$", namx, fixed = T)
-  namx<-gsub("model", "Model", namx, fixed = T)
-  namx<-gsub("k_train", "$k", namx, fixed = T)
-  namx<-gsub("alpha_mod", "$\\omega$", namx, fixed = T)
-  namfct <- paste0(letters[i], ") ", namfct)
-  plot_interaction_median(gsub(":.+$", "", x), gsub("^.+?:", "", x), testR2_per_condition, metrics_r2, "R2") + labs(y = NULL, x = TeX(namx), title = TeX(namfct))
-})
-
-
-p[[1]] <- p[[1]] + theme(legend.position = c(.16, .22), legend.title = element_blank())
-plot_other <- do.call(plot_grid, c(p, list(labels = NULL, ncol = 2))) # "auto"
-#ggsave("paper/other_effects.png", plot = plot_other, device = "png", height = 210, width =  297, units = "mm", scale = 2.5)
-ggsave("paper/other_effects.png", plot = plot_other, device = "png", width = 210, height =  297, units = "mm", scale = 2.5)
+# plotthese <- table_anova$condition[table_anova$Interpretation == "crossover"]
+# p <- lapply(1:length(plotthese), function(i){
+#   x = plotthese[i]
+#   namfct <- paste0(gsub("^.+?:", "", x), " (facets)")
+#   namx <- gsub(":.+$", "", x)
+#   namfct<-renamefactors(namfct)
+#   namx<-renamefactors(namx)
+#   namfct <- paste0(letters[i], ") ", namfct)
+#   plot_interaction_median(gsub(":.+$", "", x), gsub("^.+?:", "", x), r2bycond, yvars, "R2") + labs(y = NULL, x = TeX(namx), title = TeX(namfct))
+# })
+#
+# p[[1]] <- p[[1]] + theme(legend.position = c(.76, .22), legend.title = element_blank())
+# #p[[1]] <- p[[1]] + theme(legend.position = c(.16, .22), legend.title = element_blank())
+# plot_other <- do.call(plot_grid, c(p, list(labels = NULL, ncol = 2))) # "auto"
+# #ggsave("paper/other_effects.png", plot = plot_other, device = "png", height = 210, width =  297, units = "mm", scale = 2.5)
+# ggsave("paper/other_effects.png", plot = plot_other, device = "png", width = 210, height =  297, units = "mm", scale = 2.5)
 
 
 
 # Plot greatest difference ------------------------------------------------
-plotthese <- c("es", "k_train", "moderators")
+plotthese <- conditions[order(table_anova$HS.vs..RMA[match(conditions, table_anova$condition)], decreasing = T)]
 p <- lapply(1:length(plotthese), function(i){
   x = plotthese[i]
-  namx<-gsub("moderators", "$M$", x, fixed = T)
-  namx<-gsub("tau2", "$\\tau^2$", namx, fixed = T)
-  namx<-gsub("es", "$\\beta$", namx, fixed = T)
-  namx<-gsub("mean_n", "$n$", namx, fixed = T)
-  namx<-gsub("model", "Model", namx, fixed = T)
-  namx<-gsub("k_train", "$k$", namx, fixed = T)
-  namx<-gsub("alpha_mod", "$\\omega$", namx, fixed = T)
-  plot_marginal_median(x, testR2_per_condition, metrics_r2, "R2") + labs(y = NULL, x = TeX(namx), title = paste0(letters[i], ")")) + theme(legend.position = "none")
+  namx<-renamefactors(x)
+  plot_marginal_median(x, r2bycond, yvars, "R2") + labs(y = NULL, x = TeX(namx), title = paste0(letters[i], ")")) + theme(legend.position = "none")
 })
 
-p[[1]] <- p[[1]] + theme(legend.position = c(.5, .22), legend.title = element_blank())
-plot_other <- do.call(plot_grid, c(p, list(labels = NULL, ncol = 3))) # "auto"
+p[[1]] <- p[[1]] + theme(legend.position = c(.7, .22), legend.title = element_blank())
+plot_other <- do.call(plot_grid, c(p, list(labels = NULL, ncol = 2))) # "auto"
 #ggsave("paper/other_effects.png", plot = plot_other, device = "png", height = 210, width =  297, units = "mm", scale = 2.5)
-ggsave("paper/main_diff.png", plot = plot_other, device = "png", width = 210, height =  120, units = "mm", scale = 2.5)
+ggsave("paper/r2.png", plot = plot_other, device = "png", width = 210, height =  297, units = "mm", scale = 2.5)
 
 # How often each highest?
-vars <- grep("test_r2", names(testR2_per_condition), fixed = TRUE, value = TRUE)
-which_highest <- table(apply(testR2_per_condition[!es == "0", .SD, .SDcols = vars], 1, which.max))
-names(which_highest) <- vars
+df_hi <- dat
+which_highest <- table(apply(df_hi[!es == "0", .SD, .SDcols = yvars], 1, which.max))
+names(which_highest) <- yvars
 out$which_highest <- which_highest
-metrics_r2 <- names(testR2_per_condition)[grep("r2", colnames(testR2_per_condition))]
+
+# which_highest <- yvars[apply(df_hi[, .SD, .SDcols = yvars], 1, which.max)]
+# ishs <- which_highest == "hs_test_r2"
+# df_hi[, "ishs" := ishs]
+# df_hi <- df_hi[, .SD, .SDcols = c(conditions, "ishs")]
+# df_hi <- df_hi[,lapply(.SD, sum),by=conditions, .SDcols="ishs"]
 
 r2mean <- rbind(
-  overall = colMeans(testR2_per_condition[, .SD, .SDcols = vars]),
-  notnull = colMeans(testR2_per_condition[!es == "0", .SD, .SDcols = vars]),
-  null = colMeans(testR2_per_condition[es == "0", .SD, .SDcols = vars]))
+  overall = colMeans(r2bycond[, .SD, .SDcols = yvars]),
+  notnull = colMeans(r2bycond[!es == "0", .SD, .SDcols = yvars]),
+  null = colMeans(r2bycond[es == "0", .SD, .SDcols = yvars]))
 colnames(r2mean) <- paste("Mean R2", c("HS", "LASSO", "RMA"))
 r2sd <- rbind(
-  overall = apply(testR2_per_condition[, .SD, .SDcols = vars], 2, sd),
-  notnull = apply(testR2_per_condition[!es == "0", .SD, .SDcols = vars], 2, sd),
-  null = apply(testR2_per_condition[es == "0", .SD, .SDcols = vars], 2, sd))
+  overall = apply(r2bycond[, .SD, .SDcols = yvars], 2, sd),
+  notnull = apply(r2bycond[!es == "0", .SD, .SDcols = yvars], 2, sd),
+  null = apply(r2bycond[es == "0", .SD, .SDcols = yvars], 2, sd))
 colnames(r2sd) <- paste("SD R2", c("HS", "LASSO", "RMA"))
-tmp <- apply(testR2_per_condition[, .SD, .SDcols = vars], 2, quantile, probs = c(.025, .975))
-tmp2 <- apply(testR2_per_condition[!es == "0", .SD, .SDcols = vars], 2, quantile, probs = c(.025, .975))
-tmp3 <- apply(testR2_per_condition[es == "0", .SD, .SDcols = vars], 2, quantile, probs = c(.025, .975))
+tmp <- apply(r2bycond[, .SD, .SDcols = yvars], 2, quantile, probs = c(.025, .975))
+tmp2 <- apply(r2bycond[!es == "0", .SD, .SDcols = yvars], 2, quantile, probs = c(.025, .975))
+tmp3 <- apply(r2bycond[es == "0", .SD, .SDcols = yvars], 2, quantile, probs = c(.025, .975))
 cis <- rbind(
   overall = conf_int(lb = tmp[1, ], ub = tmp[2, ]),
   notnull = conf_int(lb = tmp2[1, ], ub = tmp2[2, ]),
@@ -309,174 +225,283 @@ tab <- cbind(r2mean, cis, r2sd)
 tab <- data.frame(ES = c("Overall", "ES = 0", "ES != 0"), tab, check.names = F)
 write.csv(tab, "paper/r2.csv", row.names = F)
 
-p1 <- plot_interaction_median('es', 'model', testR2_per_condition, metrics_r2, "R2") + labs(y = NULL, x = expression(beta))
-  # + scale_y_continuous(trans = "reciprocal")
-#plot_marginal_median('model', testR2_per_condition, metrics_r2, "R2", pointsize = 5, linesize = 2)
-p2 <- plot_interaction_median('alpha_mod', 'model', testR2_per_condition, metrics_r2, "R2") + labs(y = NULL, x = expression(omega))
-p2 <- plot_interaction_median('alpha_mod', 'moderators', testR2_per_condition, metrics_r2, "R2") + labs(y = NULL, x = expression(omega))
-p3 <- plot_interaction_median('tau2', 'model', testR2_per_condition, metrics_r2, "R2") + labs(y = NULL, x = expression(tau^2))
-#plot_marginal_median('tau2', testR2_per_condition, metrics_r2, "R2", 5, 2)
-#plot_marginal_median('mean_n', testR2_per_condition, metrics_r2, "R2", 5, 2)
-#plot_marginal_median('alpha_mod', testR2_per_condition, metrics_r2, "R2", 5, 2)
-#plot_marginal_median('k_train', testR2_per_condition, metrics_r2, "R2", 5, 2)
-#plot_marginal_median('moderators', testR2_per_condition, metrics_r2, "R2", 5, 2)
-
-library(ggplot2)
-library(cowplot)
-
-p1 <- ggplot(mtcars, aes(disp, mpg)) +
-  geom_point()
-p2 <- ggplot(mtcars, aes(qsec, mpg)) +
-  geom_point()
-
-plot_grid(p1, p2, labels = c('A', 'B'))
 
 #---End R2---------------------------------------------------------------------------
 
-########
-# tau2 #
-########
-#create tau2 difference variables which are the estimate tau2 - true tau2
-dat <- dat %>%
-  mutate(hs_diff_tau2 = hs_tau2 - as.numeric(as.character(tau2)),
-         lasso_diff_tau2 = lasso_tau2 - as.numeric(as.character(tau2)),
-         mf_r_diff_tau2 = mf_r_tau2 - as.numeric(as.character(tau2)),
-         rma_diff_tau2 = rma_tau2 - as.numeric(as.character(tau2)))
 
 
-
-#subset for conditions and the new tau2 diff variables
-analyzedat_tau <- dat[ , .SD, .SDcols=c(conditions, paste0(newnames, "_diff_tau2"))]
-#omit NA's which are still the 20 NA's from the rma algorithm
-analyzedat_tau <- na.omit(analyzedat_tau)
-#obtain descriptives
-psych::describe(analyzedat_tau[,(lc+1):ncol(analyzedat_tau)])
-
-#obtain names of diff variables and conditions
-measure.vars <- names(analyzedat_tau)[-c(1:lc)]
-
-#the dependent variables (the diff tau2)
-yvars <- paste0(newnames, "_diff_tau2")
-#creates a list for every Anova with the results for the anova and the effect size for the conditions on the algorithms
-anovas<-lapply(yvars, function(yvar){
-  form<-paste(yvar, '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2")
-  thisaov<-aov(as.formula(form), data=analyzedat_tau)
-  list(thisaov, thisetasq)
-})
-
-#creates dataframe with effect sizes for all conditions for all algorithms
-etasqs<-data.frame(sapply(anovas, function(x){
-  tempnums<-x[[2]]
-  formatC(tempnums, 2, format="f")
-}))
-
-coef.table<-copy(etasqs)
-
-# row.names(coef.table)<-table.names
-names(coef.table)<-c("Horseshoe", "Lasso", "Metaforest" ,"RMA")
-coef.table.sort <- coef.table[order(coef.table[,"Horseshoe"], decreasing = T), , drop = FALSE]
-
-
-table.names<-row.names(coef.table.sort)
-table.names<-gsub("moderators", "M", table.names) #this changes 'moderators' to M
-table.names<-gsub("tau2", "τ2", table.names) #nothing
-table.names<-gsub("es", "β", table.names) #changes 'es'to '$beta$ but I do not know why
-table.names<-gsub("mean_n", "n", table.names) #nothing
-table.names<-gsub("model", "Model ", table.names) #capitalizes 'model'
-table.names<-gsub("k_train", "κ", table.names)
-table.names<-gsub("alpha_mod", "α", table.names)
-row.names(coef.table.sort)<-table.names
-
-write.csv(coef.table.sort, file =  "./simulatie_2021/Analysis Results/EtaSq_tau2_sort.csv")
-
-# plot based on median
-tau2_per_condition <- analyzedat_tau[,lapply(.SD, median),by=eval(grouping.vars), .SDcols=measure.vars]
-metrics_tau2 <- names(tau2_per_condition)[grep("diff_tau2", colnames(tau2_per_condition))]
-
-plot_marginal_median('model', tau2_per_condition, metrics_tau2, "\U0394Tau2")
-plot_interaction_median('es', 'model', tau2_per_condition, metrics_tau2, "\U0394Tau2")
-plot_marginal_median('es',tau2_per_condition, metrics_tau2, "\U0394Tau2")
-plot_interaction_median('alpha_mod', 'model', tau2_per_condition, metrics_tau2, "\U0394Tau2")
-plot_marginal_median('tau2', tau2_per_condition, metrics_tau2, "\U0394Tau2")
-plot_interaction_median('moderators', 'model', tau2_per_condition, metrics_tau2, "\U0394Tau2")
-plot_interaction_median('k_train', 'model', tau2_per_condition, metrics_tau2, "\U0394Tau2")
-plot_marginal_median('mean_n', tau2_per_condition, metrics_tau2, "\U0394Tau2")
-
-
-#---End tau2-----------------------
-rm(analyzedat_tau, analyzedat_test, analyzedat_train, analyzedat_test_mse, analyzedat_train_mse,
-   dat_no_sel, MD, tau2_per_condition, testR2_per_condition) #to save up memory
 
 ######################
 # Variable Selection #
 ######################
 
-#lashs and mfrma have been defined in lines 27:31
-varsel <- dat[ , .SD, .SDcols=c(conditions, lashs, mfrma)] #subset data for conditions and selection variables
-
 #below we see that the variables selected by CI and HDI are exaclty the same for lasso and Horseshoe
-hs_sel <- lashs[grep('hs', lashs)] #obtain vector with CI and HDI names for horseshoe
-las_sel <- lashs[grep('las', lashs)] #same for lasso
+table(dat$hs_ci_sel_1, dat$hs_hdi_sel_1)
+table(dat$hs_ci_sel_2, dat$hs_hdi_sel_2)
 
-samesel <- function(x,y){sum(x == y, na.rm = T) / length(x[!is.na(x)])} #give proportion of two vectors where x == y
-for(i in 1:7){
-  print(paste0('proportion CI and HDI chose same variables: ', samesel(dat[[hs_sel[i]]], dat[[hs_sel[i+7]]])))
-  print(paste0('proportion CI and HDI chose same variables: ', samesel(dat[[las_sel[i]]], dat[[las_sel[i+7]]])))
-} #they are all 1, meaning that HDI and CI columns are exactly the same
+varsel <- dat[!es == "0", .SD, .SDcols = c(conditions, grep("(rma|hs_ci|las_ci)_sel_[12]", names(dat), value = TRUE))]
+varsel <- na.omit(varsel)
 
-
-#this is done to cbind the dataframes created for the different algorithms later in the code
-varsel <- varsel[order(varsel$moderators),]
-varsel$identifier <- 1:nrow(varsel)
-
-#apply sel_all_levels function to all patterns and store in list
-#this returns a dataframe with true negatives and true positives for an algorithms
-all_patterns <- c("hs_ci_sel_\\d","las_ci_sel_\\d", "rma_sel_\\d", "mf_sel_\\d")
-MOAL <- lapply(all_patterns, sel_all_levels) #this takes a short while
-names(MOAL) <- str_extract(all_patterns,"[:alpha:]+_[:alpha:]+") #give appropriate names
-
-#create final df with all metrics for all algorithms
-varsel_final <- MOAL[[1]] #set initial dataframe
-for(i in 2:length(MOAL)){
-  varsel_final <- suppressMessages(full_join(varsel_final, MOAL[[i]]))
-}
-rm(MOAL) #remove big object
-varsel_final <- subset(varsel_final, select = -c(identifier)) #get rid of identifier variable
-psych::describe(varsel_final[, (lc+1):ncol(varsel_final)]) #very high proportions TP and TN, except for metaforest TN
+selvars <- grep("(rma|hs_ci|las_ci)_sel_1", names(dat), value = TRUE)
+notselvars <- grep("(rma|hs_ci|las_ci)_sel_2", names(dat), value = TRUE)
 
 
-######################
-# Plotting TN and TP #
-######################
-measure.vars <- colnames(varsel_final)[grep("(TP|TN)", colnames(varsel_final))]
+tntp <- varsel[,lapply(.SD, sum),by=eval(conditions), .SDcols=grep("(rma|hs_ci|las_ci)_sel_[12]", names(dat), value = TRUE)]
+table(varsel$mean_n)
+sel_prop <- unlist(tntp[, lapply(.SD, sum, na.rm = T), .SDcols=grep("(rma|hs_ci|las_ci)_sel_[12]", names(dat), value = TRUE)] / nrow(varsel))
+sel_prop <- matrix(sel_prop, nrow = 2)
+sel_prop[2, ] <- 1-sel_prop[2, ]
 
-#obtain mean TN and TP per condition
-sel_per_condition <- varsel_final[,lapply(.SD, function(x){mean(x, na.rm = T)}),by=eval(grouping.vars), .SDcols=measure.vars]
-sel_per_condition$model <- as.factor(sel_per_condition$model)
-
-#plotting TN and TP
-metrics_tn_names <- names(sel_per_condition)[grep("TN", colnames(sel_per_condition))]
-metrics_tn <- c(metrics_tn_names[1], metrics_tn_names[2], metrics_tn_names[4], metrics_tn_names[3]) #had to swap here
-#so that it works in plot functions
-
-#first subset it for the model where true effect size != 0
-sig_model <- sel_per_condition[sel_per_condition$es != 0,] #subset to model when es != 0
-metrics_tp_names <- names(sig_model)[grep("TP", colnames(sig_model))]
-metrics_tp <- c(metrics_tp_names[1], metrics_tp_names[2], metrics_tp_names[4], metrics_tp_names[3]) #here too
+out$selection <- sel_prop
 
 
-#plotsTN
-plot_interaction_mean('es', 'model', sel_per_condition, metrics_tn, 'TN')
-plot_interaction_mean('moderators', 'model', sel_per_condition, metrics_tn, 'TN')
+tab_select <- sapply(conditions, function(thiscond){
+  tab <- as.data.frame(varsel[, lapply(.SD,sum), by=thiscond, .SDcols = selvars][, -1])
+  tots <- table(varsel[[thiscond]])
+  tots <- tots[!tots == 0]
+  c(sapply(tab, function(x){ cramerV(rbind(x, tots-x)) }),
+  mapply(function(i, j){
+    cramerV(as.matrix(tab[c(i,j)]))
+  }, i = 1:3, j = c(2,3,2)))
+})
+tab_select <- data.frame(Factor = renamefactors(colnames(tab_select)), t(tab_select))
+names(tab_select)[-1] <- paste0("$P_{", names(table_anova)[2:7], "}$")
 
-#marginal plots TP
-plot_marginal_mean('mean_n', sig_model, metrics_tp, 'TP')
-plot_marginal_mean('tau2', sig_model, metrics_tp, 'TP')
+int_main <- sapply(rownames(tab_select), function(n){
+  tmp <- varsel[,lapply(.SD, sum),by=n, .SDcols=selvars]
+  x <- sapply(as.data.frame(tmp)[2:4], interpret)
+  if(length(unique(x)) == 1){
+    return(x[1])
+  } else{
+    "other"
+  }
+})
+names(int_main) <- rownames(tab_select)
+tab_select$Interpretation <- int_main
+tab_select2 <- sapply(conditions, function(thiscond){
+  tab <- as.data.frame(varsel[, lapply(.SD,sum), by=thiscond, .SDcols = notselvars][, -1])
+  tots <- table(varsel[[thiscond]])
+  tots <- tots[!tots == 0]
+  c(sapply(tab, function(x){ cramerV(rbind(x, tots-x)) }),
+    mapply(function(i, j){
+      cramerV(as.matrix(tab[c(i,j)]))
+    }, i = 1:3, j = c(2,3,2)))
+})
+tab_select2 <- data.frame(Factor = renamefactors(colnames(tab_select2)), t(tab_select2))
+names(tab_select2)[-1] <- paste0("$N_{", names(table_anova)[2:7], "}$")
+
+int_main <- sapply(rownames(tab_select2), function(n){
+  tmp <- varsel[,lapply(.SD, sum),by=n, .SDcols=notselvars]
+  x <- sapply(as.data.frame(tmp)[2:4], interpret)
+  if(length(unique(x)) == 1){
+    return(x[1])
+  } else{
+    "other"
+  }
+})
+names(int_main) <- rownames(tab_select2)
+tab_select2$Interpretation <- int_main
+
+saveRDS(tab_select, "paper/selected.RData")
+write.csv(tab_select, file =  "paper/selected.csv", row.names = FALSE)
+saveRDS(tab_select2, "paper/notselected.RData")
+write.csv(tab_select2, file =  "paper/notselected.csv", row.names = FALSE)
 
 
-#these seem to be noteworthy interactions TP
-plot_interaction_mean('k_train', 'model', sig_model, metrics_tp, 'TP')
-plot_interaction_mean('moderators', 'model', sig_model, metrics_tp, 'TP')
+p <- lapply(1:length(conditions), function(i){
+  x = plotthese[i]
+  namx<-renamefactors(x)
+  tots <- table(varsel[[x]])
+  tots <- tots[!tots==0]
+  df_plot <- as.data.frame(varsel[,lapply(.SD, sum),by=x, .SDcols=selvars])
+  names(df_plot)[-1] <- paste0("Sensitivity.", c("HS", "LASSO", "RMA"))
+  df_plot[-1] <- lapply(df_plot[-1], `/`, tots)
+  df_plot <- reshape(df_plot, direction = "long", varying = names(df_plot)[-1], timevar = "Algorithm")
+  ggplot(data = df_plot, aes_string(x = x, y = "Sensitivity",
+                                    linetype = "Algorithm",
+                                    group = "Algorithm",
+                                    shape = "Algorithm")) +
+    geom_line(size = 1.5) +
+    geom_point(size = 5) +
+    theme_bw(base_size = 25) +
+    labs(y = NULL, x = TeX(namx), title = paste0(letters[i], ")")) + theme(legend.position = "none")+
+    scale_y_continuous(limits = c(.72, 1))
+})
 
+p[[1]] <- p[[1]] + theme(legend.position = c(.7, .22), legend.title = element_blank())
+plot_other <- do.call(plot_grid, c(p, list(labels = NULL, ncol = 2))) # "auto"
+#ggsave("paper/other_effects.png", plot = plot_other, device = "png", height = 210, width =  297, units = "mm", scale = 2.5)
+ggsave("paper/sensitivity.png", plot = plot_other, device = "png", width = 210, height =  297, units = "mm", scale = 2.5)
+
+p <- lapply(1:length(conditions), function(i){
+  x = plotthese[i]
+  namx<-renamefactors(x)
+  tots <- table(varsel[[x]])
+  tots <- tots[!tots==0]
+  df_plot <- as.data.frame(varsel[,lapply(.SD, sum),by=x, .SDcols=notselvars])
+  df_plot[-1] <- lapply(df_plot[-1], function(x){ 1-(x/tots)})
+  names(df_plot)[-1] <- paste0("Sensitivity.", c("HS", "LASSO", "RMA"))
+  df_plot <- reshape(df_plot, direction = "long", varying = names(df_plot)[-1], timevar = "Algorithm")
+  ggplot(data = df_plot, aes_string(x = x, y = "Sensitivity",
+                                    linetype = "Algorithm",
+                                    group = "Algorithm",
+                                    shape = "Algorithm")) +
+    geom_line(size = 1.5) +
+    geom_point(size = 5) +
+    theme_bw(base_size = 25) +
+    labs(y = NULL, x = TeX(namx), title = paste0(letters[i], ")")) + theme(legend.position = "none") +
+    scale_y_continuous(limits = c(.9, 1))
+})
+
+p[[1]] <- p[[1]] + theme(legend.position = c(.7, .22), legend.title = element_blank())
+plot_other <- do.call(plot_grid, c(p, list(labels = NULL, ncol = 2))) # "auto"
+#ggsave("paper/other_effects.png", plot = plot_other, device = "png", height = 210, width =  297, units = "mm", scale = 2.5)
+ggsave("paper/specificity.png", plot = plot_other, device = "png", width = 210, height =  297, units = "mm", scale = 2.5)
+
+
+
+########
+# tau2 #
+########
+# df_cond <- dat[, .SD, .SDcols = conditions]
+# df_cond[, names(df_cond)[1:6] := lapply(.SD, function(i)as.numeric(as.character(i))), .SDcols = names(df_cond)[1:6]]
+# df_cond[, "moderators" := 1]
+# df_cond[, "tau2" := 0]
+# df_cond[, "k_train" := 1000]
+# df_cond <- df_cond[!duplicated(df_cond), ]
+# levels(df_cond$model) <- c("es * x[, 1]", "es * x[, 1] + es * (x[, 1] ^ 2) + es * (x[, 1] ^ 3)")
+# source("./simulatie_2021/functions for simulation/simulate_smd.R")
+# library(sn)
+# library(metafor)
+# empiricalvalues2 <- sapply(1:nrow(df_cond), function(i){
+#   thisrow <- df_cond[i, ]
+#   data <- do.call(simulate_smd, as.list(thisrow))
+#   data <- data$training
+#   res <- rma(yi = data$yi,
+#              vi = data$vi,
+#              mods = ~x, data = data)
+#   c(res$b[2,1], res$tau2)
+# #   data$study <- 1:10000
+# #   tryCatch({tmp <- lme(yi ~ x, random = ~ 1 | study, weights = varFixed(~ vi), control=lmeControl(sigma = 1), data=data)
+# #   c(tmp$coefficients$fixed[2],
+# #   attr(summary(tmp$modelStruct$reStruct$study), "stdDev")^2)}, error = function(e){c(NA, NA)})
+# })
+#df_cond <- cbind(df_cond, t(empiricalvalues2))
+measure.vars <- grep("_tau2$", names(dat), value = TRUE)
+tau2 <- dat[, .SD, .SDcols = c(conditions, measure.vars)]
+tau2[, (measure.vars[1:2]) := .SD^2, .SDcols = measure.vars[1:2]]
+tau2[, (grep("_tau2$", names(tau2), value = TRUE)) := .SD - as.numeric(as.character(tau2)), .SDcols = grep("_tau2$", names(tau2), value = TRUE)]
+tau2 <- na.omit(tau2)
+out$tau2_bias <- tau2[,lapply(.SD, mean), .SDcols=measure.vars]
+out$tau2_variance <- tau2[,lapply(.SD, var), .SDcols=measure.vars]
+tau2_per_condition <- tau2[,lapply(.SD, median),by=eval(conditions), .SDcols=measure.vars]
+
+
+yvars <- paste0(c("hs", "lasso", "rma"), "_tau2")
+anovas<-lapply(yvars, function(yvar){
+  form<-paste(yvar, '~', paste(conditions, collapse = " + "))
+  #form<-paste(yvar, '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2") #the ^2 signifies that we want all possible effects up until interactions
+  thisaov<-aov(as.formula(form), data=tau2)
+  thisetasq<-EtaSq(thisaov)[ , 2]
+  list(thisaov, thisetasq)
+})
+
+
+# Anova for the difference ------------------------------------------------
+
+comps <- expand.grid(yvars, yvars)
+comps <- comps[!comps$Var1 == comps$Var2, ]
+comps <- t(apply(comps, 1, sort))
+comps <- comps[!duplicated(comps), ]
+diffanovas <- sapply(1:nrow(comps), function(i){
+  form<-as.formula(paste("tau2hat", '~ algo * (', paste(conditions, collapse = "+"),")")) #the ^2 signifies that we want all possible effects up until interactions
+  tmp <- tau2
+  tmp <- tmp[, .SD, .SDcols = c(names(tmp)[1:7], comps[i, , drop = TRUE])]
+  names(tmp) <- gsub("^(.+?)_tau2", "tau2hat_\\1", names(tmp))
+  tmp = melt(tmp, id.vars = names(tmp)[1:7],
+             measure.vars = names(tmp)[8:9],
+             variable.name = "algo",
+             value.name = "tau2hat")
+  thisaov<-aov(form, data=tmp) #change data according to dataframe you are using
+  thisetasq<-EtaSq(thisaov)[ , 2]
+  thisetasq <- thisetasq[startsWith(names(thisetasq), "algo")]
+  thisetasq
+})
+colnames(diffanovas) <- paste0(gsub("_.+$", "", toupper(comps[,1])), " vs. ", gsub("_.+$", "", toupper(comps[,2])))
+diffanovas <- data.frame(condition = gsub("algo:", "", rownames(diffanovas), fixed = T), diffanovas)
+diffanovas$condition <- trimws(diffanovas$condition)
+
+out$tau2difference <- diffanovas[1, ]
+#creates dataframe with effect sizes for all conditions for all algorithms
+etasqs<-data.frame(sapply(anovas, `[[`, 2))
+etasqs$condition <- trimws(rownames(etasqs))
+etasqs <- merge(etasqs, diffanovas, by = "condition", all.x = TRUE)
+
+table_tau2<-copy(etasqs)
+table_tau2$Factor<- renamefactors(table_tau2$condition)
+names(table_tau2)[2:4]<-c("HS", "LASSO", "RMA")
+
+saveRDS(table_tau2, "paper/table_tau2.RData")
+write.csv(table_tau2, file =  "paper/table_tau2.csv", row.names = FALSE)
+
+
+# Betas -------------------------------------------------------------------
+
+measure.vars <- grep("_beta1$", names(dat), value = TRUE)
+beta <- dat[, .SD, .SDcols = c(conditions, measure.vars)]
+beta <- na.omit(beta)
+beta[, centerbeta := c(0, .2, .5, .8)[as.integer(es)]]
+beta[model == "cubic", centerbeta := c(0, 1.1, 2.6, 4)[as.integer(es)]]
+beta[, (measure.vars) := .SD - centerbeta, .SDcols = measure.vars]
+
+out$beta_bias <- beta[,lapply(.SD, mean), .SDcols=measure.vars]
+out$beta_variance <- beta[,lapply(.SD, var), .SDcols=measure.vars]
+
+yvars <- paste0(c("hs", "lasso", "rma"), "_beta1")
+anovas<-lapply(yvars, function(yvar){
+  form<-paste(yvar, '~', paste(conditions, collapse = " + "))
+  #form<-paste(yvar, '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2") #the ^2 signifies that we want all possible effects up until interactions
+  thisaov<-aov(as.formula(form), data=beta)
+  thisetasq<-EtaSq(thisaov)[ , 2]
+  list(thisaov, thisetasq)
+})
+
+
+# Anova for the difference ------------------------------------------------
+
+comps <- expand.grid(yvars, yvars)
+comps <- comps[!comps$Var1 == comps$Var2, ]
+comps <- t(apply(comps, 1, sort))
+comps <- comps[!duplicated(comps), ]
+diffanovas <- sapply(1:nrow(comps), function(i){
+  form<-as.formula(paste("betahat", '~ algo * (', paste(conditions, collapse = "+"),")")) #the ^2 signifies that we want all possible effects up until interactions
+  tmp <- beta
+  tmp <- tmp[, .SD, .SDcols = c(conditions, comps[i, , drop = TRUE])]
+  names(tmp) <- gsub("^(.+?)_beta1", "betahat_\\1", names(tmp))
+  tmp = melt(tmp, id.vars = names(tmp)[1:7],
+             measure.vars = names(tmp)[8:9],
+             variable.name = "algo",
+             value.name = "betahat")
+  thisaov<-aov(form, data=tmp) #change data according to dataframe you are using
+  thisetasq<-EtaSq(thisaov)[ , 2]
+  thisetasq <- thisetasq[startsWith(names(thisetasq), "algo")]
+  thisetasq
+})
+colnames(diffanovas) <- paste0(gsub("_.+$", "", toupper(comps[,1])), " vs. ", gsub("_.+$", "", toupper(comps[,2])))
+diffanovas <- data.frame(condition = gsub("algo:", "", rownames(diffanovas), fixed = T), diffanovas)
+diffanovas$condition <- trimws(diffanovas$condition)
+
+out$betadiff <- diffanovas[1, ]
+#creates dataframe with effect sizes for all conditions for all algorithms
+etasqs<-data.frame(sapply(anovas, `[[`, 2))
+etasqs$condition <- trimws(rownames(etasqs))
+etasqs <- merge(etasqs, diffanovas, by = "condition", all.x = TRUE)
+
+table_beta<-copy(etasqs)
+table_beta$Factor <- renamefactors(table_beta$condition)
+names(table_beta)[2:4]<-c("HS", "LASSO", "RMA")
+
+saveRDS(table_beta, "paper/table_beta.RData")
+write.csv(table_beta, file =  "paper/table_beta.csv", row.names = FALSE)
 
 saveRDS(out, "paper/output.RData")

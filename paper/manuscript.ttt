@@ -14,50 +14,138 @@ ES != 0 & -0.01 & {}[-0.04, -0.00] & -0.01 & {}[-0.02, 0.00] & -0.10 & {}[-0.40,
 \bottomrule
 \end{tabular}
 \end{table*}
-\efloatseparator
- 
-\begin{ThreePartTable}
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+[tbp]
 
-\begin{longtable}{lllllll}\noalign{\getlongtablewidth\global\LTcapwidth=\longtablewidth}
-\caption{\label{tab:tabr2eta}Effect size of design factors and their two-way interactions on R2 the different algorithms, and of the difference between algorithms. The comparison between HS and LASSO was zero in the second decimal for all conditions. Interpretation indicates whether the effect was uniformly positive or negative (for interactions, the effect of the second design factor in the interaction) for all algorithms.}\\
+\begin{center}
+\begin{threeparttable}
+
+\caption{\label{tab:tabr2eta}Effect size of design factors on predictive R2 of the different algorithms, and of the difference between algorithms. Interpretation indicates whether a main effect was uniformly positive or negative across all algorithms.}
+
+\begin{tabular}{llllllll}
 \toprule
-Factor & HS & LASSO & RMA & HS vs. RMA & LASSO vs. RMA & Interpretation\\
+Factor & HS & LASSO & RMA & HS vs. LASSO & HS vs. RMA & LASSO vs. RMA & Interpretation\\
 \midrule
-\endfirsthead
-\caption*{\normalfont{Table \ref{tab:tabr2eta} continued}}\\
-\toprule
-Factor & HS & LASSO & RMA & HS vs. RMA & LASSO vs. RMA & Interpretation\\
-\midrule
-\endhead
-$\omega$ & 0.04 & 0.04 & 0.02 & 0.00 & 0.00 & negative\\
-$\omega$ :Model & 0.18 & 0.18 & 0.09 & 0.00 & 0.00 & positive\\
-$\omega$ :M & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & other\\
-$\beta$ & 0.89 & 0.89 & 0.80 & 0.02 & 0.03 & positive\\
-$\beta$:$\omega$ & 0.02 & 0.02 & 0.01 & 0.00 & 0.00 & other\\
-$\beta$:Model & 0.51 & 0.51 & 0.32 & 0.00 & 0.00 & other\\
-$\beta$:M & 0.00 & 0.00 & 0.02 & 0.01 & 0.01 & other\\
-$\beta$:$\tau^2$ & 0.04 & 0.04 & 0.02 & 0.00 & 0.00 & other\\
-$k$ & 0.04 & 0.05 & 0.11 & 0.02 & 0.01 & positive\\
-$k$ :$\omega$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & negative\\
-$k$ :$\beta$ & 0.00 & 0.01 & 0.03 & 0.01 & 0.01 & positive\\
-$k$ :$n$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & positive\\
-$k$ :Model & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & positive\\
-$k$ :M & 0.00 & 0.00 & 0.04 & 0.01 & 0.01 & other\\
-$k$ :$\tau^2$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & negative\\
-$n$ & 0.11 & 0.10 & 0.04 & 0.00 & 0.00 & positive\\
-$n$:$\omega$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & other\\
-$n$:$\beta$ & 0.04 & 0.04 & 0.02 & 0.00 & 0.00 & positive\\
-$n$:Model & 0.04 & 0.04 & 0.02 & 0.00 & 0.00 & positive\\
-$n$:M & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & negative\\
-$n$:$\tau^2$ & 0.01 & 0.01 & 0.01 & 0.00 & 0.00 & negative\\
-Model & 0.33 & 0.34 & 0.18 & 0.00 & 0.00 & positive\\
-M & 0.00 & 0.01 & 0.06 & 0.02 & 0.01 & negative\\
-M:Model & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & positive\\
-$\tau^2$ & 0.12 & 0.12 & 0.06 & 0.00 & 0.00 & negative\\
-$\tau^2$:$\omega$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & other\\
-$\tau^2$:Model & 0.07 & 0.07 & 0.03 & 0.00 & 0.00 & positive\\
-$\tau^2$:M & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & other\\
+$\omega$ & 0.02 & 0.01 & 0.01 & 0.00 & 0.00 & 0.00 & negative\\
+$\beta$ & 0.77 & 0.76 & 0.70 & 0.00 & 0.01 & 0.02 & positive\\
+$k$ & 0.02 & 0.02 & 0.06 & 0.00 & 0.01 & 0.01 & positive\\
+$n$ & 0.05 & 0.05 & 0.02 & 0.00 & 0.00 & 0.00 & positive\\
+Model & 0.17 & 0.17 & 0.11 & 0.00 & 0.00 & 0.00 & positive\\
+M & 0.00 & 0.00 & 0.04 & 0.00 & 0.01 & 0.01 & negative\\
+$\tau^2$ & 0.05 & 0.05 & 0.03 & 0.00 & 0.00 & 0.00 & negative\\
 \bottomrule
-\end{longtable}
+\end{tabular}
 
-\end{ThreePartTable}
+\end{threeparttable}
+\end{center}
+
+\end{table*}
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+[tbp]
+
+\begin{center}
+\begin{threeparttable}
+
+\caption{\label{tab:tabcramerp}Effect size (Cramer's V) of design factors, and of the difference between algorithms, on sensitivity (P).}
+
+\begin{tabular}{llllllll}
+\toprule
+Factor & \multicolumn{1}{c}{$P_{HS}$} & \multicolumn{1}{c}{$P_{LASSO}$} & \multicolumn{1}{c}{$P_{RMA}$} & \multicolumn{1}{c}{$P_{HS vs. LASSO}$} & \multicolumn{1}{c}{$P_{HS vs. RMA}$} & \multicolumn{1}{c}{$P_{LASSO vs. RMA}$} & \multicolumn{1}{c}{Interpretation}\\
+\midrule
+$k$ & 0.21 & 0.23 & 0.17 & 0.01 & 0.02 & 0.02 & positive\\
+$n$ & 0.08 & 0.09 & 0.07 & 0.00 & 0.01 & 0.01 & positive\\
+$\beta$ & 0.36 & 0.37 & 0.28 & 0.01 & 0.04 & 0.04 & positive\\
+$\tau^2$ & 0.10 & 0.10 & 0.08 & 0.00 & 0.01 & 0.01 & negative\\
+$\omega$ & 0.09 & 0.10 & 0.08 & 0.00 & 0.01 & 0.01 & negative\\
+M & 0.05 & 0.05 & 0.02 & 0.00 & 0.01 & 0.01 & negative\\
+Model & 0.31 & 0.33 & 0.22 & 0.01 & 0.03 & 0.03 & positive\\
+\bottomrule
+\end{tabular}
+
+\end{threeparttable}
+\end{center}
+
+\end{table*}
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+[tbp]
+
+\begin{center}
+\begin{threeparttable}
+
+\caption{\label{tab:tabcramern}Effect size (Cramer's V) of design factors, and of the difference between algorithms, on specificity (N).}
+
+\begin{tabular}{llllllll}
+\toprule
+Factor & \multicolumn{1}{c}{$N_{HS}$} & \multicolumn{1}{c}{$N_{LASSO}$} & \multicolumn{1}{c}{$N_{RMA}$} & \multicolumn{1}{c}{$N_{HS vs. LASSO}$} & \multicolumn{1}{c}{$N_{HS vs. RMA}$} & \multicolumn{1}{c}{$N_{LASSO vs. RMA}$} & \multicolumn{1}{c}{Interpretation}\\
+\midrule
+$k$ & 0.02 & 0.03 & 0.02 & 0.03 & 0.13 & 0.13 & other\\
+$n$ & 0.00 & 0.01 & 0.00 & 0.01 & 0.02 & 0.02 & other\\
+$\beta$ & 0.01 & 0.02 & 0.01 & 0.03 & 0.06 & 0.06 & other\\
+$\tau^2$ & 0.02 & 0.01 & 0.02 & 0.03 & 0.01 & 0.01 & other\\
+$\omega$ & 0.00 & 0.01 & 0.00 & 0.01 & 0.02 & 0.02 & other\\
+M & 0.04 & 0.03 & 0.01 & 0.11 & 0.08 & 0.08 & other\\
+Model & 0.02 & 0.03 & 0.01 & 0.01 & 0.08 & 0.08 & positive\\
+\bottomrule
+\end{tabular}
+
+\end{threeparttable}
+\end{center}
+
+\end{table*}
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+[tbp]
+
+\begin{center}
+\begin{threeparttable}
+
+\caption{\label{tab:tabtau2}Effect size of design factors on bias in tau squared for the different algorithms, and of the difference between algorithms.}
+
+\begin{tabular}{lllllll}
+\toprule
+Factor & HS & LASSO & RMA & HS vs. LASSO & HS vs. RMA & LASSO vs. RMA\\
+\midrule
+$\omega$ & 0.01 & 0.01 & 0.00 & 0.00 & 0.00 & 0.00\\
+$\beta$ & 0.12 & 0.13 & 0.11 & 0.00 & 0.00 & 0.00\\
+$k$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+$n$ & 0.01 & 0.01 & 0.01 & 0.00 & 0.00 & 0.00\\
+Model & 0.11 & 0.12 & 0.10 & 0.00 & 0.00 & 0.00\\
+M & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+$\tau^2$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+\bottomrule
+\end{tabular}
+
+\end{threeparttable}
+\end{center}
+
+\end{table*}
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+[tbp]
+
+\begin{center}
+\begin{threeparttable}
+
+\caption{\label{tab:tabbeta}Effect size of design factors on bias in beta squared for the different algorithms, and of the difference between algorithms.}
+
+\begin{tabular}{lllllll}
+\toprule
+Factor & HS & LASSO & RMA & HS vs. LASSO & HS vs. RMA & LASSO vs. RMA\\
+\midrule
+$\omega$ & 0.16 & 0.15 & 0.15 & 0.00 & 0.00 & 0.00\\
+$\beta$ & 0.01 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+$k$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+$n$ & 0.02 & 0.02 & 0.01 & 0.00 & 0.00 & 0.00\\
+Model & 0.01 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+M & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+$\tau^2$ & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+\bottomrule
+\end{tabular}
+
+\end{threeparttable}
+\end{center}
+
+\end{table*}

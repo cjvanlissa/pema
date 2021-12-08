@@ -1,5 +1,15 @@
 \begin{figure*}[hbt]
 \ifnextchar[{\eatarg}{}
 
-\includegraphics[width=20.67in]{other_effects} \caption{Predictive R2 for HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) for interactions. One design factor is displayed in different panels, the other on the x-axis.}\label{fig:figanova}
+\includegraphics[width=20.67in]{r2} \caption{Predictive R2 for BRMA with horseshoe (HS) and LASSO prior, and RMA. Plots are sorted by largest performance difference between BRMA and RMA.}\label{fig:figr2}
+\end{figure*}
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+\includegraphics[width=20.67in]{sensitivity} \caption{Sensitivity by design factors for the HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) algorithms.}\label{fig:figsensitivity}
+\end{figure*}
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+\includegraphics[width=20.67in]{specificity} \caption{Specificity by design factors for the HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) algorithms.}\label{fig:figspecificity}
 \end{figure*}

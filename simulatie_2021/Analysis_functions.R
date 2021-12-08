@@ -1,3 +1,29 @@
+renamefactors <- function(x){
+  out <- gsub("moderators", "M", x, fixed = T) #this changes 'moderators' to M
+  out <- gsub("tau2", "$\\tau^2$", out, fixed = T) #nothing
+  out <-gsub("es", "$\\beta$", out, fixed = T) #changes 'es'to '$beta$ but I do not know why
+  out<-gsub("mean_n", "$n$", out, fixed = T) #nothing
+  out<-gsub("model", "Model ", out, fixed = T) #capitalizes 'model'
+  out<-gsub("k_train", "$k$ ", out, fixed = T)
+  out<-gsub("alpha_mod", "$\\omega$ ", out, fixed = T)
+  out
+}
+
+interpret <- function(x){
+  thelng <- (length(x)-1)
+  if(is.na(x[1])) return(NA)
+  x <- sum(sign(diff(x)))
+  if(x == thelng){
+    return("positive")
+  }
+  if(-1*x == thelng){
+    return("negative")
+  }
+  return("other")
+}
+
+
+
 #creates traceplots for metrics
 Traceplot <- function(test, train, param, alg){
   plot(x = 1:length(test), y = test, type = 'n', main = paste('Traceplot Test and Train', param , ' for', alg), xlab = 'iterations', ylab = paste('values for ', param)) #empty plot with correct dimensions for the traced values
@@ -100,6 +126,8 @@ plot_marginal_median <- function(condition, df, lonames, metric, pointsize = 5, 
     geom_point(size = pointsize) +
     theme_bw(base_size = 25)
 }
+
+
 
 
 plot_interaction_median <- function(condition, intcond, df, lonames, metric){
