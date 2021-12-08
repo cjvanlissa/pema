@@ -1,6 +1,115 @@
-#' @S3method print brma
-print.brma <- function(x, ...){
-  cl <- match.call()
-  cl[["x"]] <- x[["model"]]
-  eval.parent(cl)
+#' @importFrom utils getFromNamespace
+# .invcalc <- getFromNamespace(".invcalc", "metafor")
+# .tr  <- getFromNamespace(".tr", "metafor")
+#' @method summary brma
+#' @export
+summary.brma <- function(object, ...){
+  sums <- summary(object$fit)$summary
+  keepthese <- c(which(rownames(sums) == "Intercept"),
+                 which(startsWith(rownames(sums), "b[")),
+                 which(rownames(sums) == "sd_1[1]"))
+  sums <- sums[keepthese, , drop = FALSE]
+
+
+  sdpar <- match("sd_1[1]", sim$fnames_oi)
+  sim <- object$fit@sim
+  tau2 <- .extract_samples(sim, sdpar)^2
+  addrow <- sums["sd_1[1]",]
+  addrow[c("mean", "sd", "2.5%", "25%", "50%", "75%", "97.5%")] <-
+    c(mean(tau2), sd(tau2), quantile(tau2, c(.025, .25, .5, .75,.975)))
+  addrow["se_mean"] <- addrow["sd"]/sqrt(addrow[["n_eff"]])
+  tau <- unlist(lapply(object$fit@sim$samples, `[[`, "sd_1[1]"))
+  sums <- rbind(sums, tau2 = addrow)
+  rownames(sums)[2:(ncol(object$X))] <- colnames(object$X)[-1]
+  rownames(sums)[rownames(sums) == "sd_1[1]"] <- "tau"
+  tau2 <- unname(addrow["mean"])
+  rma_res <- rma(yi = object$Y, vi = object$vi)
+  Wi <- 1 / vi
+  yi <- object$Y
+  k <- length(object$Y)
+  tau2_before <-
+    max(0, (sum(Wi * (yi - (
+      sum(Wi * yi) / sum(Wi)
+    )) ^ 2) - (k - 1)) / (sum(Wi) - (sum(Wi ^ 2) / sum(Wi))))
+
+  R2 <- max(0, 100 * (tau2_before-tau2)/tau2_before)
+  I2 <- 100 * tau2/(vt + tau2)
+  H2 <- tau2/vt + 1
+  out <- list(
+    coefficients = sums,
+    tau2 = tau2,
+    I2 = I2,
+    H2 = H2,
+    R2 = R2,
+    k = k,
+    method = object$fit@stan_args[[1]]$method,
+    algorithm = object$fit@stan_args[[1]]$algorithm
+  )
+  class(out) <- c("brma_sum", class(out))
+  return(out)
 }
+
+.extract_samples <- function(sim, par, ...){
+  unlist(lapply(1:sim$chains, function(i) {
+    if (sim$warmup2[i] == 0){
+      sim$samples[[i]][[par]]
+    } else {
+      sim$samples[[i]][[par]][-(1:sim$warmup2[i])]
+    }
+  }))
+}
+
+predict.brma <- function(object, ...){
+  keepthese <- c(which(rownames(sums) == "Intercept"),
+                 which(startsWith(rownames(sums), "b[")),
+                 which(rownames(sums) == "sd_1[1]"))
+  sums <- sums[keepthese, , drop = FALSE]
+
+  sim <- object$fit@sim
+  sdpar <- match("sd_1[1]", sim$fnames_oi)
+}
+
+#' @method print brma
+#' @export
+print.brma <- function(x, ...){
+  print(summary(x))
+}
+
+#' @method print brma_sum
+#' @export
+print.brma_sum <- function(x, digits = 2, ...){
+  #res$tau2/unaccounted
+  cat("BRMA mixed-effects model (k = ", x$k, "), method: ", x$algorithm, " ", x$method, "\n", sep = "")
+  cat("tau^2: ", formatC(x$tau2, digits = digits, format = "f"), " (SE = ", formatC(x$coefficients["tau2", 2], digits = digits, format = "f"),")\n\n", sep = "")
+  #cat("I^2 (residual heterogeneity / unaccounted variability): 15.66%
+  # H^2 (unaccounted variability / sampling variability):   1.19
+  # R^2 (amount of heterogeneity accounted for):            92.75%
+  coefs <- x$coefficients
+  coefs <- formatC(coefs, digits = digits, format = "f")
+  coefs <- cbind(coefs, c("*", "")[as.integer(apply(sums[, c("2.5%", "97.5%")], 1, function(x){sum(sign(x)) == 0}))+1])
+  prmatrix(coefs, quote = FALSE, right = TRUE, na.print = "")
+  cat("\n*: This coefficient is significant, as the 95% credible interval excludes zero.")
+}
+
+# Mixed-Effects Model (k = 48; tau^2 estimator: REML)
+#
+# tau^2 (estimated amount of residual heterogeneity):     0.0411 (SE = 0.0180)
+# tau (square root of estimated tau^2 value):             0.2027
+# I^2 (residual heterogeneity / unaccounted variability): 52.43%
+# H^2 (unaccounted variability / sampling variability):   2.10
+# R^2 (amount of heterogeneity accounted for):            17.73%
+#
+# Test for Residual Heterogeneity:
+#   QE(df = 46) = 95.1352, p-val < .0001
+#
+# Test of Moderators (coefficient 2):
+#   QM(df = 1) = 4.4841, p-val = 0.0342
+#
+# Model Results:
+#
+#   estimate      se     zval    pval    ci.lb    ci.ub
+# intrcpt    0.3242  0.0665   4.8737  <.0001   0.1938   0.4546  ***
+#   ni100     -0.0666  0.0315  -2.1176  0.0342  -0.1283  -0.0050    *
+#
+#   ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

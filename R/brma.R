@@ -169,6 +169,8 @@ brma <-
                 Y = Y)
     if(!is.null(vi_column)) fit$vi_column <- vi_column
     if(!is.null(study_column)) fit$study_column <- study_column
+    if(!is.null(vi)) fit$vi <- vi
+    if(!is.null(study)) fit$study <- study
     class(fit) <- c("brma", class(fit))
     return(fit)
   }
