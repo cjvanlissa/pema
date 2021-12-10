@@ -30,6 +30,7 @@
 #  the model statement. Defaults to .5.
 # @param chains A positive integer specifying the number of Markov chains.
 # Defaults to 4.
+#' @param mute_stan Logical, indicating whether mute all 'Stan' output or not.
 #' @param ... Additional arguments passed on to [rstan::sampling()].
 #' Use this, e.g., to override default arguments of that function.
 #' @details Penalization of the regression coefficients occurs either via the
@@ -97,7 +98,14 @@
 #' doi:10.1214/17-ejs1337si
 #' @export
 #' @examples
-#' print("Make me")
+#' data("fukkink_lont")
+#' df <- fukkink_lont[c(1:5, 40:45), c("yi", "vi", "Integrated", "Trainee_Age")]
+#' suppressWarnings({res <- brma(yi~., data = df, iter = 10)})
+#' @importMethodsFrom rstan summary
+#' @importFrom stats model.matrix na.omit quantile sd
+#' @importFrom RcppParallel RcppParallelLibs CxxFlags
+# The line above is just to avoid CRAN warnings that RcppParallel is not
+# imported from, despite RcppParallel being a necessary dependency of rstan.
 brma <-
   function(formula,
            data,
@@ -108,29 +116,36 @@ brma <-
            prior = switch(method,
                           "lasso" = c(df = 1, scale = 1),
                           "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
+           mute_stan = TRUE,
            ...) {
+    # Bookkeeping for columns that should not be in X or Y
     vi_column <- NULL
     study_column <- NULL
+    if(inherits(vi, "character")){
+      vi_column <- vi
+      vi <- data[[vi]]
+      data[[vi_column]] <- NULL
+    }
+    if(is.null(study)){
+      study <- 1:nrow(data)
+    } else {
+      if(inherits(study, "character")){
+        study_column <- study
+        study <- data[[study]]
+        data[[study_column]] <- NULL
+      }
+    }
+    # Make model matrix
     mf <- match.call(expand.dots = FALSE)
-    mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action"), names(mf), 0L))]
+    mf <- mf[c(1L, match(c("formula", "subset", "na.action"), names(mf), 0L))]
+    mf[["data"]] <- data
     mf$drop.unused.levels <- TRUE
     mf[[1L]] <- quote(stats::model.frame)
     mf <- eval(mf, parent.frame())
     Y <- mf[[1]]
-    X <- mf[, -1, drop = FALSE]
-    if(inherits(vi, "character")){
-      vi_column <- vi
-      X[[vi]] <- NULL
-      vi <- data[[vi]]
-    }
-    if(is.null(study)){
-      study <- 1:nrow(X)
-    }
-    if(inherits(study, "character")){
-      study_column <- study
-      X[[study]] <- NULL
-      study <- data[[study]]
-    }
+    #X <- mf[, -1, drop = FALSE]
+    mt <- attr(mf, "terms")
+    X <- model.matrix(mt, mf)
     se <- sqrt(vi)
     N <- length(Y)
     # if(isTRUE(standardize)){
@@ -139,7 +154,7 @@ brma <-
     #   scale_m <- attr(X, "scaled:center")
     #   scale_s <- attr(X, "scaled:scale")
     # }
-    X <- cbind(1, X)
+    #X <- cbind(1, X)
     standat <- c(
       list(
         N = N,
@@ -162,15 +177,58 @@ brma <-
                          data = standat
                   ),
                   list(...)))
+    # Mute stan
+    dots <- list(...)
+    if(!any(c("show_messages", "verbose", "refresh") %in% names(dots))){
+      if(mute_stan){
+        cl[["show_messages"]] <- FALSE
+        cl[["verbose"]] <- FALSE
+        cl[["refresh"]] <- 0
+      }
+    }
     fit <- eval(cl)
-    fit <- list(fit = fit,
+    sums <- summary(fit)$summary
+    keepthese <- c(which(rownames(sums) == "Intercept"),
+                   which(startsWith(rownames(sums), "b[")),
+                   which(rownames(sums) == "sd_1[1]"))
+    sums <- sums[keepthese, , drop = FALSE]
+    sim <- fit@sim
+    sdpar <- match("sd_1[1]", sim$fnames_oi)
+    tau2 <- .extract_samples(sim, sdpar)^2
+    addrow <- sums["sd_1[1]",]
+    addrow[c("mean", "sd", "2.5%", "25%", "50%", "75%", "97.5%")] <-
+      c(mean(tau2), sd(tau2), quantile(tau2, c(.025, .25, .5, .75,.975)))
+    addrow["se_mean"] <- addrow["sd"]/sqrt(addrow[["n_eff"]])
+    #tau <- unlist(lapply(fit@sim$samples, `[[`, "sd_1[1]"))
+    sums <- rbind(sums, tau2 = addrow)
+    rownames(sums)[2:(ncol(X))] <- colnames(X)[-1]
+    rownames(sums)[rownames(sums) == "sd_1[1]"] <- "tau"
+    tau2 <- unname(addrow["mean"])
+    Wi <- 1 / vi
+    tau2_before <-
+      max(0, (sum(Wi * (Y - (
+        sum(Wi * Y) / sum(Wi)
+      )) ^ 2) - (N - 1)) / (sum(Wi) - (sum(Wi ^ 2) / sum(Wi))))
+
+    R2 <- max(0, 100 * (tau2_before-tau2)/tau2_before)
+    #I2 <- 100 * tau2/(vt + tau2)
+    #H2 <- tau2/vt + 1
+
+    out <- list(fit = fit,
+                coefficients = sums,
                 formula = formula,
+                terms = mt,
                 X = X,
-                Y = Y)
-    if(!is.null(vi_column)) fit$vi_column <- vi_column
-    if(!is.null(study_column)) fit$study_column <- study_column
-    if(!is.null(vi)) fit$vi <- vi
-    if(!is.null(study)) fit$study <- study
-    class(fit) <- c("brma", class(fit))
-    return(fit)
+                Y = Y,
+                vi = vi,
+                tau2 = tau2,
+                #I2 = I2,
+                #H2 = H2,
+                R2 = R2,
+                k = N)
+    if(!is.null(vi_column)) out$vi_column <- vi_column
+    if(!is.null(study_column)) out$study_column <- study_column
+    if(!is.null(study)) out$study <- study
+    class(out) <- c("brma", class(out))
+    return(out)
   }

@@ -1,6 +1,6 @@
 ---
-title             : "Select relevant moderators in meta-regression using Bayesian penalization"
-shorttitle        : "BAYESIAN REGULARIZED META-ANALYSIS"
+title             : "Select relevant moderators using Bayesian regularized meta-regression"
+shorttitle        : "BAYESIAN REGULARIZED META-REGRESSION"
 
 author:
   - name: "Caspar J. Van Lissa"
@@ -29,7 +29,28 @@ authornote: |
   Enter author note here.
 
 abstract: |
-  Todo
+  When analyzing a heterogeneous body of literature, there may be many
+  potentially relevant between-studies differences. These differences can be
+  coded as moderators, and accounted for using meta-regression. However, many
+  applied meta-analyses lack the power to adequately account for multiple
+  moderators, as the number of studies on any given topic is often low. The
+  present study introduces Bayesian Regularized Meta-Analysis (BRMA), an
+  exploratory algorithm that can select relevant moderators from a larger number
+  of candidates. This approach is suitable when heterogeneity is suspected, but
+  it is not known which moderators most strongly inﬂuence the observed effect
+  size. We present a simulation study to validate the performance of BRMA
+  relative to state-of-the-art meta-regression (RMA). Results indicated that
+  BRMA compared favorably to RMA on three metrics: predictive performance,
+  which is a measure of the generalizability of results, the ability to reject
+  irrelevant moderators, and the ability to recover population parameters with
+  low bias. BRMA had slightly lower ability to detect true effects of relevant
+  moderators, but the overall proportion of Type I and Type II errors was
+  equivalent to RMA. Furthermore, BRMA regression coefficients were slightly
+  biased towards zero (by design), but its estimates of residual heterogeneity
+  were unbiased. BRMA performed well with as few as 20 studies in the training
+  data, suggesting its suitability as a small sample solution. We discuss how
+  applied researchers can use BRMA to explorate between-studies heterogeneity
+  in meta-analysis.
   
 keywords          : "meta-analysis, machine learning, bayesian, lasso, regularized"
 wordcount         : "5356"

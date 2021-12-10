@@ -42,10 +42,11 @@ install.packages('pema')
 
 ## Citing pema
 
-You can cite pema using the following citation (please use the same citation for either the package, or the paper):
+The `pema` validation paper is currently in preprint stage.
+The code and results of the validation study are publicly available.
+You can cite `pema` using the following citation (please use the same citation for either the package, or the paper); consider updating that citation once the preprint is published:
 
-> Caspar J van Lissa and Sara J van Erp (2021). pema: Penalized Meta-Analysis. R package version
-0.1.0.9000. https://github.com/cjvanlissa/pema
+> Van Lissa, C. J., & van Erp, S. (2021, December 9). Select relevant moderators using Bayesian regularized meta-regression. Retrieved from psyarxiv.com/6phs5
 
 ## About this repository
 

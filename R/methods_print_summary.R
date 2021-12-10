@@ -4,47 +4,40 @@
 #' @method summary brma
 #' @export
 summary.brma <- function(object, ...){
-  sums <- summary(object$fit)$summary
-  keepthese <- c(which(rownames(sums) == "Intercept"),
-                 which(startsWith(rownames(sums), "b[")),
-                 which(rownames(sums) == "sd_1[1]"))
-  sums <- sums[keepthese, , drop = FALSE]
-
-
-  sdpar <- match("sd_1[1]", sim$fnames_oi)
-  sim <- object$fit@sim
-  tau2 <- .extract_samples(sim, sdpar)^2
-  addrow <- sums["sd_1[1]",]
-  addrow[c("mean", "sd", "2.5%", "25%", "50%", "75%", "97.5%")] <-
-    c(mean(tau2), sd(tau2), quantile(tau2, c(.025, .25, .5, .75,.975)))
-  addrow["se_mean"] <- addrow["sd"]/sqrt(addrow[["n_eff"]])
-  tau <- unlist(lapply(object$fit@sim$samples, `[[`, "sd_1[1]"))
-  sums <- rbind(sums, tau2 = addrow)
-  rownames(sums)[2:(ncol(object$X))] <- colnames(object$X)[-1]
-  rownames(sums)[rownames(sums) == "sd_1[1]"] <- "tau"
-  tau2 <- unname(addrow["mean"])
-  rma_res <- rma(yi = object$Y, vi = object$vi)
-  Wi <- 1 / vi
-  yi <- object$Y
-  k <- length(object$Y)
-  tau2_before <-
-    max(0, (sum(Wi * (yi - (
-      sum(Wi * yi) / sum(Wi)
-    )) ^ 2) - (k - 1)) / (sum(Wi) - (sum(Wi ^ 2) / sum(Wi))))
-
-  R2 <- max(0, 100 * (tau2_before-tau2)/tau2_before)
-  I2 <- 100 * tau2/(vt + tau2)
-  H2 <- tau2/vt + 1
-  out <- list(
-    coefficients = sums,
-    tau2 = tau2,
-    I2 = I2,
-    H2 = H2,
-    R2 = R2,
-    k = k,
-    method = object$fit@stan_args[[1]]$method,
-    algorithm = object$fit@stan_args[[1]]$algorithm
-  )
+  # sums <- summary(object$fit)$summary
+  # keepthese <- c(which(rownames(sums) == "Intercept"),
+  #                which(startsWith(rownames(sums), "b[")),
+  #                which(rownames(sums) == "sd_1[1]"))
+  # sums <- sums[keepthese, , drop = FALSE]
+  #
+  #
+  # sdpar <- match("sd_1[1]", sim$fnames_oi)
+  # sim <- object$fit@sim
+  # tau2 <- .extract_samples(sim, sdpar)^2
+  # addrow <- sums["sd_1[1]",]
+  # addrow[c("mean", "sd", "2.5%", "25%", "50%", "75%", "97.5%")] <-
+  #   c(mean(tau2), sd(tau2), quantile(tau2, c(.025, .25, .5, .75,.975)))
+  # addrow["se_mean"] <- addrow["sd"]/sqrt(addrow[["n_eff"]])
+  # tau <- unlist(lapply(object$fit@sim$samples, `[[`, "sd_1[1]"))
+  # sums <- rbind(sums, tau2 = addrow)
+  # rownames(sums)[2:(ncol(object$X))] <- colnames(object$X)[-1]
+  # rownames(sums)[rownames(sums) == "sd_1[1]"] <- "tau"
+  # tau2 <- unname(addrow["mean"])
+  # rma_res <- rma(yi = object$Y, vi = object$vi)
+  # Wi <- 1 / vi
+  # yi <- object$Y
+  # k <- length(object$Y)
+  # tau2_before <-
+  #   max(0, (sum(Wi * (yi - (
+  #     sum(Wi * yi) / sum(Wi)
+  #   )) ^ 2) - (k - 1)) / (sum(Wi) - (sum(Wi ^ 2) / sum(Wi))))
+  #
+  # R2 <- max(0, 100 * (tau2_before-tau2)/tau2_before)
+  # I2 <- 100 * tau2/(vt + tau2)
+  # H2 <- tau2/vt + 1
+  out <- object[na.omit(match(c("coefficients", "tau2", "I2", "H2", "R2", "k"), names(object)))]
+  out$method <- object$fit@stan_args[[1]]$method
+  out$algorithm <- object$fit@stan_args[[1]]$algorithm
   class(out) <- c("brma_sum", class(out))
   return(out)
 }
@@ -59,15 +52,6 @@ summary.brma <- function(object, ...){
   }))
 }
 
-predict.brma <- function(object, ...){
-  keepthese <- c(which(rownames(sums) == "Intercept"),
-                 which(startsWith(rownames(sums), "b[")),
-                 which(rownames(sums) == "sd_1[1]"))
-  sums <- sums[keepthese, , drop = FALSE]
-
-  sim <- object$fit@sim
-  sdpar <- match("sd_1[1]", sim$fnames_oi)
-}
 
 #' @method print brma
 #' @export
@@ -85,8 +69,10 @@ print.brma_sum <- function(x, digits = 2, ...){
   # H^2 (unaccounted variability / sampling variability):   1.19
   # R^2 (amount of heterogeneity accounted for):            92.75%
   coefs <- x$coefficients
+  pstars <- c("*", "")[as.integer(apply(coefs[, c("2.5%", "97.5%")], 1, function(x){sum(sign(x)) == 0}))+1]
   coefs <- formatC(coefs, digits = digits, format = "f")
-  coefs <- cbind(coefs, c("*", "")[as.integer(apply(sums[, c("2.5%", "97.5%")], 1, function(x){sum(sign(x)) == 0}))+1])
+  coefs <- cbind(coefs, pstars)
+  colnames(coefs)[ncol(coefs)] <- ""
   prmatrix(coefs, quote = FALSE, right = TRUE, na.print = "")
   cat("\n*: This coefficient is significant, as the 95% credible interval excludes zero.")
 }

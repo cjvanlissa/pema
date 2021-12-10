@@ -1,7 +1,11 @@
 ^pema\.Rproj$
+^README\.Rmd$
 ^\.Rproj\.user$
 dev/
 paper/
 ^\.travis\.yml
 ^\.github$
 ^simulatie_2021$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

@@ -13,6 +13,7 @@ brma(
   standardize = TRUE,
   prior = switch(method, lasso = c(df = 1, scale = 1), hs = c(df = 1, df_global = 1,
     df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
+  mute_stan = TRUE,
   ...
 )
 }
@@ -44,6 +45,8 @@ affects all parameters similarly.}
 \item{prior}{Numeric vector, specifying the prior to use. Note that the
 different \code{method}s require this vector to contain specific named
 elements.}
+
+\item{mute_stan}{Logical, indicating whether mute all 'Stan' output or not.}
 
 \item{...}{Additional arguments passed on to \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.
 Use this, e.g., to override default arguments of that function.}
@@ -110,7 +113,9 @@ coefficients to avoid any sampling problems.}
 }
 }
 \examples{
-print("Make me")
+data("fukkink_lont")
+df <- fukkink_lont[c(1:5, 40:45), c("yi", "vi", "Integrated", "Trainee_Age")]
+suppressWarnings({res <- brma(yi~., data = df, iter = 10)})
 }
 \references{
 Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American
