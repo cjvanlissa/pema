@@ -113,9 +113,9 @@ coefficients to avoid any sampling problems.}
 }
 }
 \examples{
-data("fukkink_lont")
-df <- fukkink_lont[c(1:5, 40:45), c("yi", "vi", "Integrated", "Trainee_Age")]
-suppressWarnings({res <- brma(yi~., data = df, iter = 10)})
+data("curry")
+df <- curry[c(1:5, 50:55), c("d", "vi", "sex", "age", "donorcode")]
+suppressWarnings({res <- brma(d~., data = df, iter = 10)})
 }
 \references{
 Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American

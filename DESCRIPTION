@@ -1,19 +1,19 @@
 Package: pema
 Title: Penalized Meta-Analysis
-Version: 0.1.0.9000
+Version: 0.1.0
 Authors@R: c(
     person(c("Caspar", "J"), 
              "van Lissa",
              role = c("aut", "cre"),
              email = "c.j.vanlissa@uu.nl",
-             comment = c(ORCID = "YOUR-ORCID-ID")),
+             comment = c(ORCID = "0000-0002-0808-5024")),
     person(c("Sara", "J"), "van Erp", role = c("aut"))
     )
 Description: Conduct penalized meta-analysis. In meta-analysis, there are
     often between-study differences. These can be coded as moderator variables,
     and controlled for using meta-regression. However, if the number of
     moderators is large relative to the number of studies, such an analysis may
-    be overfitted. Penalized meta-regression is useful in these cases, because
+    be overfit. Penalized meta-regression is useful in these cases, because
     it shrinks the regression slopes of irrelevant moderators towards zero.
 License: GPL (>= 3)
 Encoding: UTF-8
@@ -29,6 +29,7 @@ Imports:
     methods,
     Rcpp (>= 0.12.0),
     RcppParallel (>= 5.0.1),
+    rstantools (>= 2.1.1),
     sn
 LinkingTo: 
     BH (>= 1.66.0),

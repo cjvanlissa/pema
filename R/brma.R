@@ -98,9 +98,9 @@
 #' doi:10.1214/17-ejs1337si
 #' @export
 #' @examples
-#' data("fukkink_lont")
-#' df <- fukkink_lont[c(1:5, 40:45), c("yi", "vi", "Integrated", "Trainee_Age")]
-#' suppressWarnings({res <- brma(yi~., data = df, iter = 10)})
+#' data("curry")
+#' df <- curry[c(1:5, 50:55), c("d", "vi", "sex", "age", "donorcode")]
+#' suppressWarnings({res <- brma(d~., data = df, iter = 10)})
 #' @importMethodsFrom rstan summary
 #' @importFrom stats model.matrix na.omit quantile sd
 #' @importFrom RcppParallel RcppParallelLibs CxxFlags

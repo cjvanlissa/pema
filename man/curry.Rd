@@ -7,12 +7,8 @@
 \format{
 A data.frame with 56 rows and 18 columns.
 }
-\source{
-\href{https://doi.org/10.1016/j.jesp.2018.02.014}{
-doi:10.1016/j.jesp.2018.02.014}
-}
 \usage{
-data(curry)
+data("curry")
 }
 \description{
 A systematic review and meta-analysis of the effects of performing acts of
@@ -45,7 +41,6 @@ Curry, O. S., Rowland, L. A., Van Lissa, C. J., Zlotowitz, S.,
 McAlaney, J., & Whitehouse, H. (2018). Happy to help? A systematic review and
 meta-analysis of the effects of performing acts of kindness on the well-being
 of the actor. Journal of Experimental Social Psychology, 76, 320-329.
-\href{https://doi.org/10.1016/j.ecresq.2007.04.005}{
-doi:10.1016/j.jesp.2018.02.014}
+\doi{10.1016/j.ecresq.2007.04.005}
 }
 \keyword{datasets}
