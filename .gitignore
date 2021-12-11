@@ -10,5 +10,4 @@
 *.docx
 simulatie_2021/Simulatie 2021_3.R
 *.dll
-docs
 !curry.rda

@@ -10,8 +10,12 @@ predict.brma <- function(object, newdata, type = c("mean", "median", "samples"),
       X <- try({
         form <- object$formula
         form[2] <- NULL
-        if(object$vi_column %in% names(newdata)) newdata[[object$vi_column]] <- NULL
-        if(object$study_column %in% names(newdata)) newdata[[object$study_column]] <- NULL
+        if(!is.null(object[["vi_column"]])){
+          if(object$vi_column %in% names(newdata)) newdata[[object$vi_column]] <- NULL
+        }
+        if(!is.null(object[["study_column"]])){
+          if(object$study_column %in% names(newdata)) newdata[[object$study_column]] <- NULL
+        }
         # Make model matrix
         mf <- call("model.frame")
         #mf <- mf[c(1L, match(c("formula", "subset", "na.action"), names(mf), 0L))]

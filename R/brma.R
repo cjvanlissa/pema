@@ -104,6 +104,7 @@
 #' @importMethodsFrom rstan summary
 #' @importFrom stats model.matrix na.omit quantile sd
 #' @importFrom RcppParallel RcppParallelLibs CxxFlags
+#' @importFrom rstantools bayes_R2
 # The line above is just to avoid CRAN warnings that RcppParallel is not
 # imported from, despite RcppParallel being a necessary dependency of rstan.
 brma <-
