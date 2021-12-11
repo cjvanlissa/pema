@@ -3,6 +3,7 @@
 #' A systematic review and meta-analysis of the effects of performing acts of
 #' kindness on the well-being of the actor.
 #'
+#' @format A data.frame with 56 rows and 18 columns.
 #' \tabular{lll}{
 #'    \strong{study_id} \tab \code{factor} \tab Unique identifier of the study\cr
 #'    \strong{effect_id} \tab \code{integer} \tab Unique identifier of the effect size\cr
@@ -32,5 +33,5 @@
 #' meta-analysis of the effects of performing acts of kindness on the well-being
 #' of the actor. Journal of Experimental Social Psychology, 76, 320-329.
 #' \doi{10.1016/j.ecresq.2007.04.005}
-#' @format A data.frame with 56 rows and 18 columns.
-NULL
+#' @source \doi{10.1016/j.ecresq.2007.04.005}
+"curry"

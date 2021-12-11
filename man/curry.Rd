@@ -6,15 +6,6 @@
 \title{Happy to Help?}
 \format{
 A data.frame with 56 rows and 18 columns.
-}
-\usage{
-data("curry")
-}
-\description{
-A systematic review and meta-analysis of the effects of performing acts of
-kindness on the well-being of the actor.
-}
-\details{
 \tabular{lll}{
 \strong{study_id} \tab \code{factor} \tab Unique identifier of the study\cr
 \strong{effect_id} \tab \code{integer} \tab Unique identifier of the effect size\cr
@@ -35,6 +26,16 @@ kindness on the well-being of the actor.
 \strong{outcomedv} \tab \code{character} \tab What was the outcome, or dependent variable, of the study?\cr
 \strong{outcomecode} \tab \code{factor} \tab What was the outcome, or dependent variable, of the study? Categorized into Happiness, Life Satisfaction, PN Affect (positive or negative), and Other
 }
+}
+\source{
+\doi{10.1016/j.ecresq.2007.04.005}
+}
+\usage{
+data("curry")
+}
+\description{
+A systematic review and meta-analysis of the effects of performing acts of
+kindness on the well-being of the actor.
 }
 \references{
 Curry, O. S., Rowland, L. A., Van Lissa, C. J., Zlotowitz, S.,
