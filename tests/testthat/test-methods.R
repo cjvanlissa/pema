@@ -1,5 +1,5 @@
 library(pema)
-df <- pema::bonapersona
+df <- bonapersona
 df <- df[, c("species", "origin", "sex", "ageWeek", "model", "yi", "vi")]
 df <- na.omit(df)
 

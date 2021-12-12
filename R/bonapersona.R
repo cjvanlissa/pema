@@ -4,11 +4,9 @@
 #' (ELA) alters cognitive performance in several domains.
 #' The data include over 400 independent experiments, involving approximately
 #' 8600 animals.
-#'
-#' @format A data.frame with 734 rows and 65 columns.
 #' @docType data
 #' @keywords datasets
-#' @name bonapersona
+#' @format A data.frame with 734 rows and 65 columns.
 #' @usage data("bonapersona")
 #' @references Bonapersona, V., Kentrop, J., Van Lissa, C. J., van der Veen,
 #' R., Joels, M., & Sarabdjitsingh, R. A. (2019).
