@@ -24,14 +24,9 @@
 #'    \strong{outcomedv} \tab \code{character} \tab What was the outcome, or dependent variable, of the study?\cr
 #'    \strong{outcomecode} \tab \code{factor} \tab What was the outcome, or dependent variable, of the study? Categorized into Happiness, Life Satisfaction, PN Affect (positive or negative), and Other
 #' }
-#' @docType data
-#' @keywords datasets
-#' @name curry
-#' @usage data("curry")
 #' @references Curry, O. S., Rowland, L. A., Van Lissa, C. J., Zlotowitz, S.,
 #' McAlaney, J., & Whitehouse, H. (2018). Happy to help? A systematic review and
 #' meta-analysis of the effects of performing acts of kindness on the well-being
 #' of the actor. Journal of Experimental Social Psychology, 76, 320-329.
 #' \doi{10.1016/j.ecresq.2007.04.005}
-#' @source \doi{10.1016/j.ecresq.2007.04.005}
 "curry"

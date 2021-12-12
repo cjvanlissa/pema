@@ -27,11 +27,8 @@ A data.frame with 56 rows and 18 columns.
 \strong{outcomecode} \tab \code{factor} \tab What was the outcome, or dependent variable, of the study? Categorized into Happiness, Life Satisfaction, PN Affect (positive or negative), and Other
 }
 }
-\source{
-\doi{10.1016/j.ecresq.2007.04.005}
-}
 \usage{
-data("curry")
+curry
 }
 \description{
 A systematic review and meta-analysis of the effects of performing acts of

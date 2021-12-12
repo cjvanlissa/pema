@@ -7,11 +7,8 @@
 \format{
 A data.frame with 734 rows and 65 columns.
 }
-\source{
-\url{https://osf.io/ra947/}
-}
 \usage{
-data("bonapersona")
+bonapersona
 }
 \description{
 This meta-analysis of rodent studies examined whether early life adversity
