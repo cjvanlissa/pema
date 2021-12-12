@@ -3,7 +3,7 @@
 \docType{data}
 \name{bonapersona}
 \alias{bonapersona}
-\title{The behavioral phenotype of early life adversity}
+\title{Data from 'The behavioral phenotype of early life adversity'}
 \format{
 A data.frame with 734 rows and 65 columns.
 }

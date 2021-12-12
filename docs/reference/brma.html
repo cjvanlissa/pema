@@ -27,6 +27,9 @@ coefficients of irrrelevant moderators towards zero. See Details."><!-- mathjax 
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
@@ -111,8 +114,7 @@ Use this, e.g., to override default arguments of that function.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Penalization of the regression coefficients occurs either via the
 lasso (Park &amp; Casella, 2008) or the regularized horseshoe
-(Piironen &amp; Vehtari, 2017) prior. The implementation of both priors is based
-on the <code><a href="https://rdrr.io/pkg/brms/man/brms-package.html" class="external-link">brms</a></code> package.</p><dl><dt>lasso</dt>
+(Piironen &amp; Vehtari, 2017) prior.</p><dl><dt>lasso</dt>
 <dd><p>The Bayesian equivalent of the lasso penalty is obtained when
 placing independent Laplace (i.e., double exponential) priors on the
 regression coefficients centered around zero. The scale of the Laplace

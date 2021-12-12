@@ -60,8 +60,7 @@ coefficients of irrrelevant moderators towards zero. See Details.
 \details{
 Penalization of the regression coefficients occurs either via the
 lasso (Park & Casella, 2008) or the regularized horseshoe
-(Piironen & Vehtari, 2017) prior. The implementation of both priors is based
-on the \code{\link[brms]{brms}} package.
+(Piironen & Vehtari, 2017) prior.
 \describe{
 \item{lasso}{ The Bayesian equivalent of the lasso penalty is obtained when
 placing independent Laplace (i.e., double exponential) priors on the

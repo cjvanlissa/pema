@@ -1,4 +1,4 @@
-#' The behavioral phenotype of early life adversity
+#' Data from 'The behavioral phenotype of early life adversity'
 #'
 #' This meta-analysis of rodent studies examined whether early life adversity
 #' (ELA) alters cognitive performance in several domains.

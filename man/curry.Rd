@@ -3,7 +3,7 @@
 \docType{data}
 \name{curry}
 \alias{curry}
-\title{Happy to Help?}
+\title{Data from 'Happy to Help?'}
 \format{
 A data.frame with 56 rows and 18 columns.
 \tabular{lll}{

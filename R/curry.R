@@ -1,4 +1,4 @@
-#' Happy to Help?
+#' Data from 'Happy to Help?'
 #'
 #' A systematic review and meta-analysis of the effects of performing acts of
 #' kindness on the well-being of the actor.
