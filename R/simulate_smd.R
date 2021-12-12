@@ -11,29 +11,29 @@
 #' @param k_test Atomic integer. The number of studies in the testing dataset.
 #' Defaults to 100.
 #' @param mean_n Atomic integer. The mean sample size of each simulated study in
-#' the meta-analytic dataset. Defaults to 40. For each simulated study, the
+#' the meta-analytic dataset. Defaults to `40`. For each simulated study, the
 #' sample size n is randomly drawn from a normal distribution with mean mean_n,
 #' and sd mean_n/3.
 #' @param es Atomic numeric vector. The effect size, also known as beta, used in
-#'  the model statement. Defaults to .5.
+#'  the model statement. Defaults to `.5`.
 #' @param tau2 Atomic numeric vector. The residual heterogeneity. For a range of
 #'  realistic values encountered in psychological research, see Van Erp,
-#'  Verhagen, Grasman, & Wagenmakers, 2017. Defaults to 0.04.
+#'  Verhagen, Grasman, & Wagenmakers, 2017. Defaults to `0.04`.
 #' @param alpha Vector of slant parameters, passed to [sn::rsn].
 #' @param moderators Atomic integer. The number of moderators to simulate for
 #' each study. Make sure that the number of moderators to be simulated is at
 #' least as large as the number of moderators referred to in the model
-#' parameter. Internally, the matrix of moderators is referred to as "x".
+#' parameter. Internally, the matrix of moderators is referred to as `"x"`.
 #' Defaults to 5.
 #' @param distribution Atomic character. The distribution of the moderators.
-#' Can be set to either "normal" or "bernoulli". Defaults to "normal".
+#' Can be set to either `"normal"` or `"bernoulli"`. Defaults to `"normal"`.
 #' @param model Expression. An expression to specify the model from which to
-#' simulate the mean true effect size, mu. This formula may use the terms "es"
-#' (referring to the es parameter of the call to simulate_smd), and "x\[, \]"
+#' simulate the mean true effect size, mu. This formula may use the terms `"es"`
+#' (referring to the es parameter of the call to simulate_smd), and `"x\[, \]"`
 #' (referring to the matrix of moderators, x). Thus, to specify that the mean
 #' effect size, mu, is a function of the effect size and the first moderator,
 #' one would pass the value \code{model = "es * x\[ , 1\]"}.
-#' Defaults to "es * x\[ , 1\]".
+#' Defaults to `"es * x\[ , 1\]"`.
 #' @return List of length 4. The "training" element of this list is a data.frame
 #' with k_train rows. The columns are the variance of the effect size, vi; the
 #' effect size, yi, and the moderators, X. The "testing" element of this list is

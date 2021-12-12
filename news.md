@@ -1,3 +1,3 @@
-# bain 0.1.0
+# pema 0.1.0
 
 * First submission to CRAN

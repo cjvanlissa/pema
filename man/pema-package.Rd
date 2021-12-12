@@ -10,5 +10,6 @@ Penalized meta-regression shrinks the regression slopes of
 irrelevant moderators towards zero.
 }
 \references{
-Stan Development Team (NA). RStan: the R interface to Stan. R package version 2.26.2. https://mc-stan.org
+Stan Development Team (NA). RStan: the R interface to Stan. R package version
+2.26.2. \url{https://mc-stan.org}
 }

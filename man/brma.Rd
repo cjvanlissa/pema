@@ -55,7 +55,7 @@ Use this, e.g., to override default arguments of that function.}
 This function uses Bayesian estimation via the \code{stan} function
 \link[rstan:stanmodel-method-sampling]{rstan::sampling} to fit a meta-analytic mixed-effects model with
 moderators. A lasso or horseshoe prior is used to shrink the regression
-coefficients of irrrelevant moderators towards zero. See Details.
+coefficients of irrelevant moderators towards zero. See Details.
 }
 \details{
 Penalization of the regression coefficients occurs either via the
@@ -118,12 +118,13 @@ suppressWarnings({res <- brma(d~., data = df, iter = 10)})
 }
 \references{
 Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American
-Statistical Association, 103(482), 681–686. doi:10.1198/016214508000000337
+Statistical Association, 103(482), 681–686. \doi{10.1198/016214508000000337}
 
-Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe estimator
-for sparse signals. Biometrika, 97(2), 465–480. doi:10.1093/biomet/asq017
+Carvalho, C. M., Polson, N. G., & Scott, J. G. (2010). The horseshoe
+estimator for sparse signals. Biometrika, 97(2), 465–480.
+\doi{10.1093/biomet/asq017}
 
-Piironen, J., & Vehtari, A. (2017). Sparsity information and regularization in
-the horseshoe and other shrinkage priors. Electronic Journal of Statistics, 11(2).
-doi:10.1214/17-ejs1337si
+Piironen, J., & Vehtari, A. (2017). Sparsity information and regularization
+in the horseshoe and other shrinkage priors. Electronic Journal of
+Statistics, 11(2). \doi{10.1214/17-ejs1337si}
 }
