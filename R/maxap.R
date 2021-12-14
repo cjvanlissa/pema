@@ -4,7 +4,8 @@
 #' @param x Numeric vector.
 #' @param dens Optional object of class `density`. Defaults to `NULL`.
 #' @param ... Arguments passed to \code{\link[stats]{density}}
-#' @return Atomic numeric vector.
+#' @return Atomic numeric vector with the maximum a-posteriori estimate of
+#' vector `x`.
 #' @examples
 #' maxap(c(1,2,3,4,5))
 #' @export

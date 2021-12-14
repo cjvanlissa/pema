@@ -1,9 +1,10 @@
 #' Conduct Bayesian Regularized Meta-Analysis
 #'
-#' This function uses Bayesian estimation via the \code{stan} function
-#' [rstan::sampling] to fit a meta-analytic mixed-effects model with
-#' moderators. A lasso or horseshoe prior is used to shrink the regression
-#' coefficients of irrelevant moderators towards zero. See Details.
+#' This function conducts Bayesian regularized meta-regression (Van Lissa & Van
+#' Erp, 2021). It uses the \code{stan} function
+#' [rstan::sampling] to fit the model. A lasso or horseshoe prior is used to
+#' shrink the regression coefficients of irrelevant moderators towards zero.
+#' See Details.
 #' @param formula An object of class `formula` (or one that can be coerced to
 #' that class), see \code{\link[stats]{lm}}.
 #' @param data Optional data.frame containing the variables in the model, see
@@ -33,9 +34,10 @@
 #' @param mute_stan Logical, indicating whether mute all 'Stan' output or not.
 #' @param ... Additional arguments passed on to [rstan::sampling()].
 #' Use this, e.g., to override default arguments of that function.
-#' @details Penalization of the regression coefficients occurs either via the
-#' lasso (Park & Casella, 2008) or the regularized horseshoe
-#' (Piironen & Vehtari, 2017) prior.
+#' @details The Bayesian regularized meta-analysis algorithm (Van Lissa & Van
+#' Erp, 2021) penalizes meta-regression coefficients either via the
+#' lasso prior (Park & Casella, 2008) or the regularized horseshoe prior
+#' (Piironen & Vehtari, 2017).
 #' \describe{
 #'   \item{lasso}{ The Bayesian equivalent of the lasso penalty is obtained when
 #'   placing independent Laplace (i.e., double exponential) priors on the
@@ -86,6 +88,10 @@
 #'   coefficients to avoid any sampling problems.}
 #' }
 #' @references
+#' Van Lissa, C. J., & van Erp, S. (2021, December 9). Select relevant
+#' moderators using Bayesian regularized meta-regression.
+#' \doi{10.31234/osf.io/6phs5}
+
 #' Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American
 #' Statistical Association, 103(482), 681–686. \doi{10.1198/016214508000000337}
 #'
@@ -96,6 +102,29 @@
 #' Piironen, J., & Vehtari, A. (2017). Sparsity information and regularization
 #' in the horseshoe and other shrinkage priors. Electronic Journal of
 #' Statistics, 11(2). \url{https://projecteuclid.org/journals/electronic-journal-of-statistics/volume-11/issue-2/Sparsity-information-and-regularization-in-the-horseshoe-and-other-shrinkage/10.1214/17-EJS1337SI.pdf}
+#' @return A `list` object of class `brma`, with the following structure:
+#' ```
+#' list(
+#'   fit          # An object of class stanfit, for compatibility with rstan
+#'   coefficients # A numeric matrix with parameter estimates; these are
+#'                # interpreted as regression coefficients, except tau2 and tau,
+#'                # which are interpreted as the residual variance and standard
+#'                # deviation, respectively.
+#'   formula      # The formula used to estimate the model
+#'   terms        # The predictor terms in the formula
+#'   X            # Numeric matrix of moderator variables
+#'   Y            # Numeric vector with effect sizes
+#'   vi           # Numeric vector with effect size variances
+#'   tau2         # Numeric, estimated tau2
+#'   R2           # Numeric, estimated heterogeneity explained by the moderators
+#'   k            # Numeric, number of effect sizes
+#'   vi_column    # Optional, name of the column in the original data
+#'                # corresponding to vi
+#'   study        # Numeric vector with study id numbers
+#'   study_column # Optional, name of the column in the original data
+#'                # corresponding to study
+#' )
+#' ```
 #' @export
 #' @examples
 #' data("curry")

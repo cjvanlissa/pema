@@ -11,3 +11,4 @@ paper/
 ^pkgdown$
 ^cran-comments\.md$
 ^news\.md$
+^CRAN-SUBMISSION$

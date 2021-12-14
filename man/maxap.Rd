@@ -14,7 +14,8 @@ maxap(x, dens = NULL, ...)
 \item{...}{Arguments passed to \code{\link[stats]{density}}}
 }
 \value{
-Atomic numeric vector.
+Atomic numeric vector with the maximum a-posteriori estimate of
+vector \code{x}.
 }
 \description{
 Find the parameter estimate with the highest posterior

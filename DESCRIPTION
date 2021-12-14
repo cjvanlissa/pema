@@ -9,7 +9,8 @@ Authors@R: c(
              comment = c(ORCID = "0000-0002-0808-5024")),
     person(c("Sara", "J"), "van Erp", role = c("aut"))
     )
-Description: Conduct penalized meta-analysis. In meta-analysis, there are
+Description: Conduct penalized meta-analysis, see Van Lissa & Van Erp (2021).
+    <doi:10.31234/osf.io/6phs5>. In meta-analysis, there are
     often between-study differences. These can be coded as moderator variables,
     and controlled for using meta-regression. However, if the number of
     moderators is large relative to the number of studies, such an analysis may

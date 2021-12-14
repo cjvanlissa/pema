@@ -4,7 +4,7 @@
 #' so that all methods for `stanfit` objects can be used.
 #' @param x An object for which a method exists.
 #' @param ... Arguments passed to or from other methods.
-#' @return An object of class `stanfit`.
+#' @return An object of class `stanfit`, as documented in [rstan::stan].
 #' @export
 #' @examples
 #' stanfit <- "a"

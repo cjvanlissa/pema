@@ -1,6 +1,13 @@
 # Version 0.1.0
 
-* First submission to CRAN
+* Addressed all comments by CRAN maintainer Julia Haider:
+* Fixed comment by Julia Haider: Add references describing the methods 
+  in the description field of your DESCRIPTION file
+    + Added: 
+  "see Van Lissa & Van Erp (2021). <doi:10.31234/osf.io/6phs5>."
+* Fixed comment by Julia Haider: Add \value to .Rd files
+    + Added \value to brma(), as.stan(), and maxap(). simulate_smd() already had
+      a \value entry.
 
 ## Test environments
 * local x86_64-pc-linux-gnu, R 4.1.2

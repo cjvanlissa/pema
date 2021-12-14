@@ -12,7 +12,7 @@ as.stan(x, ...)
 \item{...}{Arguments passed to or from other methods.}
 }
 \value{
-An object of class \code{stanfit}.
+An object of class \code{stanfit}, as documented in \link[rstan:stan]{rstan::stan}.
 }
 \description{
 Create a \code{stanfit} object from an object for which a method exists,
