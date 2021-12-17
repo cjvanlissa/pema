@@ -262,3 +262,129 @@ brma <-
     class(out) <- c("brma", class(out))
     return(out)
   }
+
+
+
+brma_noint <-
+  function(formula,
+           data,
+           vi = "vi",
+           study = NULL,
+           prior = c(df = 1, df_global = 1,
+                                                                       df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL),
+           ...) {
+    # Bookkeeping for columns that should not be in X or Y
+    vi_column <- NULL
+    study_column <- NULL
+    if(inherits(vi, "character")){
+      vi_column <- vi
+      vi <- data[[vi]]
+      data[[vi_column]] <- NULL
+    }
+    if(is.null(study)){
+      study <- 1:nrow(data)
+    } else {
+      if(inherits(study, "character")){
+        study_column <- study
+        study <- data[[study]]
+        data[[study_column]] <- NULL
+      }
+    }
+    # Make model matrix
+    mf <- match.call(expand.dots = FALSE)
+    mf <- mf[c(1L, match(c("formula", "subset", "na.action"), names(mf), 0L))]
+    mf[["data"]] <- data
+    mf$drop.unused.levels <- TRUE
+    mf[[1L]] <- quote(stats::model.frame)
+    mf <- eval(mf, parent.frame())
+    Y <- mf[[1]]
+    #X <- mf[, -1, drop = FALSE]
+    mt <- attr(mf, "terms")
+    X <- model.matrix(mt, mf)
+    se <- sqrt(vi)
+    N <- length(Y)
+    # if(isTRUE(standardize)){
+    #   X <- scale(X) # Should there be any fancy standardization for categorical variables?
+    #                 # Should coefficients be transformed back to original scale?
+    #   scale_m <- attr(X, "scaled:center")
+    #   scale_s <- attr(X, "scaled:scale")
+    # }
+    #X <- cbind(1, X)
+    standat <- c(
+      list(
+        N = N,
+        Y = Y,
+        se = se,
+        K = ncol(X),
+        X = X),
+      as.list(prior),
+      list(
+        N_1 = length(unique(study)),
+        M_1 = 1,
+        J_1 = study,
+        Z_1_1 = rep(1, N),
+        prior_only = FALSE
+      )
+    )
+    browser()
+    cl <- do.call("call",
+                  c(list(name = "sampling",
+                         object = stanmodels[["horseshoe_MA_noint"]],
+                         data = standat
+                  ),
+                  list(...)))
+    # Mute stan
+    dots <- list(...)
+    if(!any(c("show_messages", "verbose", "refresh") %in% names(dots))){
+      if(mute_stan){
+        cl[["show_messages"]] <- FALSE
+        cl[["verbose"]] <- FALSE
+        cl[["refresh"]] <- 0
+      }
+    }
+    fit <- eval(cl)
+    sums <- summary(fit)$summary
+    keepthese <- c(which(rownames(sums) == "Intercept"),
+                   which(startsWith(rownames(sums), "b[")),
+                   which(rownames(sums) == "sd_1[1]"))
+    sums <- sums[keepthese, , drop = FALSE]
+    sim <- fit@sim
+    sdpar <- match("sd_1[1]", sim$fnames_oi)
+    tau2 <- .extract_samples(sim, sdpar)^2
+    addrow <- sums["sd_1[1]",]
+    addrow[c("mean", "sd", "2.5%", "25%", "50%", "75%", "97.5%")] <-
+      c(mean(tau2), sd(tau2), quantile(tau2, c(.025, .25, .5, .75,.975)))
+    addrow["se_mean"] <- addrow["sd"]/sqrt(addrow[["n_eff"]])
+    #tau <- unlist(lapply(fit@sim$samples, `[[`, "sd_1[1]"))
+    sums <- rbind(sums, tau2 = addrow)
+    rownames(sums)[2:(ncol(X))] <- colnames(X)[-1]
+    rownames(sums)[rownames(sums) == "sd_1[1]"] <- "tau"
+    tau2 <- unname(addrow["mean"])
+    Wi <- 1 / vi
+    tau2_before <-
+      max(0, (sum(Wi * (Y - (
+        sum(Wi * Y) / sum(Wi)
+      )) ^ 2) - (N - 1)) / (sum(Wi) - (sum(Wi ^ 2) / sum(Wi))))
+
+    R2 <- max(0, 100 * (tau2_before-tau2)/tau2_before)
+    #I2 <- 100 * tau2/(vt + tau2)
+    #H2 <- tau2/vt + 1
+
+    out <- list(fit = fit,
+                coefficients = sums,
+                formula = formula,
+                terms = mt,
+                X = X,
+                Y = Y,
+                vi = vi,
+                tau2 = tau2,
+                #I2 = I2,
+                #H2 = H2,
+                R2 = R2,
+                k = N)
+    if(!is.null(vi_column)) out$vi_column <- vi_column
+    if(!is.null(study_column)) out$study_column <- study_column
+    if(!is.null(study)) out$study <- study
+    class(out) <- c("brma", class(out))
+    return(out)
+  }
