@@ -32,13 +32,20 @@
 # @param chains A positive integer specifying the number of Markov chains.
 # Defaults to 4.
 #' @param mute_stan Logical, indicating whether mute all 'Stan' output or not.
-#' @param intercept Logical, indicating whether to include an intercept in the
-#' model or not. Note that when `intercept = FALSE`, predictors are not
-#' standardized prior to estimation. This means that, when predictors are not
-#' standardized, they are differentially affected by the shrinkage prior.
-#' Consider manually standardizing in a meaningful way.
-#' @param prior_only Logical, indicating whether to sample from the prior
-#' (`prior_only = TRUE`) or from the posterior.
+#' @param standardize Either a logical argument or a list. If `standardize` is
+#' logical, it controls whether all predictors are standardized prior to
+#' analysis or not. Parameter estimates are restored to the predictors' original
+#' scale. Alternatively, users can provide a list to `standardize` to gain
+#' more control over the standardization process. In this case, it is assumed
+#' that the standardization has already taken place. This list must have two
+#' elements: `list(center = c(mean(X1)
+#' , mean(X2), mean(X...)), scale = c(sd(X1), sd(X2), sd(X...)))`. It is used
+#' only to restore parameter estimates to the original scale of the predictors.
+#' This is useful, e.g., to standardize continuous and dichotomous variables
+#' separately. Note that when predictors are not standardized, they may be
+#' differentially affected by the shrinkage prior.
+# @param prior_only Logical, indicating whether to sample from the prior
+# (`prior_only = TRUE`) or from the posterior.
 #' @param ... Additional arguments passed on to [rstan::sampling()].
 #' Use this, e.g., to override default arguments of that function.
 #' @details The Bayesian regularized meta-analysis algorithm (Van Lissa & Van
@@ -154,7 +161,26 @@ brma <-
                           "lasso" = c(df = 1, scale = 1),
                           "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
            mute_stan = TRUE,
-           prior_only = FALSE,
+           standardize = TRUE,
+           #prior_only = FALSE,
+           ...) {
+
+}
+
+
+brma <-
+  function(formula,
+           data,
+           vi = "vi",
+           study = NULL,
+           method = "hs",
+           standardize = TRUE,
+           prior = switch(method,
+                          "lasso" = c(df = 1, scale = 1),
+                          "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
+           mute_stan = TRUE,
+           standardize = TRUE,
+           #prior_only = FALSE,
            ...) {
     # Bookkeeping for columns that should not be in X or Y
     threelevel <- !is.null(study)
@@ -198,8 +224,24 @@ brma <-
     #X <- mf[, -1, drop = FALSE]
     mt <- attr(mf, "terms")
     X <- model.matrix(mt, mf)
-    if(all(X[,1] == 1)) intercept <- TRUE
+    if(all(X[,1] == 1)){
+      intercept <- TRUE
+      X <- X[, -1]
+    }
     se <- sqrt(vi)
+    if(!inherits(standardize, c("logical", "list"))) stop("Argument 'standardize' must be either logical (TRUE/FALSE) or a list with two elements: list(center = c(mean(X1), mean(X2), mean(X...)), scale = c(sd(X1), sd(X2), sd(X...))).")
+    if(is.logical(standardize)){
+      if(standardize){
+        X <- scale(X)
+        standardize <- list(attr(X, "scaled:center"), attr(X, "scaled:scale"))
+      } else {
+        standardize <- list(rep(0, ncol(X)), rep(1, ncol(X)))
+      }
+    } else {
+      standardize <- standardize[c("center", "scale")]
+      if(!length(standardize) == 2) top("Argument 'standardize' must be a list with two elements: list(center = c(mean(X1), mean(X2), mean(X...)), scale = c(sd(X1), sd(X2), sd(X...))).")
+    }
+    names(standardize) <- c("means_X", "sds_X")
     # if(isTRUE(standardize)){
     #   X <- scale(X) # Should there be any fancy standardization for categorical variables?
     #                 # Should coefficients be transformed back to original scale?
@@ -218,7 +260,8 @@ brma <-
       standat,
       list(
         prior_only = prior_only
-      )
+      ),
+      standardize
       )
 
     cl <- do.call("call",

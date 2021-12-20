@@ -42,6 +42,8 @@ data {
   // group-level predictor values
   vector[N] Z_2_1;
   int prior_only;  // should the likelihood be ignored?
+  vector[K] means_X;  // column means of X before standardizing
+  vector[K] sds_X;  // SDs of X before standardizing
 }
 parameters {
   // local parameters for horseshoe prior
@@ -57,19 +59,19 @@ parameters {
   vector[N_2] z_2[M_2];  // standardized group-level effects
 }
 transformed parameters {
-  vector[K] betas;  // population-level effects
+  vector[K] b;  // population-level effects
   vector[N_1] r_1_1;  // actual group-level effects
   vector[N_2] r_2_1;  // actual group-level effects
   r_1_1 = (sd_1[1] * (z_1[1]));
   r_2_1 = (sd_2[1] * (z_2[1]));
   // compute actual regression coefficients
-  betas = horseshoe(zb, hs_local, hs_global, scale_slab^2 * hs_slab);
+  b = horseshoe(zb, hs_local, hs_global, scale_slab^2 * hs_slab);
 }
 model {
   // likelihood including constants
   if (!prior_only) {
     // initialize linear predictor term
-    vector[N] mu = X * betas;
+    vector[N] mu = X * b;
     for (n in 1:N) {
       // add more terms to the linear predictor
       mu[n] += r_1_1[J_1[n]] * Z_1_1[n] + r_2_1[J_2[n]] * Z_2_1[n];
@@ -95,6 +97,7 @@ model {
   target += std_normal_lpdf(z_2[1]);
 }
 generated quantities {
+  vector[K] betas = b ./ sds_X;  // actual group-level effects
   real tau2_w = sd_1[1]^2;
   real tau2_b = sd_2[1]^2;
 }

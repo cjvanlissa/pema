@@ -39,9 +39,11 @@ data {
   // group-level predictor values
   vector[N] Z_2_1;
   int prior_only;  // should the likelihood be ignored?
+  vector[K] means_X;  // column means of X before standardizing
+  vector[K] sds_X;  // SDs of X before standardizing
 }
 parameters {
-  vector[K] betas;  // population-level effects
+  vector[K] b;  // population-level effects
   // lasso shrinkage parameter
   real<lower=0> lasso_inv_lambda;
   //Standard deviations
@@ -60,7 +62,7 @@ model {
   // likelihood including constants
   if (!prior_only) {
     // initialize linear predictor term
-    vector[N] mu = X * betas;
+    vector[N] mu = X * b;
     for (n in 1:N) {
       // add more terms to the linear predictor
       mu[n] += r_1_1[J_1[n]] * Z_1_1[n] + r_2_1[J_2[n]] * Z_2_1[n];
@@ -68,7 +70,7 @@ model {
     target += normal_lpdf(Y | mu, se);
   }
  // priors including constants
-  target += double_exponential_lpdf(betas | 0, scale * lasso_inv_lambda);
+  target += double_exponential_lpdf(b | 0, scale * lasso_inv_lambda);
   target += chi_square_lpdf(lasso_inv_lambda | df);
   target += student_t_lpdf(sd_1 | 3, 0, 2.5)
     - 1 * student_t_lccdf(0 | 3, 0, 2.5);
@@ -78,6 +80,7 @@ model {
   target += std_normal_lpdf(z_2[1]);
 }
 generated quantities {
+  vector[K] betas = b ./ sds_X;  // actual group-level effects
   real tau2_w = sd_1[1]^2;
   real tau2_b = sd_2[1]^2;
 }
