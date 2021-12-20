@@ -33,7 +33,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_lasso_MA");
-    reader.add_event(71, 69, "end", "model_lasso_MA");
+    reader.add_event(72, 70, "end", "model_lasso_MA");
     return reader;
 }
 #include <stan_meta_header.hpp>
@@ -515,6 +515,7 @@ public:
         names__.push_back("r_1_1");
         names__.push_back("Intercept");
         names__.push_back("betas");
+        names__.push_back("tau2");
     }
     void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
         dimss__.resize(0);
@@ -542,6 +543,8 @@ public:
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back(Kc);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
         dimss__.push_back(dims__);
     }
     template <typename RNG>
@@ -635,6 +638,12 @@ public:
             stan::math::initialize(betas, DUMMY_VAR__);
             stan::math::fill(betas, DUMMY_VAR__);
             stan::math::assign(betas,elt_divide(b, sds_X));
+            current_statement_begin__ = 69;
+            double tau2;
+            (void) tau2;  // dummy to suppress unused var warning
+            stan::math::initialize(tau2, DUMMY_VAR__);
+            stan::math::fill(tau2, DUMMY_VAR__);
+            stan::math::assign(tau2,pow(get_base1(sd_1, 1, "sd_1", 1), 2));
             // validate, write generated quantities
             current_statement_begin__ = 67;
             vars__.push_back(Intercept);
@@ -643,6 +652,8 @@ public:
             for (size_t j_1__ = 0; j_1__ < betas_j_1_max__; ++j_1__) {
                 vars__.push_back(betas(j_1__));
             }
+            current_statement_begin__ = 69;
+            vars__.push_back(tau2);
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
             // Next line prevents compiler griping about no return
@@ -722,6 +733,9 @@ public:
             param_name_stream__ << "betas" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "tau2";
+        param_names__.push_back(param_name_stream__.str());
     }
     void unconstrained_param_names(std::vector<std::string>& param_names__,
                                    bool include_tparams__ = true,
@@ -776,6 +790,9 @@ public:
             param_name_stream__ << "betas" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "tau2";
+        param_names__.push_back(param_name_stream__.str());
     }
 }; // model
 }  // namespace

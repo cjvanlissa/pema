@@ -38,7 +38,6 @@ data {
   int prior_only;  // should the likelihood be ignored?
 }
 transformed data {
-  vector<lower=0>[N] se2 = square(se);
   int Kc = K - 1;
   matrix[N, Kc] Xc;  // centered version of X without an intercept
   vector[Kc] means_X;  // column means of X before standardizing
@@ -95,4 +94,5 @@ generated quantities {
   // restore parameters to unstandardized scale
   real Intercept = Int_c - sum(b .* (means_X ./ sds_X));
   vector[Kc] betas = b ./ sds_X;  // actual group-level effects
+  real tau2 = sd_1[1]^2;
 }

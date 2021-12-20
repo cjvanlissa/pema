@@ -66,4 +66,5 @@ generated quantities {
   // restore parameters to unstandardized scale
   real Intercept = Int_c - sum(b .* (means_X ./ sds_X));
   vector[Kc] betas = b ./ sds_X;  // actual group-level effects
+  real tau2 = sd_1[1]^2;
 }

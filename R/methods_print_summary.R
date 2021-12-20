@@ -74,7 +74,7 @@ print.brma_sum <- function(x, digits = 2, ...){
   coefs <- cbind(coefs, pstars)
   colnames(coefs)[ncol(coefs)] <- ""
   prmatrix(coefs, quote = FALSE, right = TRUE, na.print = "")
-  cat("\n*: This coefficient is significant, as the 95% credible interval excludes zero.")
+  cat("\n*: This coefficient is significant, as the 95% credible interval excludes zero. n_eff is the effective sample size, Rhat is the potential scale reduction for multiple chains (Rhat = 1 indicates convergence).")
 }
 
 # Mixed-Effects Model (k = 48; tau^2 estimator: REML)

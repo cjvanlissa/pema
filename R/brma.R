@@ -32,6 +32,13 @@
 # @param chains A positive integer specifying the number of Markov chains.
 # Defaults to 4.
 #' @param mute_stan Logical, indicating whether mute all 'Stan' output or not.
+#' @param intercept Logical, indicating whether to include an intercept in the
+#' model or not. Note that when `intercept = FALSE`, predictors are not
+#' standardized prior to estimation. This means that, when predictors are not
+#' standardized, they are differentially affected by the shrinkage prior.
+#' Consider manually standardizing in a meaningful way.
+#' @param prior_only Logical, indicating whether to sample from the prior
+#' (`prior_only = TRUE`) or from the posterior.
 #' @param ... Additional arguments passed on to [rstan::sampling()].
 #' Use this, e.g., to override default arguments of that function.
 #' @details The Bayesian regularized meta-analysis algorithm (Van Lissa & Van
@@ -147,10 +154,18 @@ brma <-
                           "lasso" = c(df = 1, scale = 1),
                           "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
            mute_stan = TRUE,
+           prior_only = FALSE,
            ...) {
     # Bookkeeping for columns that should not be in X or Y
+    threelevel <- !is.null(study)
     vi_column <- NULL
     study_column <- NULL
+    N <- nrow(data)
+    standat <- list(
+      N_1 = N,
+      M_1 = 1,
+      J_1 = 1:N,
+      Z_1_1 = rep(1, N))
     if(inherits(vi, "character")){
       vi_column <- vi
       vi <- data[[vi]]
@@ -160,14 +175,21 @@ brma <-
       study <- 1:nrow(data)
     } else {
       if(inherits(study, "character")){
+        if(!study %in% names(data)) stop("Argument 'study' is not a collumn of 'data'.")
         study_column <- study
         study <- data[[study]]
         data[[study_column]] <- NULL
+        standat <- c(standat, list(
+          N_2 = length(unique(study)),
+          M_2 = 1,
+          J_2 = as.integer(factor(study)),
+          Z_2_1 = rep(1, N)
+        ))
       }
     }
     # Make model matrix
     mf <- match.call(expand.dots = FALSE)
-    mf <- mf[c(1L, match(c("formula", "subset", "na.action"), names(mf), 0L))]
+    mf <- mf[c(1L, match(c("formula", "subset", "na.action"), names(mf), nomatch = 0L))]
     mf[["data"]] <- data
     mf$drop.unused.levels <- TRUE
     mf[[1L]] <- quote(stats::model.frame)
@@ -176,8 +198,8 @@ brma <-
     #X <- mf[, -1, drop = FALSE]
     mt <- attr(mf, "terms")
     X <- model.matrix(mt, mf)
+    if(all(X[,1] == 1)) intercept <- TRUE
     se <- sqrt(vi)
-    N <- length(Y)
     # if(isTRUE(standardize)){
     #   X <- scale(X) # Should there be any fancy standardization for categorical variables?
     #                 # Should coefficients be transformed back to original scale?
@@ -193,17 +215,19 @@ brma <-
         K = ncol(X),
         X = X),
       as.list(prior),
+      standat,
       list(
-        N_1 = length(unique(study)),
-        M_1 = 1,
-        J_1 = study,
-        Z_1_1 = rep(1, N),
-        prior_only = FALSE
+        prior_only = prior_only
       )
-    )
+      )
+
     cl <- do.call("call",
                   c(list(name = "sampling",
-                         object = stanmodels[[c(lasso = "lasso_MA", hs = "horseshoe_MA")[method]]],
+                         object = stanmodels[[paste0(
+                           c(lasso = "lasso_MA", hs = "horseshoe_MA")[method],
+                           c("", "_ml")[threelevel+1],
+                           c("_noint", "")[intercept+1]
+                           )]],
                          data = standat
                   ),
                   list(...)))
@@ -218,22 +242,16 @@ brma <-
     }
     fit <- eval(cl)
     sums <- summary(fit)$summary
-    keepthese <- c(which(rownames(sums) == "Intercept"),
-                   which(startsWith(rownames(sums), "b[")),
-                   which(rownames(sums) == "sd_1[1]"))
+    rnam <- rownames(sums)
+    row_int <- which(startsWith(rnam, "Intercept"))
+    row_beta <- which(startsWith(rnam, "betas"))
+    row_tau <- which(startsWith(rnam, "tau2"))
+    keepthese <- c(row_int, row_beta, row_tau)
     sums <- sums[keepthese, , drop = FALSE]
-    sim <- fit@sim
-    sdpar <- match("sd_1[1]", sim$fnames_oi)
-    tau2 <- .extract_samples(sim, sdpar)^2
-    addrow <- sums["sd_1[1]",]
-    addrow[c("mean", "sd", "2.5%", "25%", "50%", "75%", "97.5%")] <-
-      c(mean(tau2), sd(tau2), quantile(tau2, c(.025, .25, .5, .75,.975)))
-    addrow["se_mean"] <- addrow["sd"]/sqrt(addrow[["n_eff"]])
-    #tau <- unlist(lapply(fit@sim$samples, `[[`, "sd_1[1]"))
-    sums <- rbind(sums, tau2 = addrow)
-    rownames(sums)[2:(ncol(X))] <- colnames(X)[-1]
-    rownames(sums)[rownames(sums) == "sd_1[1]"] <- "tau"
-    tau2 <- unname(addrow["mean"])
+    tau2 <- sums[which(startsWith(rownames(sums), "tau2"))[1], 1]
+    if(length(c(row_int, row_beta)) == length(colnames(X))){
+      rownames(sums)[1:length(c(row_int, row_beta))] <- colnames(X)
+    }
     Wi <- 1 / vi
     tau2_before <-
       max(0, (sum(Wi * (Y - (
@@ -301,6 +319,7 @@ brma_noint <-
     #X <- mf[, -1, drop = FALSE]
     mt <- attr(mf, "terms")
     X <- model.matrix(mt, mf)
+    X <- X[, -1]
     se <- sqrt(vi)
     N <- length(Y)
     # if(isTRUE(standardize)){
@@ -333,58 +352,7 @@ brma_noint <-
                          data = standat
                   ),
                   list(...)))
-    # Mute stan
-    dots <- list(...)
-    if(!any(c("show_messages", "verbose", "refresh") %in% names(dots))){
-      if(mute_stan){
-        cl[["show_messages"]] <- FALSE
-        cl[["verbose"]] <- FALSE
-        cl[["refresh"]] <- 0
-      }
-    }
+
     fit <- eval(cl)
-    sums <- summary(fit)$summary
-    keepthese <- c(which(rownames(sums) == "Intercept"),
-                   which(startsWith(rownames(sums), "b[")),
-                   which(rownames(sums) == "sd_1[1]"))
-    sums <- sums[keepthese, , drop = FALSE]
-    sim <- fit@sim
-    sdpar <- match("sd_1[1]", sim$fnames_oi)
-    tau2 <- .extract_samples(sim, sdpar)^2
-    addrow <- sums["sd_1[1]",]
-    addrow[c("mean", "sd", "2.5%", "25%", "50%", "75%", "97.5%")] <-
-      c(mean(tau2), sd(tau2), quantile(tau2, c(.025, .25, .5, .75,.975)))
-    addrow["se_mean"] <- addrow["sd"]/sqrt(addrow[["n_eff"]])
-    #tau <- unlist(lapply(fit@sim$samples, `[[`, "sd_1[1]"))
-    sums <- rbind(sums, tau2 = addrow)
-    rownames(sums)[2:(ncol(X))] <- colnames(X)[-1]
-    rownames(sums)[rownames(sums) == "sd_1[1]"] <- "tau"
-    tau2 <- unname(addrow["mean"])
-    Wi <- 1 / vi
-    tau2_before <-
-      max(0, (sum(Wi * (Y - (
-        sum(Wi * Y) / sum(Wi)
-      )) ^ 2) - (N - 1)) / (sum(Wi) - (sum(Wi ^ 2) / sum(Wi))))
-
-    R2 <- max(0, 100 * (tau2_before-tau2)/tau2_before)
-    #I2 <- 100 * tau2/(vt + tau2)
-    #H2 <- tau2/vt + 1
-
-    out <- list(fit = fit,
-                coefficients = sums,
-                formula = formula,
-                terms = mt,
-                X = X,
-                Y = Y,
-                vi = vi,
-                tau2 = tau2,
-                #I2 = I2,
-                #H2 = H2,
-                R2 = R2,
-                k = N)
-    if(!is.null(vi_column)) out$vi_column <- vi_column
-    if(!is.null(study_column)) out$study_column <- study_column
-    if(!is.null(study)) out$study <- study
-    class(out) <- c("brma", class(out))
-    return(out)
+    return(fit)
   }
