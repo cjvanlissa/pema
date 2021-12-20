@@ -199,6 +199,8 @@ brma.formula <-
     if(all(X[,1] == 1)){
       intercept <- TRUE
       X <- X[, -1]
+    } else {
+      intercept <- FALSE
     }
     if(!inherits(standardize, c("logical", "list"))) stop("Argument 'standardize' must be either logical (TRUE/FALSE) or a list with two elements: list(center = c(mean(X1), mean(X2), mean(X...)), scale = c(sd(X1), sd(X2), sd(X...))).")
     if(is.logical(standardize)){
