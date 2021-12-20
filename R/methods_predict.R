@@ -8,26 +8,9 @@ predict.brma <- function(object, newdata, type = c("mean", "median", "samples"),
       X <- newdata[, colnames(object$X), drop = FALSE]
     } else {
       X <- try({
-        form <- object$formula
-        form[2] <- NULL
-        if(!is.null(object[["vi_column"]])){
-          if(object$vi_column %in% names(newdata)) newdata[[object$vi_column]] <- NULL
-        }
-        if(!is.null(object[["study_column"]])){
-          if(object$study_column %in% names(newdata)) newdata[[object$study_column]] <- NULL
-        }
-        # Make model matrix
-        mf <- call("model.frame")
-        #mf <- mf[c(1L, match(c("formula", "subset", "na.action"), names(mf), 0L))]
-        mf[["formula"]] <- form
-        mf[["data"]] <- newdata
-        mf$drop.unused.levels <- FALSE
-        mf <- eval(mf, parent.frame())
-        #X <- mf[, -1, drop = FALSE]
-        #mt <- attr(mf, "terms")
-        mt <- object$terms
-        model.matrix(mt, mf)
-      })
+        mf <- model.matrix(object$formula, data = newdata)
+        X <- mf[, colnames(object$X), drop = FALSE]
+        })
       if(inherits(X, "try-error")) stop("Could not construct a valid model.frame from argument 'newdata'.")
     }
   }
@@ -40,26 +23,33 @@ predict.brma <- function(object, newdata, type = c("mean", "median", "samples"),
 
 
 .pred_brma_samples <- function(object, X, ...){
-  sums <- summary(object$fit)$summary
   sim <- object$fit@sim
   keepthese <- c(which(sim$fnames_oi == "sd_1[1]"),
                  which(sim$fnames_oi == "Intercept"),
-                 grep("^b\\[\\d+\\]$", sim$fnames_oi))
+                 grep("^betas\\[\\d+\\]$", sim$fnames_oi))
 
-  sums <- sums[keepthese, , drop = FALSE]
-
+  row_int <- which(sim$fnames_oi == "Intercept")
+  row_beta <- which(startsWith(sim$fnames_oi, "betas"))
+  row_tau <- which(startsWith(sim$fnames_oi, "tau2"))
+  keepthese <- c(row_int, row_beta, row_tau)
   samps <- sapply(keepthese, .extract_samples, sim = sim)
-  preds <- apply(samps[, -1], 1, function(thisrow){ rowSums(X %*% diag(thisrow)) })
-  attr(preds, "tau") <- samps[,1]
+  if(isTRUE(row_int > 0)){
+    X <- cbind(1, X)
+  }
+  preds <- apply(samps[, 1:(ncol(samps)-length(row_tau)), drop = FALSE], 1, function(thisrow){ rowSums(X %*% diag(thisrow)) })
+  attr(preds, "tau2") <- samps[,((ncol(samps)-length(row_tau))+1):ncol(samps), drop = FALSE]
   class(preds) <- c("brma_preds", class(preds))
   return(preds)
 }
 
 .pred_brma_summary <- function(object, X, parcol, ...){
+  X <- as.matrix(X)
   # Prepare coefs -----------------------------------------------------------
   coefs <- object$coefficients
-  numpars <- sum(grepl("^b\\[\\d+\\]", object$fit@sim$fnames_oi))
-  coefs <- coefs[1:(numpars+1), parcol]
+  coefs <- coefs[-which(startsWith(rownames(coefs), "tau2")), ][, parcol, drop = TRUE]
+  if(length(coefs)-ncol(X) == 1){
+    X <- cbind(1, X)
+  }
   # Produce prediction ------------------------------------------------------
   unname(rowSums(X %*% diag(coefs)))
 }
