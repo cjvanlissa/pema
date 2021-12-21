@@ -291,7 +291,7 @@ RSS=\sum_{i=1}^{n}(y_{i} - \beta_{0} - \sum_{j=1}^{p}\beta_{j}x_{ij})^2
 $$
 The resulting parameter estimates are those that give the best predictions of the dependent variable in the present dataset.
 Penalized regression, by contrast, adds a penalty term to the RSS.
-One commonly used penalty is the L1-norm of the regression coefficients, or LASSO penalty (Tibshirani, 1996),
+One commonly used penalty is the L1-norm of the regression coefficients, or LASSO penalty ([@tibshirani1996]),
 which corresponds to the sum of their absolute values.
 This gives the penalized residual sum of squares:
 
@@ -328,12 +328,12 @@ The study displayed also other advantages from random forests over singletrees. 
 
 Instead of using a penalty to shrink regression coefficients towards zero, it is possible to use a Bayesian prior distribution to achieve a similar result. Whereas classical, frequentist estimation methods rely solely on the data at hand, Bayesian estimation methods require the specification of a prior distribution. The prior distribution is a probability distribution that reflects the prior knowledge or beliefs that the researcher has before collecting the data. The prior is combined with the likelihood of the data to form the posterior distribution. In the context of regularization, the prior distribution is specified such that it reflects the prior belief that not all regression coefficients are substantial enough to be included in the model. 
 
-Many different prior distributions exist that have specific properties that enable them to shrink small regression coefficients towards zero, while keeping substantial coefficients large (van Erp, Oberski & Mulder, 2019). Some prior distributions have been shown to result in exactly the same solutions as classical, frequentist penalties, such as the LASSO. Specifically, placing independent Laplace (i.e., double exponential) priors on the regression coefficients results in posterior modes that are equal to the lasso estimates (Park and Casella, 2008). In addition, many prior distributions have been developed and investigated specifically for the purpose of providing good shrinkage properties, meaning that the prior pulls small regression coefficients towards zero, without exerting any influence on substantial regression coefficients. A popular prior in this regard is the horseshoe prior (Carvalho et al. 2010). An advantage of the horseshoe prior compared to the lasso is the fact that it has heavier tails. As a result, it will not shrink and therefore bias substantial coefficients as much as the LASSO prior with its lighter tails. 
+Many different prior distributions exist that have specific properties that enable them to shrink small regression coefficients towards zero, while keeping substantial coefficients large ([@vanErpOberskiMulder2019]). Some prior distributions have been shown to result in exactly the same solutions as classical, frequentist penalties, such as the LASSO. Specifically, placing independent Laplace (i.e., double exponential) priors on the regression coefficients results in posterior modes that are equal to the lasso estimates ([@ParkCasella2008]). In addition, many prior distributions have been developed and investigated specifically for the purpose of providing good shrinkage properties, meaning that the prior pulls small regression coefficients towards zero, without exerting any influence on substantial regression coefficients. A popular prior in this regard is the horseshoe prior ([@CarvalhoPolsonScott2010]). An advantage of the horseshoe prior compared to the lasso is the fact that it has heavier tails. As a result, it will not shrink and therefore bias substantial coefficients as much as the LASSO prior with its lighter tails. 
 
 ### Implementation
-The brma function uses Stan (Stan development team) to fit the models. Stan is a probabilistic programming language that uses a Hamiltonian Monte Carlo algorithm to sample from the posterior distribution. When running a Bayesian analysis in Stan it is important to ensure that the algorithm has converged to the posterior distribution in order for the results to be trusted. Stan offers automatic warnings and errors if this might not be the case. 
+The brma function uses Stan ([@StanManual]) to fit the models. Stan is a probabilistic programming language that uses a Hamiltonian Monte Carlo algorithm to sample from the posterior distribution. When running a Bayesian analysis in Stan it is important to ensure that the algorithm has converged to the posterior distribution in order for the results to be trusted. Stan offers automatic warnings and errors if this might not be the case. 
 
-Currently, the brma function supports two priors: the LASSO and the regularized horseshoe. We have precompiled the models with these two priors using brms (brms ref).
+Currently, the brma function supports two priors: the LASSO and the regularized horseshoe. We have precompiled the models with these two priors using brms ([@brms]).
 
 The LASSO prior is implemented as follows:
 
@@ -343,7 +343,7 @@ $$
 
 and requires the specification of a global scale parameter $s$ and an inverse-tuning parameter $\lambda$. By default, the global scale is set to 1 and the inverse-tuning parameter is given a chi-square prior with degrees of freedom equal to 1. 
 
-For the horseshoe prior, we use an extension proposed by Piironen and Vehtari (2017) called the regularized horseshoe:
+For the horseshoe prior, we use an extension proposed by [@PiironenVehtari2017b] called the regularized horseshoe:
 
 $$
 \beta_{j} \sim \text{normal}(0, \tilde{\tau}_j^2\lambda) \text{, with } \tilde{\tau}_j^2 = \frac{c^2 \tau_j^2}{c^2 + \lambda^2 \tau_j^2} \\
@@ -709,7 +709,7 @@ Compiling the function thus requires some technological sophistication and is mo
 Alghough the use of Bayesian estimation has several advantages, one major downside is that Bayesian models are not directly comparable with frequentist models.
 Another disadvantage is that Bayesian estimation is typically more computationally expensive than frequentist estimation.
 One future direction of research is thus to develop a frequentist estimator for regularized meta-regression.
-Additionally, the current implementation relies on 95% credible intervals to select relevant moderators. However, these marginal credible intervals can behave differently compared to the joint credible intervals (Piironen, Betancourt, Simpson & Vehtari, 2017). A second future direction of research is therefore to implement more advanced selection procedures, such as projection predictive variable selection (Piironen & Vehtari, 2016).
+Additionally, the current implementation relies on 95% credible intervals to select relevant moderators. However, these marginal credible intervals can behave differently compared to the joint credible intervals ([@PiironenEtal2017]). A second future direction of research is therefore to implement more advanced selection procedures, such as projection predictive variable selection ([@PiironenVehtari2017a]).
 
 ## Recommendations for applied research
 
