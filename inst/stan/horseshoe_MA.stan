@@ -36,23 +36,13 @@ data {
   // group-level predictor values
   vector[N] Z_1_1;
   int prior_only;  // should the likelihood be ignored?
-}
-transformed data {
-  vector<lower=0>[N] se2 = square(se);
-  int Kc = K - 1;
-  matrix[N, Kc] Xc;  // centered version of X without an intercept
-  vector[Kc] means_X;  // column means of X before standardizing
-  vector[Kc] sds_X;  // SDs of X before standardizing
-  for (i in 2:K) {
-    means_X[i - 1] = mean(X[, i]);
-    sds_X[i - 1] = sd(X[, i]);
-    Xc[, i - 1] = (X[, i] - means_X[i - 1]) / sds_X[i - 1];
-  }
+  vector[K] means_X;  // column means of X before standardizing
+  vector[K] sds_X;  // SDs of X before standardizing
 }
 parameters {
   // local parameters for horseshoe prior
-  vector[Kc] zb;
-  vector<lower=0>[Kc] hs_local;
+  vector[K] zb;
+  vector<lower=0>[K] hs_local;
   real Int_c;  // temporary intercept for centered predictors
   // horseshoe shrinkage parameters
   real<lower=0> hs_global;  // global shrinkage parameters
@@ -61,11 +51,9 @@ parameters {
   vector[N_1] z_1[M_1];  // standardized group-level effects
 }
 transformed parameters {
-  vector[Kc] b;  // population-level effects
+  vector[K] b;  // population-level effects
   real<lower=0> sigma = 0;  // residual SD
   vector[N_1] r_1_1;  // actual group-level effects
-  // compute actual regression coefficients
-  b = horseshoe(zb, hs_local, hs_global, scale_slab^2 * hs_slab);
   // compute actual regression coefficients
   b = horseshoe(zb, hs_local, hs_global, scale_slab^2 * hs_slab);
   r_1_1 = (sd_1[1] * (z_1[1]));
@@ -74,7 +62,7 @@ model {
   // likelihood including constants
   if (!prior_only) {
     // initialize linear predictor term
-    vector[N] mu = Int_c + Xc * b;
+    vector[N] mu = Int_c + X * b;
     for (n in 1:N) {
       // add more terms to the linear predictor
       mu[n] += r_1_1[J_1[n]] * Z_1_1[n];
@@ -96,5 +84,6 @@ model {
 generated quantities {
   // restore parameters to unstandardized scale
   real Intercept = Int_c - sum(b .* (means_X ./ sds_X));
-  vector[Kc] betas = b ./ sds_X;  // actual group-level effects
+  vector[K] betas = b ./ sds_X;  // actual group-level effects
+  real tau2 = sd_1[1]^2;
 }

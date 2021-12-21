@@ -20,8 +20,17 @@
 #' @param method Character, indicating the type of regularizing prior to use.
 #' Supports one of \code{c("lasso", "hs")}, see Details. Defaults to
 #' \code{"lasso"}.
-#' @param standardize Logical, indicating whether or not to standardize the
-#' predictors (defaults to \code{TRUE}, which is recommended so that shrinking
+#' @param standardize Either a logical argument or a list. If `standardize` is
+#' logical, it controls whether all predictors are standardized prior to
+#' analysis or not. Parameter estimates are restored to the predictors' original
+#' scale. Alternatively, users can provide a list to `standardize` to gain
+#' more control over the standardization process. In this case, it is assumed
+#' that the standardization has already taken place. This list must have two
+#' elements: `list(center = c(mean(X1)
+#' , mean(X2), mean(X...)), scale = c(sd(X1), sd(X2), sd(X...)))`. It is used
+#' only to restore parameter estimates to the original scale of the predictors.
+#' This is useful, e.g., to standardize continuous and dichotomous variables
+#' separately. Defaults to \code{TRUE}, which is recommended so that shrinking
 #' affects all parameters similarly.
 #' @param prior Numeric vector, specifying the prior to use. Note that the
 #' different \code{method}s require this vector to contain specific named
@@ -32,6 +41,8 @@
 # @param chains A positive integer specifying the number of Markov chains.
 # Defaults to 4.
 #' @param mute_stan Logical, indicating whether mute all 'Stan' output or not.
+# @param prior_only Logical, indicating whether to sample from the prior
+# (`prior_only = TRUE`) or from the posterior.
 #' @param ... Additional arguments passed on to [rstan::sampling()].
 #' Use this, e.g., to override default arguments of that function.
 #' @details The Bayesian regularized meta-analysis algorithm (Van Lissa & Van
@@ -136,7 +147,13 @@
 #' @importFrom rstantools bayes_R2
 # The line above is just to avoid CRAN warnings that RcppParallel is not
 # imported from, despite RcppParallel being a necessary dependency of rstan.
-brma <-
+brma <- function(x, ...){
+  UseMethod("brma")
+}
+
+#' @method brma formula
+#' @export
+brma.formula <-
   function(formula,
            data,
            vi = "vi",
@@ -147,7 +164,9 @@ brma <-
                           "lasso" = c(df = 1, scale = 1),
                           "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
            mute_stan = TRUE,
+           #prior_only = FALSE,
            ...) {
+    cl <- match.call()
     # Bookkeeping for columns that should not be in X or Y
     vi_column <- NULL
     study_column <- NULL
@@ -160,6 +179,7 @@ brma <-
       study <- 1:nrow(data)
     } else {
       if(inherits(study, "character")){
+        if(!study %in% names(data)) stop("Argument 'study' is not a column of 'data'.")
         study_column <- study
         study <- data[[study]]
         data[[study_column]] <- NULL
@@ -167,7 +187,7 @@ brma <-
     }
     # Make model matrix
     mf <- match.call(expand.dots = FALSE)
-    mf <- mf[c(1L, match(c("formula", "subset", "na.action"), names(mf), 0L))]
+    mf <- mf[c(1L, match(c("formula", "subset", "na.action"), names(mf), nomatch = 0L))]
     mf[["data"]] <- data
     mf$drop.unused.levels <- TRUE
     mf[[1L]] <- quote(stats::model.frame)
@@ -176,15 +196,101 @@ brma <-
     #X <- mf[, -1, drop = FALSE]
     mt <- attr(mf, "terms")
     X <- model.matrix(mt, mf)
-    se <- sqrt(vi)
+    if(all(X[,1] == 1)){
+      intercept <- TRUE
+      X <- X[, -1]
+    } else {
+      intercept <- FALSE
+    }
+    if(!inherits(standardize, c("logical", "list"))) stop("Argument 'standardize' must be either logical (TRUE/FALSE) or a list with two elements: list(center = c(mean(X1), mean(X2), mean(X...)), scale = c(sd(X1), sd(X2), sd(X...))).")
+    if(is.logical(standardize)){
+      if(standardize){
+        X <- scale(X)
+        standardize <- list(center = attr(X, "scaled:center"), scale = attr(X, "scaled:scale"))
+      } else {
+        standardize <- list(rep(0, ncol(X)), rep(1, ncol(X)))
+      }
+    } else {
+      standardize <- standardize[c("center", "scale")]
+    }
+
+    cl[names(cl) %in% c("formula", "data", "method")] <- NULL
+    cl[[1L]] <- quote(brma)
+    cl[["Y"]] <- Y
+    cl[["X"]] <- X
+    cl[["vi"]] <- vi
+    cl[["study"]] <- study
+    cl[["prior"]] <- prior
+    cl[["mute_stan"]] <- mute_stan
+    cl[["standardize"]] <- standardize
+    cl[["intercept"]] <- intercept
+    cl[["formula"]] <- formula
+    if(!is.null(vi_column)) cl[["vi_column"]] <- vi_column
+    if(!is.null(study_column)) cl[["study_column"]] <- study_column
+    eval.parent(cl)
+}
+
+#' @method brma default
+#' @export
+brma.default <-
+  function(Y,
+           X,
+           vi,
+           study,
+           prior,
+           mute_stan = TRUE,
+           standardize,
+           intercept,
+           #prior_only = FALSE,
+           ...) {
+    dots <- list(...)
+    outputdots <- match(c("formula", "vi_column", "study_column"), names(dots), nomatch = 0L)
+    if(any(outputdots > 0)){
+      foroutput <- dots[outputdots]
+      dots <- dots[-outputdots]
+    } else {
+      foroutput <- NULL
+    }
+    # Check validity of prior
+    method <- "invalid"
+    if(all(c("df", "df_global", "df_slab", "scale_global", "scale_slab") %in% names(prior))){
+      prior <- prior[c("df", "df_global", "df_slab", "scale_global", "scale_slab")]
+      method <- "horseshoe_MA"
+    }
+    if(all(c("df", "scale") %in% names(prior))){
+      prior <- prior[c("df", "scale")]
+      method <- "lasso_MA"
+    }
+    if(method == "invalid") stop("Argument 'prior' is not valid.")
+    # Check if this is a three-level meta-analysis
+    if(is.null(study)){
+      threelevel <- FALSE
+    } else {
+      threelevel <- length(unique(study)) > 1
+    }
+    # Check if standardize is valid
+    if(!length(standardize) == 2) stop("Argument 'standardize' must be a list with two elements: list(center = c(mean(X1), mean(X2), mean(X...)), scale = c(sd(X1), sd(X2), sd(X...))).")
+    Xunscale <- do.call(unscale, c(list(x = X), standardize))
+    names(standardize) <- c("means_X", "sds_X")
+    # Prepare standat for study-level data
     N <- length(Y)
-    # if(isTRUE(standardize)){
-    #   X <- scale(X) # Should there be any fancy standardization for categorical variables?
-    #                 # Should coefficients be transformed back to original scale?
-    #   scale_m <- attr(X, "scaled:center")
-    #   scale_s <- attr(X, "scaled:scale")
-    # }
-    #X <- cbind(1, X)
+    standat <- list(
+      N_1 = N,
+      M_1 = 1,
+      J_1 = 1:N,
+      Z_1_1 = rep(1, N))
+    # Add threelevel data to standat
+    if(threelevel){
+      standat <- c(standat, list(
+        N_2 = length(unique(study)),
+        M_2 = 1,
+        J_2 = as.integer(factor(study)),
+        Z_2_1 = rep(1, N)
+      ))
+    }
+    # Prepare standard error
+    se <- sqrt(vi)
+    # Finalize standat
     standat <- c(
       list(
         N = N,
@@ -193,22 +299,22 @@ brma <-
         K = ncol(X),
         X = X),
       as.list(prior),
+      standat,
       list(
-        N_1 = length(unique(study)),
-        M_1 = 1,
-        J_1 = study,
-        Z_1_1 = rep(1, N),
         prior_only = FALSE
+      ),
+      standardize
       )
-    )
     cl <- do.call("call",
                   c(list(name = "sampling",
-                         object = stanmodels[[c(lasso = "lasso_MA", hs = "horseshoe_MA")[method]]],
+                         object = stanmodels[[paste0(method,
+                                                     c("", "_ml")[threelevel+1],
+                                                     c("_noint", "")[intercept+1]
+                                                     )]],
                          data = standat
                   ),
-                  list(...)))
+                  dots))
     # Mute stan
-    dots <- list(...)
     if(!any(c("show_messages", "verbose", "refresh") %in% names(dots))){
       if(mute_stan){
         cl[["show_messages"]] <- FALSE
@@ -218,22 +324,16 @@ brma <-
     }
     fit <- eval(cl)
     sums <- summary(fit)$summary
-    keepthese <- c(which(rownames(sums) == "Intercept"),
-                   which(startsWith(rownames(sums), "b[")),
-                   which(rownames(sums) == "sd_1[1]"))
+    rnam <- rownames(sums)
+    row_int <- which(startsWith(rnam, "Intercept"))
+    row_beta <- which(startsWith(rnam, "betas"))
+    row_tau <- which(startsWith(rnam, "tau2"))
+    keepthese <- c(row_int, row_beta, row_tau)
     sums <- sums[keepthese, , drop = FALSE]
-    sim <- fit@sim
-    sdpar <- match("sd_1[1]", sim$fnames_oi)
-    tau2 <- .extract_samples(sim, sdpar)^2
-    addrow <- sums["sd_1[1]",]
-    addrow[c("mean", "sd", "2.5%", "25%", "50%", "75%", "97.5%")] <-
-      c(mean(tau2), sd(tau2), quantile(tau2, c(.025, .25, .5, .75,.975)))
-    addrow["se_mean"] <- addrow["sd"]/sqrt(addrow[["n_eff"]])
-    #tau <- unlist(lapply(fit@sim$samples, `[[`, "sd_1[1]"))
-    sums <- rbind(sums, tau2 = addrow)
-    rownames(sums)[2:(ncol(X))] <- colnames(X)[-1]
-    rownames(sums)[rownames(sums) == "sd_1[1]"] <- "tau"
-    tau2 <- unname(addrow["mean"])
+    tau2 <- sums[which(startsWith(rownames(sums), "tau2"))[1], 1]
+    if(length(row_beta) == length(colnames(X))){
+      rownames(sums)[startsWith(rownames(sums), "betas")] <- colnames(X)
+    }
     Wi <- 1 / vi
     tau2_before <-
       max(0, (sum(Wi * (Y - (
@@ -246,9 +346,7 @@ brma <-
 
     out <- list(fit = fit,
                 coefficients = sums,
-                formula = formula,
-                terms = mt,
-                X = X,
+                X = Xunscale,
                 Y = Y,
                 vi = vi,
                 tau2 = tau2,
@@ -256,9 +354,8 @@ brma <-
                 #H2 = H2,
                 R2 = R2,
                 k = N)
-    if(!is.null(vi_column)) out$vi_column <- vi_column
-    if(!is.null(study_column)) out$study_column <- study_column
-    if(!is.null(study)) out$study <- study
+    if(!is.null(foroutput)) out <- c(out, foroutput)
+    if(threelevel) out$study <- study
     class(out) <- c("brma", class(out))
     return(out)
   }

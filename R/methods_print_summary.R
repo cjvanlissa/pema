@@ -35,7 +35,7 @@ summary.brma <- function(object, ...){
   # R2 <- max(0, 100 * (tau2_before-tau2)/tau2_before)
   # I2 <- 100 * tau2/(vt + tau2)
   # H2 <- tau2/vt + 1
-  out <- object[na.omit(match(c("coefficients", "tau2", "I2", "H2", "R2", "k"), names(object)))]
+  out <- object[na.omit(match(c("coefficients", "tau2", "I2", "H2", "R2", "k", "study_column", "study"), names(object)))]
   out$method <- object$fit@stan_args[[1]]$method
   out$algorithm <- object$fit@stan_args[[1]]$algorithm
   class(out) <- c("brma_sum", class(out))
@@ -63,8 +63,14 @@ print.brma <- function(x, ...){
 #' @export
 print.brma_sum <- function(x, digits = 2, ...){
   #res$tau2/unaccounted
-  cat("BRMA mixed-effects model (k = ", x$k, "), method: ", x$algorithm, " ", x$method, "\n", sep = "")
-  cat("tau^2: ", formatC(x$tau2, digits = digits, format = "f"), " (SE = ", formatC(x$coefficients["tau2", 2], digits = digits, format = "f"),")\n\n", sep = "")
+  cat("BRMA ", c("three-level ", "")[is.null(x[["study_column"]])+1], "mixed-effects model (k = ", x$k, "), method: ", x$algorithm, " ", x$method, "\n", sep = "")
+  taus <- x$coefficients[startsWith(rownames(x$coefficients), "tau2"), c("mean", "se_mean"), drop = FALSE]
+  if(nrow(taus) == 1){
+    cat("tau^2 (n = ", x$k, "): ", formatC(taus[1,1], digits = digits, format = "f"), " (SE = ", formatC(taus[1,2], digits = digits, format = "f"),")\n\n", sep = "")
+  } else {
+    cat("tau^2 (n = ", x$k, "): ", formatC(taus["tau2_w",1], digits = digits, format = "f"), " (SE = ", formatC(taus["tau2_w",2], digits = digits, format = "f"),")\n", sep = "")
+    cat("tau^2 between ", x$study_column, " (k = ", length(unique(x$study)), "): ", formatC(taus["tau2_b",1], digits = digits, format = "f"), " (SE = ", formatC(taus["tau2_b",2], digits = digits, format = "f"),")\n\n", sep = "")
+  }
   #cat("I^2 (residual heterogeneity / unaccounted variability): 15.66%
   # H^2 (unaccounted variability / sampling variability):   1.19
   # R^2 (amount of heterogeneity accounted for):            92.75%
@@ -74,7 +80,7 @@ print.brma_sum <- function(x, digits = 2, ...){
   coefs <- cbind(coefs, pstars)
   colnames(coefs)[ncol(coefs)] <- ""
   prmatrix(coefs, quote = FALSE, right = TRUE, na.print = "")
-  cat("\n*: This coefficient is significant, as the 95% credible interval excludes zero.")
+  cat("\n*: This coefficient is significant, as the 95% credible interval excludes zero. n_eff is the effective sample size, Rhat is the potential scale reduction for multiple chains (Rhat = 1 indicates convergence).")
 }
 
 # Mixed-Effects Model (k = 48; tau^2 estimator: REML)

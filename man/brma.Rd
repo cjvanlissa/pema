@@ -4,20 +4,12 @@
 \alias{brma}
 \title{Conduct Bayesian Regularized Meta-Analysis}
 \usage{
-brma(
-  formula,
-  data,
-  vi = "vi",
-  study = NULL,
-  method = "hs",
-  standardize = TRUE,
-  prior = switch(method, lasso = c(df = 1, scale = 1), hs = c(df = 1, df_global = 1,
-    df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
-  mute_stan = TRUE,
-  ...
-)
+brma(x, ...)
 }
 \arguments{
+\item{...}{Additional arguments passed on to \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.
+Use this, e.g., to override default arguments of that function.}
+
 \item{formula}{An object of class \code{formula} (or one that can be coerced to
 that class), see \code{\link[stats]{lm}}.}
 
@@ -38,8 +30,16 @@ See \code{Details} for more information about analyzing dependent data.}
 Supports one of \code{c("lasso", "hs")}, see Details. Defaults to
 \code{"lasso"}.}
 
-\item{standardize}{Logical, indicating whether or not to standardize the
-predictors (defaults to \code{TRUE}, which is recommended so that shrinking
+\item{standardize}{Either a logical argument or a list. If \code{standardize} is
+logical, it controls whether all predictors are standardized prior to
+analysis or not. Parameter estimates are restored to the predictors' original
+scale. Alternatively, users can provide a list to \code{standardize} to gain
+more control over the standardization process. In this case, it is assumed
+that the standardization has already taken place. This list must have two
+elements: \code{list(center = c(mean(X1) , mean(X2), mean(X...)), scale = c(sd(X1), sd(X2), sd(X...)))}. It is used
+only to restore parameter estimates to the original scale of the predictors.
+This is useful, e.g., to standardize continuous and dichotomous variables
+separately. Defaults to \code{TRUE}, which is recommended so that shrinking
 affects all parameters similarly.}
 
 \item{prior}{Numeric vector, specifying the prior to use. Note that the
@@ -47,9 +47,6 @@ different \code{method}s require this vector to contain specific named
 elements.}
 
 \item{mute_stan}{Logical, indicating whether mute all 'Stan' output or not.}
-
-\item{...}{Additional arguments passed on to \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.
-Use this, e.g., to override default arguments of that function.}
 }
 \value{
 A \code{list} object of class \code{brma}, with the following structure:\preformatted{list(

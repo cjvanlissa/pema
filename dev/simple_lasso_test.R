@@ -139,7 +139,6 @@ lma_ml <- function(x, y, v, whichweights = "random", lambda_n = 100,
 
   args_optim$lambda <- lambda_values[which.min(rowMeans(cv_results))]
   parameter.fits <- do.call(optim, args_optim)
-  browser()
   results <- lma_lm_results_table(parameter.fits, sd_x)
   #rownames(results) <- c(colnames(x), "tau2")
   out <- list(results = results,
