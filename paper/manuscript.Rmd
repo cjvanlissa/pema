@@ -153,6 +153,9 @@ At the same time, there are many potential sources of heterogeneity,
 as similar research questions are studied in different laboratories, using different methods,
 instruments, and samples.
 This leads to a problem known as the "curse of dimensionality": the number of candidate moderators is large relative to the number of cases in the data.
+Such cases do not fit comfortably into the
+classic meta-analysis paradigm, which, like any regression-based approach, requires a
+high number of cases per parameter. 
 Between-studies differences thus present a non-trivial challenge to data aggregation
 using classic meta-analytic methods.
 At the same time, it also offers an unexploited
@@ -273,7 +276,11 @@ A third, and obvious factor, that is classified as relevant to model performance
 Numerous methods have been proposed to estimate meta-regression models, the most commonly used of which is restricted maximum likelihood (REML).
 REML is an iterative method, meaning it performs the same calculations repeatedly, updating the estimated regression coefficients and residual heterogeneity until these estimates stabilize.
 <!--, including the Hedges (HE), DerSimonian–Laird/Method of Moments (DL), Sidik and Jonkman (SJ), Maximum Likelihood (ML), Restricted Maximum Likelihood (REML), and Empirical Bayes (EB) method. These methods are mostly divided into two groups: closed-form or non-iterative methods and iterative methods. The main difference between these groups is that the closed form group uses a predetermined number of steps to provide an estimation for the residual heterogeneity, whereas the iterative methods run multiple iteration, as the name suggests, to converge to a solution when a specific criterion is met. It is important to note that some iterative methods do not produce a solution when they fail to converge after a predetermined amount of iteration.-->
-In contrast to a regularized analysis technique, this estimator produces low bias, which means that the average value of the estimated regression coefficients and residual heterogeneity is close to their true values (Panityakul et al., 2013; Hardy & Thompson, 1996). However, due to the bias-variance tradeoff, this bias comes at the cost of high variance, meaning that the results might not generalize to a new sample. Regularization can offer a solution to this problem.
+This estimator has low bias, which means that the average value of the estimated regression coefficients and residual heterogeneity is close to their true values (Panityakul et al., 2013; Hardy & Thompson, 1996).
+However, this bias comes at the cost of higher variance, which means that the estimated values of a population parameter vary more from one sample to the next. 
+In practice, an estimator with higher variance generalizes less well to new data.
+This phenomenon is known as the *bias-variance tradeoff*.
+Regularization increases bias to reduce variance, and thus produces more generalizable estimates.
 <!--It needs a starting estimation of $\tau^{2}$, which is usually estimated by one of the non-iterative methods (Viechtbauer \& López-López, 2015). Besides the starting value of $\tau^{2}$, it needs in every iteration an estimation of the regression coefficients of the moderators. These are typically estimated by using the Weighted Least Squares (WLS) method. This is a variation of the Ordinary Least Squares (OLS), but in the case of meta-analysis it is necessary to assess weights to the coefficients. In systematic reviews large variation in standard errors is often observed, which will result in large heteroscedasticity in the estimation of the effects (Stanley \& Doucouliagos, 2017). The addition of weights is a way to adjust for this heteroscedasticity. The weights are formulated as presented in equation (5).-->
 <!--
 The usage of a WLS method to estimate the regression coefficient may be problematic in the situation where a lot of moderators are measured without their specific effects, when the amount of studies is low and when moderators are dichotomous. The use of a least squares method will cause problems with the prediction accuracy and the model interpretability (James, Witten, Hastie, \& Tibshirani, 2013). In the situation where a lot of moderators are measured and blindly included in the model, it may as well be the case that variables are included that are in fact not associated with the response. Including irrelevant variables in the model lowers the interpretability of the model (James et al., 2013). An approach is necessary that automatically excludes the variables that are irrelevant i.e. performs variable selection. As explained before, in meta-analysis it is often the case that the number of moderators closely approaches or even exceeds the number of studies included in the analysis. A least squares method will display a lot variability in the fit when the number of variables is not much smaller than the number of studies (James et al., 2013). This means that the least squares method over fits the data and loses its power to be generalizable to future observations. When the number of variables exceeds the number of studies, the least squares method fails to produce one unique estimate and the method should not be used at all. 
@@ -299,7 +306,9 @@ $$
 PRSS= RSS + \lambda \sum_{j=1}^{p}|\beta_{j}|
 $$
 
-Where $\lambda$ is a tuning parameter that determines how influential the penalty term will be.
+Because the penalty term is a function of the regression coefficients,
+the optimizer is incentivized to keep the regression coefficients as small as possible.
+In this equation, $\lambda$ is a tuning parameter that determines how influential the penalty term will be.
 If $\lambda$ is zero, the shrinkage penalty has no impact at all and the penalized regression will produce the OLS estimates.
 If $\lambda \to \infty$, all coefficients shrink towards zero, producing the null model.
 <!--Another commonly used penalty is the L2-norm of the coefficients, or ridge penalty,
@@ -455,7 +464,8 @@ whichhi <- prop.table(out$which_highest)
 
 Within data sets, the BRMA with a horseshoe prior had the highest predictive performance `r round(whichhi[1]*100)`% of the time, followed by RMA, `r round(whichhi[3]*100)`%, and finally BRMA with a LASSO prior, `r round(whichhi[2]*100)`%.
 Results indicated that the overall $R^2_{test}$ was highest for BRMA with a horseshoe prior and lowest for RMA, see \@ref(tab:tabr2).
-This difference was driven in part by the fact that explained variance was somewhat higher for the BRMA models when the true effect was not null **moet zijn null?**, and by the fact that RMA had larger negative explained variance when the true effect was equal to zero **moet zijn not equal to zero?** (i.e., there was no effect to detect).**deze statements lijken niet overeen te komen met de tabel**
+This difference was driven in part by the fact that explained variance was somewhat higher for the BRMA models when the true effect was non-zero (i.e., in the presence of a population effect),
+and by the fact that RMA had larger negative explained variance when the true effect was equal to zero (i.e., there was no population effect to detect).
 
 ```{r tabr2, results= "asis"}
 tab <- read.csv("r2.csv")[1:7][c(1, 2,5,3,6,4,7)]
@@ -514,7 +524,7 @@ Evidently, predictive performance increased most for the HS algorithm when the e
 As noted previously, predictive performance of RMA was most negative (negative explained variance) when the effect size was zero.
 The HS algorithm furthermore had the consistently highest predictive performance regardless of number of irrelevant moderators or number of cases in the training data, and was relatively less affected by increases in the number of irrelevant moderators (panel b) or in the number of training cases (panel c).
 Similarly, the HS algorithm furthermore had the consistently highest predictive performance regardless of number of cases in the training data, and thus also increased less when the number of training cases increased (panel c).
-Conversely, RMA had relatively poor predictive performance on average, and was more responsive to increases in the number of training cases and irrelevant moderators. However, differences between the algorithms were generally small. 
+Conversely, RMA had relatively poor predictive performance on average, and was more responsive to increases in the number of training cases and irrelevant moderators. <!--However, differences between the algorithms were generally small. CJ: Niet mee eens; de verschillen zijn misschien klein in termen van de substantieve interpretatie van R2, maar de grootte van dat verschil hangt af van de gebruikte simulatie condities. Je kan dus een groter verschil aantonen als je daarmee gaat spelen, en een situatie opzoekt die ongunstiger is voor RMA. Belangrijker is dat we uberhaupt een consequent voordeel van BRMA over RMA aantonen-->
 
 ```{r figmaindif, fig.cap="Predictive R2 for design factors with largest differences in predictive performance across the HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) algorithms.", eval = FALSE}
 knitr::include_graphics("main_diff.png")
@@ -752,7 +762,6 @@ Note that, as BRMA is a Bayesian method, credible intervals or highest posterior
 The null hypothesis is rejected if such intervals exclude zero.
 As both types of intervals performed identically in the present study,
 we suggest using credible intervals, which are computationally less expensive.
-**SARA: Wel of niet nog OLS RMA doen met enkel de significante predictoren van de BRMA?** **nee**
 
 Finally, with regards to publication, we highly recommend sharing the data and
 syntax for the meta-analysis publicly; for example, by making the entire paper reproducible using the Workflow for Reproducible Code in Science (WORCS; REF).
