@@ -153,6 +153,7 @@ brma <- function(x, ...){
 
 #' @method brma formula
 #' @export
+#' @rdname brma
 brma.formula <-
   function(formula,
            data,
@@ -176,7 +177,7 @@ brma.formula <-
       data[[vi_column]] <- NULL
     }
     if(is.null(study)){
-      study <- 1:nrow(data)
+      study <- 1
     } else {
       if(inherits(study, "character")){
         if(!study %in% names(data)) stop("Argument 'study' is not a column of 'data'.")
@@ -232,6 +233,7 @@ brma.formula <-
 
 #' @method brma default
 #' @export
+#' @rdname brma
 brma.default <-
   function(Y,
            X,
@@ -270,6 +272,9 @@ brma.default <-
     }
     # Check if standardize is valid
     if(!length(standardize) == 2) stop("Argument 'standardize' must be a list with two elements: list(center = c(mean(X1), mean(X2), mean(X...)), scale = c(sd(X1), sd(X2), sd(X...))).")
+    if(!(length(standardize[[1]] == ncol(X) & length(standardize[[2]] == ncol(X))))){
+      stop("Both elements of argument 'standardize' must be as long as the number of predictors.")
+    }
     Xunscale <- do.call(unscale, c(list(x = X), standardize))
     names(standardize) <- c("means_X", "sds_X")
     # Prepare standat for study-level data
