@@ -2,9 +2,26 @@
 % Please edit documentation in R/brma.R
 \name{brma}
 \alias{brma}
+\alias{brma.formula}
+\alias{brma.default}
 \title{Conduct Bayesian Regularized Meta-Analysis}
 \usage{
 brma(x, ...)
+
+\method{brma}{formula}(
+  formula,
+  data,
+  vi = "vi",
+  study = NULL,
+  method = "hs",
+  standardize = TRUE,
+  prior = switch(method, lasso = c(df = 1, scale = 1), hs = c(df = 1, df_global = 1,
+    df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
+  mute_stan = TRUE,
+  ...
+)
+
+\method{brma}{default}(Y, X, vi, study, prior, mute_stan = TRUE, standardize, intercept, ...)
 }
 \arguments{
 \item{...}{Additional arguments passed on to \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.
