@@ -49,10 +49,10 @@ abstract: |
   biased towards zero (by design), but its estimates of residual heterogeneity
   were unbiased. BRMA performed well with as few as 20 studies in the training
   data, suggesting its suitability as a small sample solution. We discuss how
-  applied researchers can use BRMA to explorate between-studies heterogeneity
+  applied researchers can use BRMA to explore between-studies heterogeneity
   in meta-analysis.
   
-keywords          : "meta-analysis, machine learning, bayesian, lasso, regularized"
+keywords          : "meta-analysis, machine learning, bayesian, lasso, horseshoe, regularized"
 wordcount         : "5356"
 
 bibliography      : ["r-references.bib"]
@@ -147,7 +147,7 @@ using different methods, instruments, and samples.
 Each of these between-study differences could be coded as a moderator, and some of these moderators may explain systematic heterogeneity.
 
 It is theoretically possible to account for the influence of multiple moderators using meta-regression.
-However, like any regression-based approach, meta-regression requires a relatively high number of cases (studies) per parameter obtain sufficient power to examine heterogeneity.
+However, like any regression-based approach, meta-regression requires a relatively high number of cases (studies) per parameter to obtain sufficient power to examine heterogeneity.
 In practice the number of available studies is often too low to examine heterogeneity reliably (Riley, Higgins, & Deeks, 2011).
 At the same time, there are many potential sources of heterogeneity,
 as similar research questions are studied in different laboratories, using different methods,
@@ -156,7 +156,7 @@ This leads to a problem known as the "curse of dimensionality": the number of ca
 Such cases do not fit comfortably into the
 classic meta-analysis paradigm, which, like any regression-based approach, requires a
 high number of cases per parameter. 
-Between-studies thus presents a non-trivial challenge to data aggregation
+Between-studies differences thus present a non-trivial challenge to data aggregation
 using classic meta-analytic methods.
 At the same time, it also offers an unexploited
 opportunity to learn which differences between studies have an impact on the effect size
@@ -168,10 +168,10 @@ One way to perform variable selection is by relying on theory.
 However, in many fields of science, theories exist at the individual level of analysis (e.g., in social science, at the level of individual people).
 These theories do not necessarily generalize to the study level of analysis.
 Using theories at the individual level for moderator selection at the study level amounts to committing the ecological fallacy: generalizing inferences across levels of analysis [@jargowskyEcologicalFallacy2004].
-To illustrate what theory at the study level of analysis might look like, 
+To illustrate what a theory at the study level of analysis might look like, 
 consider the so-called *decline effect*.
 It is a phenomenon whereby effect sizes in a particular tranche of the literature seem to diminish over time [@schoolerUnpublishedResultsHide2011].
-It has been theorized that the decline effect can been attributed to regression to the mean:
+It has been theorized that the decline effect can be attributed to regression to the mean:
 A finding initially draws attention from the research community because an anomalously large effect size has been published, and subsequent replications find smaller effect sizes.
 Based on the decline effect, we might thus expect the variable "year of publication" to be a relevant moderator of study effect sizes.
 Note that this prediction is valid even if year is orthogonal to the outcome of interest within each study.
@@ -217,7 +217,7 @@ y_i &= \theta_i + \epsilon_i &\text{where } \epsilon_i \sim N(0, \sigma^2_i)\\ %
 \end{aligned}-->
 
 Under the fixed effect model, the estimated population effect size  $\hat{\theta}$ is obtained by computing a weighted average of the observed effect sizes.
-If sampling error is assumed to be the only source of variance in observed effect size,
+If sampling error is assumed to be the only source of variance in the observed effect size,
 then it follows that studies with smaller standard errors estimate the underlying true effect size more precisely<!--(Schmidt, Oh \& Hayes, 2009)-->.
 The fixed-effect weights are thus simply the reciprocal of the sampling variance, $w_{i} =  \frac{1}{v_i}$.
 The estimate of the true effect is a weighted average across observed effect sizes:
@@ -247,13 +247,13 @@ then even less precise studies (with larger sampling errors) may provide some in
 Like fixed-effect weights, random effects weights are still influenced by sampling error, but this influence is attenuated by the estimated variance of the true effect sizes. 
 The random-effects weights are thus given by $w_{i} =  \frac{1}{v_i + \hat{\tau}^2}$.
 It is important to note that,
-whereas the sampling error for each individual effect size is treated as known,
+whereas the sampling error for each individual effect size is treated as known, the
 between-study heterogeneity $\tau^{2}$ must be estimated.
 This estimate is represented by $\hat{\tau}^{2}$.
 
 ### Meta-regression
 
-The random effects model assumes that causes of heterogeneity in the true effect sizes are unknown, and that their influence is random.
+The random-effects model assumes that causes of heterogeneity in the true effect sizes are unknown, and that their influence is random.
 Oftentimes, however, there are systematic sources of heterogeneity in true effect sizes.
 These between-study differences can be coded as moderators, and their influence can be estimated and controlled for using meta-regression.
 Meta-regression with $p$ moderators can be expressed with the following equation, where $x_{1\ldots p}$ represent the moderators, and $\beta_{1\ldots p}$ the regression coefficients:
@@ -276,7 +276,11 @@ A third, and obvious factor, that is classified as relevant to model performance
 Numerous methods have been proposed to estimate meta-regression models, the most commonly used of which is restricted maximum likelihood (REML).
 REML is an iterative method, meaning it performs the same calculations repeatedly, updating the estimated regression coefficients and residual heterogeneity until these estimates stabilize.
 <!--, including the Hedges (HE), DerSimonian–Laird/Method of Moments (DL), Sidik and Jonkman (SJ), Maximum Likelihood (ML), Restricted Maximum Likelihood (REML), and Empirical Bayes (EB) method. These methods are mostly divided into two groups: closed-form or non-iterative methods and iterative methods. The main difference between these groups is that the closed form group uses a predetermined number of steps to provide an estimation for the residual heterogeneity, whereas the iterative methods run multiple iteration, as the name suggests, to converge to a solution when a specific criterion is met. It is important to note that some iterative methods do not produce a solution when they fail to converge after a predetermined amount of iteration.-->
-In contrast to a regularized analysis technique, this estimator produces low bias, which means that the average value of the estimated regression coefficients and residual heterogeneity is close to their true values (Panityakul et al., 2013; Hardy & Thompson, 1996).
+This estimator has low bias, which means that the average value of the estimated regression coefficients and residual heterogeneity is close to their true values (Panityakul et al., 2013; Hardy & Thompson, 1996).
+However, this bias comes at the cost of higher variance, which means that the estimated values of a population parameter vary more from one sample to the next. 
+In practice, an estimator with higher variance generalizes less well to new data.
+This phenomenon is known as the *bias-variance tradeoff*.
+Regularization increases bias to reduce variance, and thus produces more generalizable estimates.
 <!--It needs a starting estimation of $\tau^{2}$, which is usually estimated by one of the non-iterative methods (Viechtbauer \& López-López, 2015). Besides the starting value of $\tau^{2}$, it needs in every iteration an estimation of the regression coefficients of the moderators. These are typically estimated by using the Weighted Least Squares (WLS) method. This is a variation of the Ordinary Least Squares (OLS), but in the case of meta-analysis it is necessary to assess weights to the coefficients. In systematic reviews large variation in standard errors is often observed, which will result in large heteroscedasticity in the estimation of the effects (Stanley \& Doucouliagos, 2017). The addition of weights is a way to adjust for this heteroscedasticity. The weights are formulated as presented in equation (5).-->
 <!--
 The usage of a WLS method to estimate the regression coefficient may be problematic in the situation where a lot of moderators are measured without their specific effects, when the amount of studies is low and when moderators are dichotomous. The use of a least squares method will cause problems with the prediction accuracy and the model interpretability (James, Witten, Hastie, \& Tibshirani, 2013). In the situation where a lot of moderators are measured and blindly included in the model, it may as well be the case that variables are included that are in fact not associated with the response. Including irrelevant variables in the model lowers the interpretability of the model (James et al., 2013). An approach is necessary that automatically excludes the variables that are irrelevant i.e. performs variable selection. As explained before, in meta-analysis it is often the case that the number of moderators closely approaches or even exceeds the number of studies included in the analysis. A least squares method will display a lot variability in the fit when the number of variables is not much smaller than the number of studies (James et al., 2013). This means that the least squares method over fits the data and loses its power to be generalizable to future observations. When the number of variables exceeds the number of studies, the least squares method fails to produce one unique estimate and the method should not be used at all. 
@@ -293,8 +297,8 @@ $$
 RSS=\sum_{i=1}^{n}(y_{i} - \beta_{0} - \sum_{j=1}^{p}\beta_{j}x_{ij})^2
 $$
 The resulting parameter estimates are those that give the best predictions of the dependent variable in the present dataset.
-Penalized regression, by contrast, adds a penalty term to the quantity to be minimized.
-One commonly used penalty is the L1-norm of the regression coefficients, or LASSO penalty,
+Penalized regression, by contrast, adds a penalty term to the RSS.
+One commonly used penalty is the L1-norm of the regression coefficients, or LASSO penalty ([@tibshirani1996]),
 which corresponds to the sum of their absolute values.
 This gives the penalized residual sum of squares:
 
@@ -302,16 +306,17 @@ $$
 PRSS= RSS + \lambda \sum_{j=1}^{p}|\beta_{j}|
 $$
 
-Where $\lambda$ is a tuning parameter that determines how influential the penalty term will be.
+Because the penalty term is a function of the regression coefficients,
+the optimizer is incentivized to keep the regression coefficients as small as possible.
+In this equation, $\lambda$ is a tuning parameter that determines how influential the penalty term will be.
 If $\lambda$ is zero, the shrinkage penalty has no impact at all and the penalized regression will produce the OLS estimates.
-If $\lambda \to \infty$, all coefficient shrink towards zero, producing the null model.
+If $\lambda \to \infty$, all coefficients shrink towards zero, producing the null model.
 <!--Another commonly used penalty is the L2-norm of the coefficients, or ridge penalty,
 which corresponds to the sum of their squared values: $\sum_{j=1}^{p}\beta_{j}^2$.-->
-Because the penalty term is a function of the regression coefficients,
-the optimizer has an incentive to keep the regression coefficients as small as possible.
+Generally, cross-validation is used to find the optimal value for the penalty parameter $\lambda$.
 <!--The LASSO penalty has the unique property of shrinking some coefficients to be exactly zero,
 but the ridge penalty does not do so, as -->
-Note that theLASSO penalty is but one example of a shrinkage penalty; other penalties exist, with some unique properties.
+Note that the LASSO penalty is but one example of a shrinkage penalty; other penalties exist.
 
 <!--The Lasso shrinkage method is not the only shrinkage method, there do exist some others. Nevertheless, the lasso is in the case the best option. It possesses, as opposed to other methods, the ability to shrink the parameter not towards zero, but to be exactly zero (James et al., 2013; Hesterberg, Choi, Meier, \& Fraley, 2008). This means that the lasso can perform variable selection, something that is specifically aimed for in this study. -->
 
@@ -329,6 +334,39 @@ Based on two simulation studies, van Lissa (2017) examined the performance of fi
 The study displayed also other advantages from random forests over singletrees. It had greater power, was able to make better predictions, gave estimates of the cross-validation error and yielded useful measures of variable importance and partial prediction plots (van Lissa, 2017). MetaForest can at the moment be considered as the best working technique to explore heterogeneity in meta-analysis. In van Lissa (2017), that only presented estimates of $\tau^{2}$ based on the raw data, we saw that MetaForest had certain robustness against a low number of studies. If moderators were continuously distributed, MetaForest had sufficient power at approximately 20 studies. However, there is an important feature to prove before we can make such an assumption. The underlying data generating models in the two simulation studies of van Lissa (2017) only included normal distributed moderators. Renouncing from normal distributions may affect the performance of the model, but since normal distribution in real-life data is more an exception than a normal state of affairs (Micceri, 1989), it is entirely possible that procedures are affected by skewness, leverage, balance etc. It is important to know how MetaForest performs in these kinds of situations.-->
 
 ### Bayesian estimation
+
+Instead of using a penalty to shrink regression coefficients towards zero, it is possible to use a Bayesian prior distribution to achieve a similar result. Whereas classical, frequentist estimation methods rely solely on the data at hand, Bayesian estimation methods require the specification of a prior distribution. The prior distribution is a probability distribution that reflects the prior knowledge or beliefs that the researcher has before collecting the data. The prior is combined with the likelihood of the data to form the posterior distribution. In the context of regularization, the prior distribution is specified such that it reflects the prior belief that not all regression coefficients are substantial enough to be included in the model. 
+
+Many different prior distributions exist that have specific properties that enable them to shrink small regression coefficients towards zero, while keeping substantial coefficients large ([@vanErpOberskiMulder2019]). Some prior distributions have been shown to result in exactly the same solutions as classical, frequentist penalties, such as the LASSO. Specifically, placing independent Laplace (i.e., double exponential) priors on the regression coefficients results in posterior modes that are equal to the lasso estimates ([@ParkCasella2008]). In addition, many prior distributions have been developed and investigated specifically for the purpose of providing good shrinkage properties, meaning that the prior pulls small regression coefficients towards zero, without exerting any influence on substantial regression coefficients. A popular prior in this regard is the horseshoe prior ([@CarvalhoPolsonScott2010]). An advantage of the horseshoe prior compared to the lasso is the fact that it has heavier tails. As a result, it will not shrink and therefore bias substantial coefficients as much as the LASSO prior with its lighter tails. 
+
+### Implementation
+The brma function uses Stan ([@StanManual]) to fit the models. Stan is a probabilistic programming language that uses a Hamiltonian Monte Carlo algorithm to sample from the posterior distribution. When running a Bayesian analysis in Stan it is important to ensure that the algorithm has converged to the posterior distribution in order for the results to be trusted. Stan offers automatic warnings and errors if this might not be the case. 
+
+Currently, the brma function supports two priors: the LASSO and the regularized horseshoe. We have precompiled the models with these two priors using brms ([@brms]).
+
+The LASSO prior is implemented as follows:
+
+$$
+\beta_{j} \sim \text{double exponential}(0, \frac{s}{lambda})
+$$
+
+and requires the specification of a global scale parameter $s$ and an inverse-tuning parameter $\lambda$. By default, the global scale is set to 1 and the inverse-tuning parameter is given a chi-square prior with degrees of freedom equal to 1. 
+
+For the horseshoe prior, we use an extension proposed by [@PiironenVehtari2017b] called the regularized horseshoe:
+
+$$
+\beta_{j} \sim \text{normal}(0, \tilde{\tau}_j^2\lambda) \text{, with } \tilde{\tau}_j^2 = \frac{c^2 \tau_j^2}{c^2 + \lambda^2 \tau_j^2} \\
+\lambda \sim \text{half-t}(\nu_1, 0, \lambda^2_0) \\
+\tau_j \sim \text{half-t}(\nu_2, 0, 1) \\
+c^2 \sim \text{inverse-gamma}(\frac{\nu_3}{2}, \frac{\nu_3 s^2}{2})
+$$
+
+This extension is more numerically stable in certain cases. In addition, it allows the user to explicitly include prior information regarding the number of relevant moderators by setting the argument par_ratio to the ratio of the expected number of non-zero coefficients to the expected number of zero coefficients. If this information is not available, the user should specify scale_global ($\lambda^2_0$) which affects the overall shrinkage of the prior, with smaller values resulting in more shrinkage (default = 1). In addition, the regularized horseshoe has two degrees of freedom parameters ($\nu_1$ and $\nu_2$) which default to 1. Increasing the degrees of freedom parameters results in a prior with lighter tails, which is strictly no longer a horseshoe prior. However, the lighter tails might be needed in certain cases to attain convergence. 
+The regularized horseshoe differs from the horseshoe in the specification of a finite "slab". This ensures at least some regularization of large coefficients and as a consequence, more stable results. This slab is governed by a degrees of freedom parameter ($\nu_3$, set to 4) and a scale parameter ($s$, set to 1). 
+
+We have chosen all default settings for the hyperparameters such that the values are reasonable in most applications. However, in a Bayesian analysis it is good practice to perform a prior sensitivity analysis in which different hyperparameters are chosen and the model is rerun to see if this leads to different results. 
+
+Unlike the classical frequentist lasso, Bayesian regularized estimation cannot estimate coefficients to be exactly equal to zero. Therefore, some approach is needed to select variables post-estimation. the brma funciton currently uses credible intervals (the Bayesian counterpart of confidence intervals) to do so, with a moderator being selected if the 95% credible interval excludes zero.
 
 <!--To solve this model, the moderator coefficients and the residual heterogeneity must be estimated simulataneously.
 <!--The topic of estimating the residual heterogeneity is a highly discussed one (Veroniki et al., 2016; Viechtbauer \& López-López, 2015; Panityakul et al., 2013). The ability of the estimators to predict the residual heterogeneity is influenced by different factors, such as the number of studies (Guolo \& Varin, 2017; Panityakul et al., 2013; Hardy \& Thompson, 1996) included and the sample size of the individual studies (Panityakul et al., 2013).
@@ -356,7 +394,7 @@ We evaluated the algorithms' predictive performance in new data,
 and their ability to recover population parameters. 
 Our research questions are whether BRMA offers a performance advantage over RMA in terms of any of these indicators;
 under what conditions BRMA does not offer an advantage,
-and which prior (horseshoe versus LASSO) is to be preferred.
+and which prior (regularized horseshoe versus LASSO) is to be preferred.
 
 ## Performance indicators
 
@@ -367,11 +405,11 @@ Predictive performance is then operationalized as the explained variance in the 
 The testing data has 100 cases in all simulation conditions.
 The $R^2_{test}$ reflects the fraction of variance in the testing data explained by the model,
 relative to the variance explained by the mean of the training data.
-For a predictive performance measure, it is necessary to use the mean of the training data, as the mean of the testing is a descriptive statistic of that sample.
+For a predictive performance measure, it is necessary to use the mean of the training data, as the mean of the testing set is a descriptive statistic of that sample. **ik vind deze zin niet heel duidelijk**
 The resulting metric $R_{test}^{2}$ is expressed by the following equation:
 
 $$
-R_{cv}^{2} = 1- \frac{\sum_{i=1}^{k}(y_{i-test}-\hat{y}_{i-test})^{2}}{\sum_{i=1}^{k}(y_{i-test}-\bar{y}_{train})^{2}}
+R_{test}^{2} = 1- \frac{\sum_{i=1}^{k}(y_{i-test}-\hat{y}_{i-test})^{2}}{\sum_{i=1}^{k}(y_{i-test}-\bar{y}_{train})^{2}}
 $$
 
 With $k$ being the number of studies in the testing dataset, $\hat{y}_{i-test}$ being the predicted effect size for study $i$, and $\bar{y}_{train}$ being the mean of the training dataset.
@@ -388,7 +426,7 @@ and the variance is given by the variance of this deviation.
 
 To examine performance in a range of realistic meta-analysis scenarios,
 several design factors were manipulated:
-The number of studies in the training data $k \in (20, 40, 100)$, the average within-study sample size $\bar{n} \in (40, 80, 160)$, the population effect size of relevant moderators $\beta \in (0, .2, .5, .8)$, the number of moderators $p \in (2, 3, 6)$, and residual heterogeneity $\tau^{2} \in (.01, .04, .1)$.
+The number of studies in the training data $k \in (20, 40, 100)$, the average within-study sample size $\bar{n} \in (40, 80, 160)$, the population effect size of relevant moderators $\beta \in (0, .2, .5, .8)$, the number of moderators $p \in (2, 3, 6)$, and residual heterogeneity $\tau^{2} \in (.01, .04, .1)$. **het aantal moderatoren is redelijk laag; ik zou vooral nog voordelen van brma verwachten met meer moderatoren maar is dat realistisch in de praktijk? Zo ja, dan is het iets om te noemen in de discussie**
 According to a review of 705 published psychological meta-analyses (Van Erp et al., 2017),
 these values of $\tau^2$ fall within the range observed in practice.
 Note that both BRMA and RMA assume linear effects.
@@ -416,6 +454,7 @@ sampled from a non-central t-distribution.
 
 The RMA algorithm failed to converge for `r out$missing` replications, all of which were characterized by low number of cases ($k \leq 40$) and high effect sizes $\beta \geq .5$.
 These cases were omitted from further analysis.
+**was er volledige convergence voor brma in alle replicaties? Dat heb ik zelf namelijk nog nooit meegemaakt.**
 
 ## Predictive performance
 ```{r}
@@ -424,8 +463,9 @@ whichhi <- prop.table(out$which_highest)
 ```
 
 Within data sets, the BRMA with a horseshoe prior had the highest predictive performance `r round(whichhi[1]*100)`% of the time, followed by RMA, `r round(whichhi[3]*100)`%, and finally BRMA with a LASSO prior, `r round(whichhi[2]*100)`%.
-Results indicated that the overall $R^2_{test}$ was highest for BRMA with a Horseshoe prior and lowest for RMA, see \@ref(tab:tabr2).
-This difference was driven in part by the fact that explained variance was somewhat higher for the BRMA models when the true effect was not null, and by the fact that RMA had larger negative explained variance when the true effect was equal to zero (i.e., there was no effect to detect).
+Results indicated that the overall $R^2_{test}$ was highest for BRMA with a horseshoe prior and lowest for RMA, see \@ref(tab:tabr2).
+This difference was driven in part by the fact that explained variance was somewhat higher for the BRMA models when the true effect was non-zero (i.e., in the presence of a population effect),
+and by the fact that RMA had larger negative explained variance when the true effect was equal to zero (i.e., there was no population effect to detect).
 
 ```{r tabr2, results= "asis"}
 tab <- read.csv("r2.csv")[1:7][c(1, 2,5,3,6,4,7)]
@@ -484,7 +524,7 @@ Evidently, predictive performance increased most for the HS algorithm when the e
 As noted previously, predictive performance of RMA was most negative (negative explained variance) when the effect size was zero.
 The HS algorithm furthermore had the consistently highest predictive performance regardless of number of irrelevant moderators or number of cases in the training data, and was relatively less affected by increases in the number of irrelevant moderators (panel b) or in the number of training cases (panel c).
 Similarly, the HS algorithm furthermore had the consistently highest predictive performance regardless of number of cases in the training data, and thus also increased less when the number of training cases increased (panel c).
-Conversely, RMA had relatively poor predictive performance on average, and was more responsive to increases in the number of training cases and irrelevant moderators. 
+Conversely, RMA had relatively poor predictive performance on average, and was more responsive to increases in the number of training cases and irrelevant moderators. <!--However, differences between the algorithms were generally small. CJ: Niet mee eens; de verschillen zijn misschien klein in termen van de substantieve interpretatie van R2, maar de grootte van dat verschil hangt af van de gebruikte simulatie condities. Je kan dus een groter verschil aantonen als je daarmee gaat spelen, en een situatie opzoekt die ongunstiger is voor RMA. Belangrijker is dat we uberhaupt een consequent voordeel van BRMA over RMA aantonen-->
 
 ```{r figmaindif, fig.cap="Predictive R2 for design factors with largest differences in predictive performance across the HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) algorithms.", eval = FALSE}
 knitr::include_graphics("main_diff.png")
@@ -599,7 +639,7 @@ The effect of the design factors on the bias in estimated $\beta$ was evaluated 
 Table \@ref(tab:tabbeta) reports the effect size $\eta^{2}$ of simulation conditions on $\hat{b}-\beta$.
 The skewness of moderator variables had the largest effect on bias in estimated $\beta$ for all algorithms.
 Note, however, that this is likely due to the fact that the data simulated with a cubic model are analyzed with a linear model, and thus,  
-was the estimated model. This was mainly because the algorithms overestimated $\tau^{2}$ most when the model contained cubic terms.
+was the estimated model. **met brma zouden we de kwadratische en kubieke termen mee kunnen nemen en penalizen in het model. Misschien noemen als optie?** This was mainly because the algorithms overestimated $\tau^{2}$ most when the model contained cubic terms.
 No differences between algorithms in the effect of design factors were observed.
 
 ```{r tabbeta, results= "asis", eval = TRUE}
@@ -624,7 +664,7 @@ In the absence of relevant moderators, RMA produced overfit models; in other wor
 The predictive performance of the BRMA algorithms also suffered less than that of RMA in the presence of more irrelevant moderators.
 The BRMA algorithms were also more efficient, in the sense that they achieved greater predictive performance when the number of studies in the training data was low.
 Across all conditions, BRMA with a horseshoe prior achieved the highest average predictive performance, and within each data set, BRMA with a horseshoe prior most often had the best predictive performance (in `r round(whichhi[1]*100)`% of replications).
-This provides strong evidence that BRMA with a horseshoe prior is generally preferable when the goal is to obtain findings that generalize to new data.
+This provides strong evidence that BRMA with a horseshoe prior is generally preferable when the goal is to obtain findings that generalize to new data. **In mijn ogen waren de verschillen in performance niet heel groot, dus ik vraag me af of het nu niet iets te sterk is opgeschreven. Maar jij bent meer bezig geweest met de simulatie, dus mogelijk zie ik iets over het hoofd.**
 
 With regard to variable selection, results indicated that the penalized BRMA algorithms had lower sensitivity: they were less able to select relevant moderators than the un-penalized RMA algorithm.
 Conversely, the BRMA algorithms had better specificity: they were better able to reject irrelevant moderators than RMA.
@@ -663,8 +703,8 @@ One limitation is that, by necessity, computational resources and journal space 
 To facilitate further exploration and follow-up research,
 we have made all simulation data and analysis code for the present study available online.
 This code also enables researchers to conduct Monte Carlo power analyses for applied research.
-Another limitation is that the present study did not examine the effect of multicolinear predictors.
-Regularizing estimators typically have an advantage over OLS regression in the presence of multicolinearity;
+Another limitation is that the present study did not examine the effect of multicollinear predictors.
+Regularizing estimators typically have an advantage over OLS regression in the presence of multicollinearity;
 future research ought to examine whether this also applies to BRMA.
 
 A final limitation is that the present study did not examine the effect of dependent data (e.g., multiple effect sizes per study).
@@ -679,6 +719,7 @@ Compiling the function thus requires some technological sophistication and is mo
 Alghough the use of Bayesian estimation has several advantages, one major downside is that Bayesian models are not directly comparable with frequentist models.
 Another disadvantage is that Bayesian estimation is typically more computationally expensive than frequentist estimation.
 One future direction of research is thus to develop a frequentist estimator for regularized meta-regression.
+Additionally, the current implementation relies on 95% credible intervals to select relevant moderators. However, these marginal credible intervals can behave differently compared to the joint credible intervals ([@PiironenEtal2017]). A second future direction of research is therefore to implement more advanced selection procedures, such as projection predictive variable selection ([@PiironenVehtari2017a]).
 
 ## Recommendations for applied research
 
@@ -721,7 +762,6 @@ Note that, as BRMA is a Bayesian method, credible intervals or highest posterior
 The null hypothesis is rejected if such intervals exclude zero.
 As both types of intervals performed identically in the present study,
 we suggest using credible intervals, which are computationally less expensive.
-**SARA: Wel of niet nog OLS RMA doen met enkel de significante predictoren van de BRMA?**
 
 Finally, with regards to publication, we highly recommend sharing the data and
 syntax for the meta-analysis publicly; for example, by making the entire paper reproducible using the Workflow for Reproducible Code in Science (WORCS; REF).
