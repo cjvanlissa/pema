@@ -26,7 +26,12 @@ affiliation:
 authornote: |
   Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
 
-  Enter author note here.
+  Author contributions: CvL conceived of the method; wrote simulation, analysis,
+  and package code; and drafted the manuscript. SE implemented the method in
+  stan and contributed package code; contributed paragraphs and revised the
+  manuscript. EC wrote manuscript outline and contributed paragraphs; curated
+  existing lab notes; conducted literature research; performed initial analyses.
+  
 
 abstract: |
   When analyzing a heterogeneous body of literature, there may be many

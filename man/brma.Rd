@@ -16,12 +16,22 @@ brma(x, ...)
   method = "hs",
   standardize = TRUE,
   prior = switch(method, lasso = c(df = 1, scale = 1), hs = c(df = 1, df_global = 1,
-    df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
+    df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = NULL)),
   mute_stan = TRUE,
   ...
 )
 
-\method{brma}{default}(Y, X, vi, study, prior, mute_stan = TRUE, standardize, intercept, ...)
+\method{brma}{default}(
+  Y,
+  X,
+  vi,
+  study = NULL,
+  prior,
+  mute_stan = TRUE,
+  standardize,
+  intercept,
+  ...
+)
 }
 \arguments{
 \item{...}{Additional arguments passed on to \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.
@@ -80,11 +90,7 @@ A \code{list} object of class \code{brma}, with the following structure:\preform
   tau2         # Numeric, estimated tau2
   R2           # Numeric, estimated heterogeneity explained by the moderators
   k            # Numeric, number of effect sizes
-  vi_column    # Optional, name of the column in the original data
-               # corresponding to vi
   study        # Numeric vector with study id numbers
-  study_column # Optional, name of the column in the original data
-               # corresponding to study
 )
 }
 }
@@ -138,12 +144,11 @@ prior is then strictly no longer a horseshoe. The scale for the Student's t
 prior on the global shrinkage parameter \code{scale_global} defaults to 1
 and can be decreased to achieve more shrinkage. Moreover, if prior
 information regarding the number of relevant moderators is available, it is
-recommended to include this information via the \code{par_ratio} argument
-by setting it to the ratio of the expected number of non-zero coefficients
-to the expected number of zero coefficients. When \code{par_ratio} is
-specified, \code{scale_global} is ignored and instead based on the
-available prior information. Contrary to the horseshoe prior, the
-regularized horseshoe applies additional regularization on large
+recommended to include this information via the \code{relevant_pars}
+argument by setting it to the expected number of relevant moderators. When
+\code{relevant_pars} is specified, \code{scale_global} is ignored and
+instead based on the available prior information. Contrary to the horseshoe
+prior, the regularized horseshoe applies additional regularization on large
 coefficients which is governed by a Student's t prior with a
 \code{scale_slab} defaulting to 2 and \code{df_slab} defaulting to 4.
 This additional regularization ensures at least some shrinkage of large

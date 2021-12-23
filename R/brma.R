@@ -87,11 +87,11 @@
 #'   prior on the global shrinkage parameter \code{scale_global} defaults to 1
 #'   and can be decreased to achieve more shrinkage. Moreover, if prior
 #'   information regarding the number of relevant moderators is available, it is
-#'   recommended to include this information via the \code{par_rel} argument
-#'   by setting it to the expected number of relevant moderators. When \code{par_rel} is
-#'   specified, \code{scale_global} is ignored and instead based on the
-#'   available prior information. Contrary to the horseshoe prior, the
-#'   regularized horseshoe applies additional regularization on large
+#'   recommended to include this information via the \code{relevant_pars}
+#'   argument by setting it to the expected number of relevant moderators. When
+#'   \code{relevant_pars} is specified, \code{scale_global} is ignored and
+#'   instead based on the available prior information. Contrary to the horseshoe
+#'   prior, the regularized horseshoe applies additional regularization on large
 #'   coefficients which is governed by a Student's t prior with a
 #'   \code{scale_slab} defaulting to 2 and \code{df_slab} defaulting to 4.
 #'   This additional regularization ensures at least some shrinkage of large
@@ -128,11 +128,7 @@
 #'   tau2         # Numeric, estimated tau2
 #'   R2           # Numeric, estimated heterogeneity explained by the moderators
 #'   k            # Numeric, number of effect sizes
-#'   vi_column    # Optional, name of the column in the original data
-#'                # corresponding to vi
 #'   study        # Numeric vector with study id numbers
-#'   study_column # Optional, name of the column in the original data
-#'                # corresponding to study
 #' )
 #' ```
 #' @export
@@ -162,7 +158,7 @@ brma.formula <-
            standardize = TRUE,
            prior = switch(method,
                           "lasso" = c(df = 1, scale = 1),
-                          "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_rel = NULL)),
+                          "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = NULL)),
            mute_stan = TRUE,
            #prior_only = FALSE,
            ...) {
@@ -255,10 +251,13 @@ brma.default <-
     }
     # Check validity of prior
     method <- "invalid"
-    if(!is.null(prior["par_rel"])){ # use prior information if available
-      prior["scale_global"] <- par_rel/((ncol(X) - par_rel) * sqrt(nrow(X))) # multiplication with sigma happens within stan model
-    }
-    if(all(c("df", "df_global", "df_slab", "scale_global", "scale_slab") %in% names(prior))){
+    if(all(c("df", "df_global", "df_slab", "scale_slab") %in% names(prior))){
+      if("par_ratio" %in% names(prior)){
+        message("Prior element 'par_ratio' is deprecated and will be ignored. Use 'relevant_pars' instead.")
+      }
+      if("relevant_pars" %in% names(prior)){ # use prior information if available
+        prior["scale_global"] <- prior["relevant_pars"]/((ncol(X) - prior["relevant_pars"]) * sqrt(nrow(X))) # multiplication with sigma happens within stan model
+      }
       prior <- prior[c("df", "df_global", "df_slab", "scale_global", "scale_slab")]
       method <- "horseshoe_MA"
     }
