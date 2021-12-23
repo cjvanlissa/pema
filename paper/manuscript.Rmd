@@ -333,11 +333,44 @@ Based on two simulation studies, van Lissa (2017) examined the performance of fi
 
 The study displayed also other advantages from random forests over singletrees. It had greater power, was able to make better predictions, gave estimates of the cross-validation error and yielded useful measures of variable importance and partial prediction plots (van Lissa, 2017). MetaForest can at the moment be considered as the best working technique to explore heterogeneity in meta-analysis. In van Lissa (2017), that only presented estimates of $\tau^{2}$ based on the raw data, we saw that MetaForest had certain robustness against a low number of studies. If moderators were continuously distributed, MetaForest had sufficient power at approximately 20 studies. However, there is an important feature to prove before we can make such an assumption. The underlying data generating models in the two simulation studies of van Lissa (2017) only included normal distributed moderators. Renouncing from normal distributions may affect the performance of the model, but since normal distribution in real-life data is more an exception than a normal state of affairs (Micceri, 1989), it is entirely possible that procedures are affected by skewness, leverage, balance etc. It is important to know how MetaForest performs in these kinds of situations.-->
 
-### Standardization
+### Standardizing predictors
 
-Lasso regression puts constraints on the size of the coefficients associated to each variable. However, this value will depend on the magnitude of each variable. It is therefore necessary to center and reduce, or standardize, the variables.
+<!-- Eli? -->
+<!-- Staclexchange: Lasso regression puts constraints on the size of the coefficients associated to each variable. However, this value will depend on the magnitude of each variable. It is therefore necessary to center and reduce, or standardize, the variables. -->
+<!-- * Eli, kan jij het algemene principe van standardization hier uitleggen, met een paar referenties?
+In de volgende paragraaf over intercepts moet ook nog een referentie, over wel/niet standaardizeren van dummies.-->
+<!-- * In BRMA werk het als volgt: -->
+<!--     + By default, all variables are normalized. -->
+<!--     + The penalized model (without an intercept) is estimated on the normalized data -->
+<!--     + The intercept is then restored to the original scale by applying  -->
+<!--     $b_0 = b_{0z} - \mathbf{b}_z\frac{\bar{\mathbf{x}}}{\mathbf{s}_x}$ -->
+<!--     Where b_0 is the intercept, b_0z is the intercept for the normalized predictors, b_z is the vector of regression coefficients for the normalized predictors, bar x is the vector of means of X, and s_x is the vector of standard deviations of x -->
+<!--     + The regression coefficients are restored to the original scale by applying  -->
+<!--     $\mathbf{b} = \mathbf{b}_z\mathbf{s}_x$ -->
+<!-- * Leg vervolgens uit dat mensen dummies misschien niet willen standaardizeren -->
+<!-- * Gebruikers kunnen de default standaardization overschrijven door een aantal van de variabelen handmatig te standaardizeren, en de vector met means en vector met SDs handmatig mee te geven via het argument `standardize = list(center = meanvec, scale = sdvec)`. Als ze een bepaalde variabele NIET willen standaardizeren moeten ze voor die variabele mean= 0 en sd= 1 meegeven. -->
+  
+### Intercepts
 
-The result of centering the variables means that there is no longer an intercept. This applies equally to ridge regression, by the way.
+The standard linear model estimates an intercept, which reflects the expected value of the outcome when all predictors are equal to zero, and regression coefficients for the effect of moderators.
+In some cases, it may be desirable to omit the intercept.
+For example, if an analysis contains categorical predictors,
+these can be encoded as dummy variables, with values $x \in \{0, 1\}$.
+For a variable with $c$ categories, the number of dummy variables must be equal to $c-1$;
+the omitted category functions as a reference category, and its expected value is represented by the model intercept $b_0$.
+This so-called *regression specification* of a model may be useful when there is a meaningful reference category.
+For example, imagine a study on the effectiveness of interventions for specific phobia with two types of interventions: An industry-standard intervention, and a more recently developed one.
+In this case, it might make sense to code the industry standard intervention as the reference category,
+and dummy-code the new contender.
+The model will then estimate whether the new contended has an effect size significantly lower or higher than the industry standard.
+In other cases, there may not be a straightforward reference category.
+For example, imagine a study on the effectiveness of one intervention for specific phobia in two continents.
+In such cases, the average effect in both continents may be estimated by omitting the intercept, and including all $c$ dummy variables.
+This so-called *ANOVA specification* of a model estimates a mean for all dummy-coded categories.
+In BRMA, as in other R functions, one can use ANOVA specification by explicitly removing the intercept from the model formula; for example, if `yi` is the effect size and $C$ a categorical moderator, regression specification with $c-1$ dummies is specified as `yi ~ C`, and ANOVA specification with $c$ dummies is specified as `yi ~ -1 + C`.
+The appropriate standardization of dummy variables in penalized regression analyses is a topic of ongoing debate.
+Suffice it to say that, for greater interpretability, users may want the freedom to leave dummy variables unstandardized.
+This is possible in `brma()` by ...
 
 ### Bayesian estimation
 
