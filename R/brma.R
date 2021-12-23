@@ -176,14 +176,16 @@ brma.formula <-
       vi <- data[[vi]]
       data[[vi_column]] <- NULL
     }
-    if(is.null(study)){
-      study <- 1
-    } else {
+    if(!is.null(study)){
       if(inherits(study, "character")){
         if(!study %in% names(data)) stop("Argument 'study' is not a column of 'data'.")
         study_column <- study
-        study <- data[[study]]
+        cl[["study"]] <- data[[study]]
         data[[study_column]] <- NULL
+      } else {
+        if(!length(study) == nrow(data)){
+          stop("Argument 'study' must be a character string referencing a column in 'data', or a vector of study IDs with length equal to the number of rows in 'data'.")
+        }
       }
     }
     # Make model matrix
@@ -220,7 +222,6 @@ brma.formula <-
     cl[["Y"]] <- Y
     cl[["X"]] <- X
     cl[["vi"]] <- vi
-    cl[["study"]] <- study
     cl[["prior"]] <- prior
     cl[["mute_stan"]] <- mute_stan
     cl[["standardize"]] <- standardize
@@ -238,7 +239,7 @@ brma.default <-
   function(Y,
            X,
            vi,
-           study,
+           study = NULL,
            prior,
            mute_stan = TRUE,
            standardize,

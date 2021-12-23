@@ -55,7 +55,7 @@ abstract: |
 keywords          : "meta-analysis, machine learning, bayesian, lasso, horseshoe, regularized"
 wordcount         : "5356"
 
-bibliography      : ["r-references.bib"]
+bibliography      : ["r-references.bib", "references.bib", "sara-references.bib"]
 
 floatsintext      : no
 figurelist        : no
@@ -127,10 +127,10 @@ This average is weighted to account for the fact that some observed effect sizes
 Each effect size is assigned a weight that determines how influential it is in calculating the summary effect.
 This weight is based on specific assumptions;
 for example, the *fixed effect* model assumes that all observed effect sizes reflect one underlying true population effect size.
-This assumption is well-suited to the situation where effect sizes from close replication studies are meta-analyzed [@higgins_re-evaluation_2009, fabrigar_conceptualizing_2016, maxwell_is_2015]. 
+This assumption is well-suited to the situation where effect sizes from close replication studies are meta-analyzed [@higginsReevaluationRandomeffectsMetaanalysis2009, fabrigar_conceptualizing_2016, maxwell_is_2015]. 
 The *random effects* model, by contrast, assumes that population effect sizes follow a normal distribution.
 Each observed effect size provides information about the mean and standard deviation of this distribution of population effect sizes.
-This assumption is more appropriate when studies are conceptually similar and differences between them are random [@higgins_re-evaluation_2009, fabrigar_conceptualizing_2016, maxwell_is_2015]. 
+This assumption is more appropriate when studies are conceptually similar and differences between them are random [@higginsReevaluationRandomeffectsMetaanalysis2009, fabrigar_conceptualizing_2016, maxwell_is_2015]. 
 
 Not all heterogeneity in effect sizes is random, however.
 Quantifiable between-study differences may introduce systematic heterogeneity.
@@ -298,7 +298,7 @@ RSS=\sum_{i=1}^{n}(y_{i} - \beta_{0} - \sum_{j=1}^{p}\beta_{j}x_{ij})^2
 $$
 The resulting parameter estimates are those that give the best predictions of the dependent variable in the present dataset.
 Penalized regression, by contrast, adds a penalty term to the RSS.
-One commonly used penalty is the L1-norm of the regression coefficients, or LASSO penalty ([@tibshirani1996]),
+One commonly used penalty is the L1-norm of the regression coefficients, or LASSO penalty ([@hastieElementsStatisticalLearning2009]),
 which corresponds to the sum of their absolute values.
 This gives the penalized residual sum of squares:
 
@@ -333,6 +333,12 @@ Based on two simulation studies, van Lissa (2017) examined the performance of fi
 
 The study displayed also other advantages from random forests over singletrees. It had greater power, was able to make better predictions, gave estimates of the cross-validation error and yielded useful measures of variable importance and partial prediction plots (van Lissa, 2017). MetaForest can at the moment be considered as the best working technique to explore heterogeneity in meta-analysis. In van Lissa (2017), that only presented estimates of $\tau^{2}$ based on the raw data, we saw that MetaForest had certain robustness against a low number of studies. If moderators were continuously distributed, MetaForest had sufficient power at approximately 20 studies. However, there is an important feature to prove before we can make such an assumption. The underlying data generating models in the two simulation studies of van Lissa (2017) only included normal distributed moderators. Renouncing from normal distributions may affect the performance of the model, but since normal distribution in real-life data is more an exception than a normal state of affairs (Micceri, 1989), it is entirely possible that procedures are affected by skewness, leverage, balance etc. It is important to know how MetaForest performs in these kinds of situations.-->
 
+### Standardization
+
+Lasso regression puts constraints on the size of the coefficients associated to each variable. However, this value will depend on the magnitude of each variable. It is therefore necessary to center and reduce, or standardize, the variables.
+
+The result of centering the variables means that there is no longer an intercept. This applies equally to ridge regression, by the way.
+
 ### Bayesian estimation
 
 Instead of using a penalty to shrink regression coefficients towards zero, it is possible to use a Bayesian prior distribution to achieve a similar result. Whereas classical, frequentist estimation methods rely solely on the data at hand, Bayesian estimation methods require the specification of a prior distribution. The prior distribution is a probability distribution that reflects the prior knowledge or beliefs that the researcher has before collecting the data. The prior is combined with the likelihood of the data to form the posterior distribution. In the context of regularization, the prior distribution is specified such that it reflects the prior belief that not all regression coefficients are substantial enough to be included in the model. 
@@ -340,33 +346,56 @@ Instead of using a penalty to shrink regression coefficients towards zero, it is
 Many different prior distributions exist that have specific properties that enable them to shrink small regression coefficients towards zero, while keeping substantial coefficients large ([@vanErpOberskiMulder2019]). Some prior distributions have been shown to result in exactly the same solutions as classical, frequentist penalties, such as the LASSO. Specifically, placing independent Laplace (i.e., double exponential) priors on the regression coefficients results in posterior modes that are equal to the lasso estimates ([@ParkCasella2008]). In addition, many prior distributions have been developed and investigated specifically for the purpose of providing good shrinkage properties, meaning that the prior pulls small regression coefficients towards zero, without exerting any influence on substantial regression coefficients. A popular prior in this regard is the horseshoe prior ([@CarvalhoPolsonScott2010]). An advantage of the horseshoe prior compared to the lasso is the fact that it has heavier tails. As a result, it will not shrink and therefore bias substantial coefficients as much as the LASSO prior with its lighter tails. 
 
 ### Implementation
-The brma function uses Stan ([@StanManual]) to fit the models. Stan is a probabilistic programming language that uses a Hamiltonian Monte Carlo algorithm to sample from the posterior distribution. When running a Bayesian analysis in Stan it is important to ensure that the algorithm has converged to the posterior distribution in order for the results to be trusted. Stan offers automatic warnings and errors if this might not be the case. 
 
-Currently, the brma function supports two priors: the LASSO and the regularized horseshoe. We have precompiled the models with these two priors using brms ([@brms]).
-
+Bayesian penalized meta-analysis is implemented in the function `brma()` in the R-package `pema`.
+For estimation, it depends on Stan, a probabilistic programming language that uses Hamiltonian Monte Carlo to sample from the posterior distribution ([@StanManual]).
+Being written in C++, Stan is computationally efficient, but models must be compiled prior to estimation.
+This results in substantial computational overhead.
+To avoid this overhead, `pema` uses pre-compiled models corresponding to random-effects and three-level meta-regression, with and without an intercept.
+Future updates may bring additional models.
+At the time of writing, `brma()` supports two priors: the LASSO and the regularized horseshoe.
 The LASSO prior is implemented as follows:
+<!-- CJ: Sara, kan jij checken of La de juiste notatie is voor de Laplace prior? -->
 
 $$
-\beta_{j} \sim \text{double exponential}(0, \frac{s}{lambda})
+\beta_{j} \sim \text{La}(0, \frac{s}{\lambda})
 $$
+where $s$ is a global scale parameter, and $\lambda$ is an inverse-tuning parameter.
+By default in `brma()`, the global scale parameter is set to 1,
+and the inverse-tuning parameter is given a $\chi^2$ prior with 1 degree of freedom.
+Its value is thus optimized during model estimation.
 
-and requires the specification of a global scale parameter $s$ and an inverse-tuning parameter $\lambda$. By default, the global scale is set to 1 and the inverse-tuning parameter is given a chi-square prior with degrees of freedom equal to 1. 
-
-For the horseshoe prior, we use an extension proposed by [@PiironenVehtari2017b] called the regularized horseshoe:
+The implementation of the horseshoe prior is based on the regularized horseshoe proposed by @PiironenVehtari2017b:
+<!-- CJ: Sara, Kan jij checken wat de juiste notatie is voor "half-t"? -->
 
 $$
-\beta_{j} \sim \text{normal}(0, \tilde{\tau}_j^2\lambda) \text{, with } \tilde{\tau}_j^2 = \frac{c^2 \tau_j^2}{c^2 + \lambda^2 \tau_j^2} \\
-\lambda \sim \text{half-t}(\nu_1, 0, \lambda^2_0) \\
-\tau_j \sim \text{half-t}(\nu_2, 0, 1) \\
-c^2 \sim \text{inverse-gamma}(\frac{\nu_3}{2}, \frac{\nu_3 s^2}{2})
+\begin{aligned}
+\beta_{j} &\sim N(0, \tilde{\tau}_j^2\lambda) \text{, with } \tilde{\tau}_j^2 = \frac{c^2 \tau_j^2}{c^2 + \lambda^2 \tau_j^2}\\
+\lambda &\sim \text{half-t}(\nu_1, 0, \lambda^2_0)\\
+\tau_j &\sim \text{half-t}(\nu_2, 0, 1)\\
+c^2 &\sim \Gamma^{-1}(\frac{\nu_3}{2}, \frac{\nu_3 s^2}{2})
+\end{aligned}
 $$
+This extension of the horseshoe is more numerically stable in certain cases.
+In addition, it allows the user to explicitly include prior information regarding the expected number of relevant moderators by setting the argument par_ratio to the ratio of the expected number of non-zero coefficients to the expected number of zero coefficients. <!-- CJ: Je spreekt hier over het argument par_ratio van de functie in Stan. Maar hier in de tekst verwacht ik uitleg over de formule. Zien we par_ratio terug in die formule?-->
+In this formula, $\lambda^2_0$ is a global scale parameter that affects the overall shrinkage of the prior, with smaller values resulting in more shrinkage. The default value in `brma()` is 1. 
+The thickness of the tails is controlled by two degrees of freedom parameters, $\nu_1$ and $\nu_2$, which default to 1 in `brma()`.
+Increasing these degrees of freedom parameters results in a prior with lighter tails,
+which is strictly no longer a horseshoe prior.
+However, in certain cases<!-- Sara, wat voor cases?--> these lighter tails can aid model convergence. 
+The regularized horseshoe differs from the standard horseshoe in the specification of a finite "slab". This slab ensures at least some regularization of large coefficients and as a consequence,
+more stable results.
+This slab is governed by a degrees of freedom parameter ($\nu_3$, set to 4) and a scale parameter ($s$, set to 1). <!--Sara, eigenlijk is het niet helemaal duidelijk wat al deze nummers doen. Kunnen we een interactieve plot maken waarmee gebruikers kunnen zien hoe aanpassingen de vorm van de prior beinvloeden?-->
 
-This extension is more numerically stable in certain cases. In addition, it allows the user to explicitly include prior information regarding the number of relevant moderators by setting the argument par_ratio to the ratio of the expected number of non-zero coefficients to the expected number of zero coefficients. If this information is not available, the user should specify scale_global ($\lambda^2_0$) which affects the overall shrinkage of the prior, with smaller values resulting in more shrinkage (default = 1). In addition, the regularized horseshoe has two degrees of freedom parameters ($\nu_1$ and $\nu_2$) which default to 1. Increasing the degrees of freedom parameters results in a prior with lighter tails, which is strictly no longer a horseshoe prior. However, the lighter tails might be needed in certain cases to attain convergence. 
-The regularized horseshoe differs from the horseshoe in the specification of a finite "slab". This ensures at least some regularization of large coefficients and as a consequence, more stable results. This slab is governed by a degrees of freedom parameter ($\nu_3$, set to 4) and a scale parameter ($s$, set to 1). 
+Default settings for these hyperparameters in `brma()` were chosen such that the values are reasonable in most applications.
+However, in a Bayesian analysis it is good practice to perform a prior sensitivity analysis in which different hyperparameters are chosen and the model is rerun to see if this leads to different results. 
+This is particularly important when the sample is small, as the prior is more influential in this case.
 
-We have chosen all default settings for the hyperparameters such that the values are reasonable in most applications. However, in a Bayesian analysis it is good practice to perform a prior sensitivity analysis in which different hyperparameters are chosen and the model is rerun to see if this leads to different results. 
-
-Unlike the classical frequentist lasso, Bayesian regularized estimation cannot estimate coefficients to be exactly equal to zero. Therefore, some approach is needed to select variables post-estimation. the brma funciton currently uses credible intervals (the Bayesian counterpart of confidence intervals) to do so, with a moderator being selected if the 95% credible interval excludes zero.
+Unlike the frequentist LASSO algorithm, Bayesian regularized estimation cannot set coefficients to be exactly equal to zero.
+Therefore, variables must be selected post-estimation.
+One way to do so is by the use of probability intervals, the Bayesian counterpart of confidence intervals, with a moderator being selected if, for example, a 95% interval excludes zero.
+The present study considers two types of intervals:
+The credible interval, which is obtained by taking the 2.5% and 97.5% quantiles of the samples of the posterior, and the highest posterior density interval, which is the narrowest possible interval that contains 95% of the probability mass.
 
 <!--To solve this model, the moderator coefficients and the residual heterogeneity must be estimated simulataneously.
 <!--The topic of estimating the residual heterogeneity is a highly discussed one (Veroniki et al., 2016; Viechtbauer \& López-López, 2015; Panityakul et al., 2013). The ability of the estimators to predict the residual heterogeneity is influenced by different factors, such as the number of studies (Guolo \& Varin, 2017; Panityakul et al., 2013; Hardy \& Thompson, 1996) included and the sample size of the individual studies (Panityakul et al., 2013).
@@ -446,15 +475,20 @@ sampled from a non-central t-distribution.
 <!-- dat <- data.frame(x = x, -->
 <!--                   y = c(func(x, .2), func(x, .5), func(x, .8)), -->
 <!--                   es = rep(c(".2", ".5", ".8"), each = 1000)) -->
-
-
-
 <!-- ggplot(dat, aes(x, y, color = es))+geom_smooth() -->
+
 # Results
 
-The RMA algorithm failed to converge for `r out$missing` replications, all of which were characterized by low number of cases ($k \leq 40$) and high effect sizes $\beta \geq .5$.
+Any iterative algorithm is susceptible to convergence problems.
+In such cases, the BRMA algorithms provide warning messages,
+but still return samples from the posterior.
+We were thus able to use all iterations of the BRMA algorithms,
+although some of these may have failed to converge and thus have poor performance.
+The RMA algorithm failed to converge more regularly, however, in which case the process terminates with an error.
+To handle these contingencies, we automated some of the steps recommended [on the `metafor` website](https://www.metafor-project.org/doku.php/tips:convergence_problems_rma).
+Despite this, `r out$missing` replications of the RMA algorithm still failed to converge.
+All of these were characterized by low number of cases ($k \leq 40$) and high effect sizes $\beta \geq .5$.
 These cases were omitted from further analysis.
-**was er volledige convergence voor brma in alle replicaties? Dat heb ik zelf namelijk nog nooit meegemaakt.**
 
 ## Predictive performance
 ```{r}
@@ -639,7 +673,8 @@ The effect of the design factors on the bias in estimated $\beta$ was evaluated 
 Table \@ref(tab:tabbeta) reports the effect size $\eta^{2}$ of simulation conditions on $\hat{b}-\beta$.
 The skewness of moderator variables had the largest effect on bias in estimated $\beta$ for all algorithms.
 Note, however, that this is likely due to the fact that the data simulated with a cubic model are analyzed with a linear model, and thus,  
-was the estimated model. **met brma zouden we de kwadratische en kubieke termen mee kunnen nemen en penalizen in het model. Misschien noemen als optie?** This was mainly because the algorithms overestimated $\tau^{2}$ most when the model contained cubic terms.
+was the estimated model.
+This was mainly because the algorithms overestimated $\tau^{2}$ most when the model contained cubic terms.
 No differences between algorithms in the effect of design factors were observed.
 
 ```{r tabbeta, results= "asis", eval = TRUE}
@@ -664,7 +699,8 @@ In the absence of relevant moderators, RMA produced overfit models; in other wor
 The predictive performance of the BRMA algorithms also suffered less than that of RMA in the presence of more irrelevant moderators.
 The BRMA algorithms were also more efficient, in the sense that they achieved greater predictive performance when the number of studies in the training data was low.
 Across all conditions, BRMA with a horseshoe prior achieved the highest average predictive performance, and within each data set, BRMA with a horseshoe prior most often had the best predictive performance (in `r round(whichhi[1]*100)`% of replications).
-This provides strong evidence that BRMA with a horseshoe prior is generally preferable when the goal is to obtain findings that generalize to new data. **In mijn ogen waren de verschillen in performance niet heel groot, dus ik vraag me af of het nu niet iets te sterk is opgeschreven. Maar jij bent meer bezig geweest met de simulatie, dus mogelijk zie ik iets over het hoofd.**
+Based on these findings, we would recommend using BRMA with a horseshoe prior when the goal is to obtain findings that generalize to new data.
+<!-- **In mijn ogen waren de verschillen in performance niet heel groot, dus ik vraag me af of het nu niet iets te sterk is opgeschreven. Maar jij bent meer bezig geweest met de simulatie, dus mogelijk zie ik iets over het hoofd.** -->
 
 With regard to variable selection, results indicated that the penalized BRMA algorithms had lower sensitivity: they were less able to select relevant moderators than the un-penalized RMA algorithm.
 Conversely, the BRMA algorithms had better specificity: they were better able to reject irrelevant moderators than RMA.
@@ -687,6 +723,13 @@ We further observed that BRMA with a horseshoe prior had the lowest bias when es
 The BRMA algorithms also had lower variance than RMA when estimating residual heterogeneity.
 This suggests that the penalized regression coefficients do not compromise the estimation of residual heterogeneity. Future research might investigate under what conditions residual heterogeneity is estimated more accurately in a penalized model than in an un-penalized model.
 Together, these results suggest that BRMA has superior predictive performance and specificity, and provides relatively unbiased estimates of residual heterogeneity, relative to RMA.
+
+We examined the effect of several violations of model assumptions, including simulating data from a cubic model, and then analyzing these data with a linear model.
+In applied research, it is often not known what the true shape of the association between a moderator and effect size is.
+Thus, model mis-specification is likely to occur.
+One advantage of BRMA is that it can accommodate more moderators than RMA and has superior specificity.
+This allows researchers to specify a more flexible model to account for potential misspecification, with less concern for overfitting and non-convergence.
+For example, researchers could add polynomials of continuous variables with suspected non-linear effects, or interactions between predictors.
 
 # Strengths and future directions
 
@@ -745,6 +788,10 @@ note that many such methods are available in the R package `metafor` (Viechtbaue
 With regard to data analysis, we recommend the use of a horseshoe prior by default,
 because it demonstrated the best predictive performance and most attractive trade-off between sensitivity and specificity in our simulations.
 
+When estimating the model, it is important to ascertain that the algorithm has converged before interpreting the results.
+Stan, the computational back-end of `brma()`, should return warnings and errors if there are indicationsof non-convergence.
+<!-- Sara, wat kan men nog meer doen om convergence te checken? Iets met trace plots? Alle standaard plots voor stan-model objecten zijn beschikbaar, dankzij de functie `as.stan()`. Misschien kan je wat tips geven hier? -->
+
 When reporting results, researchers should substantiate their decision to explore heterogeneity on both subjective and objective grounds.
 The former can be achieved by simply ascertaining that the body of literature
 to be meta-analyzed appears to be heterogeneous;
@@ -773,6 +820,25 @@ To this end, researchers can simply enter their planned
 design (or several alternative designs) as new lines of data, using the codebook of the
 original meta-analysis, and use the published BRMA model to calculate the
 predicted effect size for a study with these specifications.
+
+BRMA may not be the best solution for every situation.
+Several trade-offs must be made to decide what method is most appropriate.
+Firstly, the fact that BRMA has high predictive performance compared to RMA suggests that it is a particularly suitable technique when a researcher intends to obtain results that will generalize beyond the sample at hand, and is willing to accept some bias in parameter estimates.
+Conversely, RMA might be more suitable when the goal is to describe the sample at hand in an unbiased manner, with less concern for generalizability to future studies.
+Secondly, the fact that BRMA has high specificity compared to RMA suggests that it is a suitable technique when a researcher seeks to eliminate irrelevant moderators at the cost of increasing the Type II error rate.
+Conversely, RMA might be more suitable when the researcher seeks to identify relevant moderators, at the cost of increasing the Type I error rate.
+If many moderators have been coded, and many of them are expected to be irrelevant, then BRMA may thus be prererable.
+Thirdly, there may be pragmatic reasons for preferring BRMA over RMA.
+For example, if a dataset is small, or the number of moderators is high relative to the number of cases,
+RMA models may prove to be empirically under-identified.
+This can be indicated by convergence problems.
+In such cases, Bayesian estimation may converge on a solution where frequentist estimation does not [@kohliFittingLinearLinearPiecewise2015].
+Similarly, BRMA may perform better in the presence of multicolinearity among predictors,
+which can be examined using the function `vif()` in the R-package `metafor`.
+Values exceeding 5 are cause for concern.
+Multicolinearity increases the variance of regression coefficients.
+BRMA may have an advantage here, because the regularizing priors restrict variance.
+If multicolinearity is observed, researchers might thus prefer BRMA over RMA.
 
 # Conclusion
 

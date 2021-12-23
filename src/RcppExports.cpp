@@ -16,20 +16,24 @@ RcppExport SEXP _rcpp_module_boot_stan_fit4horseshoe_MA_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4horseshoe_MA_ml_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4horseshoe_MA_ml_noint_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4horseshoe_MA_noint_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4hs_prior_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4lasso_MA_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4lasso_MA_ml_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4lasso_MA_ml_noint_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4lasso_MA_noint_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4lasso_prior_mod();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_stan_fit4horseshoe_MA_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4horseshoe_MA_mod, 0},
     {"_rcpp_module_boot_stan_fit4horseshoe_MA_ml_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4horseshoe_MA_ml_mod, 0},
     {"_rcpp_module_boot_stan_fit4horseshoe_MA_ml_noint_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4horseshoe_MA_ml_noint_mod, 0},
     {"_rcpp_module_boot_stan_fit4horseshoe_MA_noint_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4horseshoe_MA_noint_mod, 0},
+    {"_rcpp_module_boot_stan_fit4hs_prior_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4hs_prior_mod, 0},
     {"_rcpp_module_boot_stan_fit4lasso_MA_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4lasso_MA_mod, 0},
     {"_rcpp_module_boot_stan_fit4lasso_MA_ml_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4lasso_MA_ml_mod, 0},
     {"_rcpp_module_boot_stan_fit4lasso_MA_ml_noint_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4lasso_MA_ml_noint_mod, 0},
     {"_rcpp_module_boot_stan_fit4lasso_MA_noint_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4lasso_MA_noint_mod, 0},
+    {"_rcpp_module_boot_stan_fit4lasso_prior_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4lasso_prior_mod, 0},
     {NULL, NULL, 0}
 };
 

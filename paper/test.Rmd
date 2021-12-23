@@ -1,0 +1,15 @@
+---
+title: "Untitled"
+author: "Caspar J. van Lissa"
+date: "12/22/2021"
+output: pdf_document
+---
+
+$$
+\begin{split}
+\beta_{j} &\sim \text{normal}(0, \tilde{\tau}_j^2\lambda) \text{, with } \tilde{\tau}_j^2 = \frac{c^2 \tau_j^2}{c^2 + \lambda^2 \tau_j^2}\\
+\lambda &\sim \text{half-t}(\nu_1, 0, \lambda^2_0)\\
+\tau_j &\sim \text{half-t}(\nu_2, 0, 1)\\
+c^2 &\sim \text{inverse-gamma}(\frac{\nu_3}{2}, \frac{\nu_3 s^2}{2})
+\end{split}
+$$
