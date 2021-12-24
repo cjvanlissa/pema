@@ -17,6 +17,8 @@ author:
     role:
       - Writing - Contributions and feedback
       - Programming back-end
+  - name: "Eli-Boaz Clapper"
+    affiliation: "1"
 affiliation:
   - id            : "1"
     institution   : "Utrecht University, dept. Methodology & Statistics"
@@ -354,6 +356,11 @@ In de volgende paragraaf over intercepts moet ook nog een referentie, over wel/n
 <!--     $\mathbf{b} = \mathbf{b}_z\mathbf{s}_x$ -->
 <!-- * Leg vervolgens uit dat mensen dummies misschien niet willen standaardizeren -->
 <!-- * Gebruikers kunnen de default standaardization overschrijven door een aantal van de variabelen handmatig te standaardizeren, en de vector met means en vector met SDs handmatig mee te geven via het argument `standardize = list(center = meanvec, scale = sdvec)`. Als ze een bepaalde variabele NIET willen standaardizeren moeten ze voor die variabele mean= 0 en sd= 1 meegeven. -->
+
+In Lasso regression it is often preferred to equalize the scales of the predictors (REF). This is because $\lambda$, the regularization parameter, constrains the absolute magnitude of the coefficients that are dependent on the scales of the predictors. This leads to Lasso unfairly penalizing large coefficients that do not necessarily reflect importance (REF).
+Equalizing scales is usually done by setting the mean of all predictors to 0 and their variance to 1, a procedure known as standardization. This procedure transforms all elements in a predictor vector to Z-scores as follows:
+$\boldsymbol{Z} = \frac{\boldsymbol{X} - \mu_\boldsymbol{X}}{\sigma_\boldsymbol{X}}$
+where $\boldsymbol{X}$ is the vector of the predictor, $\mu_\boldsymbol{X}$ is its mean and $\sigma_\boldsymbol{X}$ is its standard deviation.
   
 ### Intercepts
 
