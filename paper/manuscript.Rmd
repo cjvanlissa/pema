@@ -19,6 +19,9 @@ author:
       - Programming back-end
   - name: "Eli-Boaz Clapper"
     affiliation: "1"
+    role:
+      - Writing - Contributions and feedback
+      - Programming back-end
 affiliation:
   - id            : "1"
     institution   : "Utrecht University, dept. Methodology & Statistics"
@@ -62,7 +65,7 @@ abstract: |
 keywords          : "meta-analysis, machine learning, bayesian, lasso, horseshoe, regularized"
 wordcount         : "5356"
 
-bibliography      : ["r-references.bib", "references.bib", "sara-references.bib"]
+bibliography      : ["r-references.bib", "references.bib", "sara-references.bib", "eli-references.bib"]
 
 floatsintext      : no
 figurelist        : no
@@ -343,7 +346,6 @@ The study displayed also other advantages from random forests over singletrees. 
 ### Standardizing predictors
 
 <!-- Eli? -->
-<!-- Staclexchange: Lasso regression puts constraints on the size of the coefficients associated to each variable. However, this value will depend on the magnitude of each variable. It is therefore necessary to center and reduce, or standardize, the variables. -->
 <!-- * Eli, kan jij het algemene principe van standardization hier uitleggen, met een paar referenties?
 In de volgende paragraaf over intercepts moet ook nog een referentie, over wel/niet standaardizeren van dummies.-->
 <!-- * In BRMA werk het als volgt: -->
@@ -351,16 +353,41 @@ In de volgende paragraaf over intercepts moet ook nog een referentie, over wel/n
 <!--     + The penalized model (without an intercept) is estimated on the normalized data -->
 <!--     + The intercept is then restored to the original scale by applying  -->
 <!--     $b_0 = b_{0z} - \mathbf{b}_z\frac{\bar{\mathbf{x}}}{\mathbf{s}_x}$ -->
-<!--     Where b_0 is the intercept, b_0z is the intercept for the normalized predictors, b_z is the vector of regression coefficients for the normalized predictors, bar x is the vector of means of X, and s_x is the vector of standard deviations of x -->
+<!--     Where b_0 is the intercept, b_0z is the intercept for the normalized predictors, b_z is the vector of     regression coefficients for the normalized predictors, bar x is the vector of means of X, and s_x is the vector of standard deviations of x -->
 <!--     + The regression coefficients are restored to the original scale by applying  -->
 <!--     $\mathbf{b} = \mathbf{b}_z\mathbf{s}_x$ -->
 <!-- * Leg vervolgens uit dat mensen dummies misschien niet willen standaardizeren -->
 <!-- * Gebruikers kunnen de default standaardization overschrijven door een aantal van de variabelen handmatig te standaardizeren, en de vector met means en vector met SDs handmatig mee te geven via het argument `standardize = list(center = meanvec, scale = sdvec)`. Als ze een bepaalde variabele NIET willen standaardizeren moeten ze voor die variabele mean= 0 en sd= 1 meegeven. -->
 
-In Lasso regression it is often preferred to equalize the scales of the predictors (REF). This is because $\lambda$, the regularization parameter, constrains the absolute magnitude of the coefficients that are dependent on the scales of the predictors. This leads to Lasso unfairly penalizing large coefficients that do not necessarily reflect importance (REF).
-Equalizing scales is usually done by setting the mean of all predictors to 0 and their variance to 1, a procedure known as standardization. This procedure transforms all elements in a predictor vector to Z-scores as follows:
-$\boldsymbol{Z} = \frac{\boldsymbol{X} - \mu_\boldsymbol{X}}{\sigma_\boldsymbol{X}}$
-where $\boldsymbol{X}$ is the vector of the predictor, $\mu_\boldsymbol{X}$ is its mean and $\sigma_\boldsymbol{X}$ is its standard deviation.
+Lasso often requires the scales of the predictors to be equalized ([@tibshirani1996]). This is because $\lambda$, the regularization parameter, penalizes the absolute magnitude of the coefficients that are dependent on the scales of the predictors. This leads to the Lasso unfairly penalizing larger coefficients that do not necessarily reflect importance (REF). For example, in the case of 2 or more equally important predictors, the coefficient of the predictor with the largest scale will be shrunk most.
+
+To equalize predictor scales, an often-used technique is standardization. Standardization sets the mean of all predictors to 0 and their variance to 1. It does so by transforming all cases in the predictor space $\boldsymbol{X}$ to Z-scores as follows:
+$$
+\mathbf{Z_{i}} = \frac{\mathbf{X}_i- \bar{\mathbf{X}}}{\mathbf{s_X}}
+$$
+where $\mathbf{X}$ is the matrix of predictors, $\bar{\mathbf{X}}$ is a vector of predictor means and $\mathbf{s_X}$ is a vector of standard deviations of the predictors. In BRMA, the predictors are standardized by default, on which the model is estimated. The function returns the estimated parameters in their original scales. This is achieved for the intercept by applying:
+$$
+b_0 = b_{0Z} - \mathbf{b}_Z\frac{\bar{\mathbf{X}}}{\mathbf{s}_X} \\
+$$
+where $b_0$ is the intercept, $b_{0Z}$ is the intercept for the normalized predictors and $\mathbf{b_Z}$ is the vector of regression coefficients for the normalized predictors. The regression coefficients are returned in their original scale by applying:
+$$
+\mathbf{b_X} = \frac{\mathbf{b_Z}}{\mathbf{s_X}}
+$$
+
+In the case of binary/dummy predictors, 
+
+
+```{r}
+library(pema)
+?brma()
+X <- sample(0:1, 50, replace = T)
+scale(X)
+sd(X)
+Y <- rep(1, 50)
+sd(Y)
+
+```
+
   
 ### Intercepts
 
@@ -379,7 +406,7 @@ In other cases, there may not be a straightforward reference category.
 For example, imagine a study on the effectiveness of one intervention for specific phobia in two continents.
 In such cases, the average effect in both continents may be estimated by omitting the intercept, and including all $c$ dummy variables.
 This so-called *ANOVA specification* of a model estimates a mean for all dummy-coded categories.
-In BRMA, as in other R functions, one can use ANOVA specification by explicitly removing the intercept from the model formula; for example, if `yi` is the effect size and $C$ a categorical moderator, regression specification with $c-1$ dummies is specified as `yi ~ C`, and ANOVA specification with $c$ dummies is specified as `yi ~ -1 + C`.
+In BRMA, as in other R functions, one can use ANOVA specification by explicitly removing the intercept from the model formula; for example, if  `yi` is the effect size and $C$ a categorical moderator, regression specification with $c-1$ dummies is specified as `yi ~ C`, and ANOVA specification with $c$ dummies is specified as `yi ~ -1 + C`.
 The appropriate standardization of dummy variables in penalized regression analyses is a topic of ongoing debate.
 Suffice it to say that, for greater interpretability, users may want the freedom to leave dummy variables unstandardized.
 This is possible in `brma()` by ...
