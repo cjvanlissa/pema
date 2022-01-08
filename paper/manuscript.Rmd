@@ -359,36 +359,29 @@ In de volgende paragraaf over intercepts moet ook nog een referentie, over wel/n
 <!-- * Leg vervolgens uit dat mensen dummies misschien niet willen standaardizeren -->
 <!-- * Gebruikers kunnen de default standaardization overschrijven door een aantal van de variabelen handmatig te standaardizeren, en de vector met means en vector met SDs handmatig mee te geven via het argument `standardize = list(center = meanvec, scale = sdvec)`. Als ze een bepaalde variabele NIET willen standaardizeren moeten ze voor die variabele mean= 0 en sd= 1 meegeven. -->
 
-Lasso often requires the scales of the predictors to be equalized ([@tibshirani1996]). This is because $\lambda$, the regularization parameter, penalizes the absolute magnitude of the coefficients that are dependent on the scales of the predictors. This leads to the Lasso unfairly penalizing larger coefficients that do not necessarily reflect importance (REF). For example, in the case of 2 or more equally important predictors, the coefficient of the predictor with the largest scale will be shrunk most.
+Penalized regression analyses often require the scales of the predictors to be equalized ([@tibshirani1996; @lee2015note]). This is because $\lambda$, the regularization parameter, penalizes the magnitude of the coefficients that are dependent on the scales of the predictors. This leads to the unfair penalization of larger coefficients that do not necessarily reflect importance ([@zou2006adaptive]). For example, in the case of 2 or more equally important predictors, the coefficient of the predictor with the largest scale will be shrunk most.
 
-To equalize predictor scales, an often-used technique is standardization. Standardization sets the mean of all predictors to 0 and their variance to 1. It does so by transforming all cases in the predictor space $\boldsymbol{X}$ to Z-scores as follows:
+To equalize predictor scales, an often-used technique is standardization ([@gelman2008scaling]). Standardization sets the mean of all predictors to 0 and their variance to 1. It does so by transforming all observations in the predictor space $\boldsymbol{X}$ to Z-scores as follows:
+
 $$
-\mathbf{Z_{i}} = \frac{\mathbf{X}_i- \bar{\mathbf{X}}}{\mathbf{s_X}}
+\mathbf{Z} = \frac{\mathbf{X}- \bar{\mathbf{X}}}{\mathbf{s_X}}
 $$
-where $\mathbf{X}$ is the matrix of predictors, $\bar{\mathbf{X}}$ is a vector of predictor means and $\mathbf{s_X}$ is a vector of standard deviations of the predictors. In BRMA, the predictors are standardized by default, on which the model is estimated. The function returns the estimated parameters in their original scales. This is achieved for the intercept by applying:
+where $\mathbf{X}$ is the matrix of predictors, $\bar{\mathbf{X}}$ is a vector of predictor means and $\mathbf{s_X}$ is a vector of standard deviations of the predictors. `brma()` standardizes the predictors by default, on which the model is estimated. The function returns the estimated parameters back in their original scales. This is achieved for the intercept by applying:
+
 $$
 b_0 = b_{0Z} - \mathbf{b}_Z\frac{\bar{\mathbf{X}}}{\mathbf{s}_X} \\
 $$
 where $b_0$ is the intercept, $b_{0Z}$ is the intercept for the normalized predictors and $\mathbf{b_Z}$ is the vector of regression coefficients for the normalized predictors. The regression coefficients are returned in their original scale by applying:
+
 $$
 \mathbf{b_X} = \frac{\mathbf{b_Z}}{\mathbf{s_X}}
 $$
 
-In the case of binary/dummy predictors, 
+There is some debate regarding the standardization of binary/dummy predictors in penalized regression ([@lee2015note]). Some suggest to always standardize dummy variables ([@tibshirani1997lasso]). However, standardizing binary predictors increases the absolute maximum values the predictor can take on which in some cases can make it more sensitive to the penalty function ([@harrell2001regression]). 
+
+In any case, the default standardization option in `brma()` can be overwritten entirely by setting `standardize = False`. `brma()` also allows the user to standardize only some of the predictors. This is done by constructing a vector of means and a vector of standard deviations. These vectors contain the means and standard deviations of the predictors in their original scales, except for the predictors that **should not** be standardized. For the latter, a mean of 0 and a standard deviation of 1 must be passed. The predictors that need to be standardized should then be standardized manually. Finally, the mean and standard deviation vectors are passed to the `standardize` argument as follows: `standardize = list(center = MeanVector, scale = SdVector)`. 
 
 
-```{r}
-library(pema)
-?brma()
-X <- sample(0:1, 50, replace = T)
-scale(X)
-sd(X)
-Y <- rep(1, 50)
-sd(Y)
-
-```
-
-  
 ### Intercepts
 
 The standard linear model estimates an intercept, which reflects the expected value of the outcome when all predictors are equal to zero, and regression coefficients for the effect of moderators.
