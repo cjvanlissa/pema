@@ -361,12 +361,12 @@ In de volgende paragraaf over intercepts moet ook nog een referentie, over wel/n
 
 Penalized regression analyses often require the scales of the predictors to be equalized ([@tibshirani1996; @lee2015note]). This is because $\lambda$, the regularization parameter, penalizes the magnitude of the coefficients that are dependent on the scales of the predictors. This can lead to the unfair penalization of larger coefficients that do not necessarily reflect importance ([@zou2006adaptive]). To clarify, a regression parameter $\beta$ can be interpreted as the amount outcome $Y$ increases as predictor $X$ increases with 1 unit. This means that as $X$ is reduced by a factor of 10, its regression coefficient is increased by a factor of 10. So suppose the desire to predict running speed by a person`s height. If height is measured in kilometers, than a one unit increase in height, which is a one kilometer increase, will likely lead to a drastic increase in running speed. In penalized regression techniques, this high value for $\beta$ would then dominate the cost function, leaving coefficients of other predictors unregularized.
 
-To equalize predictor scales, an often-used technique is standardization ([@gelman2008scaling]). Standardization sets the mean of all predictors to 0 and their standard deviation to 1. It does so by transforming all observations in the predictor space $\boldsymbol{X}$ to Z-scores as follows:
+Thus, to equalize predictor scales, a widely used technique is standardization ([@gelman2008scaling]). Standardization sets the mean of all predictors to 0 and their standard deviation to 1. It does so by transforming all observations in the predictor space $\mathbf{X}$ to Z-scores as follows:
 
 $$
 \mathbf{Z} = \frac{\mathbf{X}- \bar{\mathbf{X}}}{\mathbf{s_X}}
 $$
-where $\mathbf{X}$ is the matrix of predictors, $\bar{\mathbf{X}}$ is a vector of predictor means and $\mathbf{s_X}$ is a vector of standard deviations of the predictors. `brma()` standardizes the predictors by default, on which the model is estimated. The function returns the estimated parameters back in their original scales. This is achieved for the intercept by applying:
+where $\bar{\mathbf{X}}$ is a vector of predictor means and $\mathbf{s_X}$ is a vector of standard deviations of the predictors. `brma()` standardizes the predictors by default, on which the model is estimated. The function returns the estimated parameters back in their original scales. This is achieved for the intercept by applying:
 
 $$
 b_0 = b_{0Z} - \mathbf{b}_Z\frac{\bar{\mathbf{X}}}{\mathbf{s}_X} \\
