@@ -359,19 +359,19 @@ In de volgende paragraaf over intercepts moet ook nog een referentie, over wel/n
 <!-- * Leg vervolgens uit dat mensen dummies misschien niet willen standaardizeren -->
 <!-- * Gebruikers kunnen de default standaardization overschrijven door een aantal van de variabelen handmatig te standaardizeren, en de vector met means en vector met SDs handmatig mee te geven via het argument `standardize = list(center = meanvec, scale = sdvec)`. Als ze een bepaalde variabele NIET willen standaardizeren moeten ze voor die variabele mean= 0 en sd= 1 meegeven. -->
 
-Penalized regression analyses often require the scales of the predictors to be equalized ([@tibshirani1996; @lee2015note]). This is because $\lambda$, the regularization parameter, penalizes the magnitude of the coefficients that are dependent on the scales of the predictors. This can lead to the unfair penalization of larger coefficients that do not necessarily reflect importance ([@zou2006adaptive]). To clarify, a regression parameter $\beta$ can be interpreted as the amount outcome $Y$ increases as predictor $X$ increases with 1 unit. This means that as $X$ is reduced by a factor of 10, its regression coefficient is increased by a factor of 10. So suppose the desire to predict running speed by a person`s height. If height is measured in kilometers, than a one unit increase in height, which is a one kilometer increase, will likely lead to a drastic increase in running speed. In penalized regression techniques, this high value for $\beta$ would then dominate the cost function, leaving coefficients of other predictors unregularized.
+Penalized regression analyses often require the scales of the predictors to be equalized ([@tibshirani1996; @lee2015note]). This is because $\lambda$, the regularization parameter, penalizes the magnitude of the coefficients that are dependent on the scales of the predictors. This can lead to the unfair penalization of larger coefficients that do not necessarily reflect importance ([@zou2006adaptive]). To clarify, a regression parameter $\beta$ can be interpreted as the amount outcome $\mathbf{Y}$ increases as predictor $\mathbf{X}$ increases with 1 unit. This means that as $\mathbf{X}$ is reduced by a factor of 10, its regression coefficient is increased by a factor of 10. So suppose the desire to predict running speed by a person`s height. If height is measured in kilometers, than a one unit increase in height, which is a one kilometer increase, will likely lead to a drastic increase in running speed. In penalized regression techniques, this high value for $\beta$ would then dominate the penalty function, leaving coefficients of other predictors unregularized.
 
-Thus, to equalize predictor scales, a widely used technique is standardization ([@gelman2008scaling]). Standardization sets the mean of all predictors to 0 and their standard deviation to 1. It does so by transforming all observations in the predictor space $\mathbf{X}$ to Z-scores as follows:
+Thus, to equalize predictor scales, a widely used technique is standardization ([@gelman2008scaling]). Standardization sets the mean of all predictors to 0 and their standard deviation to 1. It does so by Z-transforming all predictors as follows:
 
 $$
 \mathbf{Z} = \frac{\mathbf{X}- \bar{\mathbf{X}}}{\mathbf{s_X}}
 $$
-where $\bar{\mathbf{X}}$ is a vector of predictor means and $\mathbf{s_X}$ is a vector of standard deviations of the predictors. `brma()` standardizes the predictors by default, on which the model is estimated. The function returns the estimated parameters back in their original scales. This is achieved for the intercept by applying:
+where $\bar{\mathbf{X}}$ is a vector of predictor means and $\mathbf{s_X}$ is a vector of standard deviations of the predictors. `brma()` standardizes the predictors by default on which the model is estimated. The function returns the estimated parameters back in their original scales. This is achieved for the intercept by applying:
 
 $$
 b_0 = b_{0Z} - \mathbf{b}_Z\frac{\bar{\mathbf{X}}}{\mathbf{s}_X} \\
 $$
-where $b_0$ is the intercept, $b_{0Z}$ is the intercept for the normalized predictors and $\mathbf{b_Z}$ is the vector of regression coefficients for the normalized predictors. The regression coefficients are returned in their original scale by applying:
+where $b_0$ is the intercept, $b_{0Z}$ is the intercept for the standardized predictors and $\mathbf{b_Z}$ is the vector of regression coefficients for the standardized predictors. The regression coefficients are returned in their original scale by applying:
 
 $$
 \mathbf{b_X} = \frac{\mathbf{b_Z}}{\mathbf{s_X}}
