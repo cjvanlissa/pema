@@ -11,7 +11,7 @@ author:
     role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
       - Conceptualization
       - Writing - Original Draft Preparation
-      - Programming front-end
+      - Programming front- and back-end
   - name: "Sara van Erp"
     affiliation: "1"
     role:
@@ -21,7 +21,7 @@ author:
     affiliation: "1"
     role:
       - Writing - Contributions and feedback
-      - Programming back-end
+      - Preliminary analyses
 affiliation:
   - id            : "1"
     institution   : "Utrecht University, dept. Methodology & Statistics"
@@ -359,34 +359,58 @@ In de volgende paragraaf over intercepts moet ook nog een referentie, over wel/n
 <!-- * Leg vervolgens uit dat mensen dummies misschien niet willen standaardizeren -->
 <!-- * Gebruikers kunnen de default standaardization overschrijven door een aantal van de variabelen handmatig te standaardizeren, en de vector met means en vector met SDs handmatig mee te geven via het argument `standardize = list(center = meanvec, scale = sdvec)`. Als ze een bepaalde variabele NIET willen standaardizeren moeten ze voor die variabele mean= 0 en sd= 1 meegeven. -->
 
-Penalized regression analyses often require the scales of the predictors to be equalized ([@tibshirani1996]). This is because $\lambda$, the regularization parameter, penalizes the magnitude of the coefficients that are dependent on the scales of the predictors. This can lead to the unfair penalization of larger coefficients that do not necessarily reflect importance ([@lee2015note]). To clarify, a regression parameter $\beta$ can be interpreted as the amount outcome $\mathbf{Y}$ increases as predictor $\mathbf{X}$ increases with 1 unit. This means that as $\mathbf{X}$ is reduced by a factor of 10, its regression coefficient is increased by a factor of 10. So suppose the desire to predict running speed by a person`s height. If height is measured in kilometers, than a one unit increase in height, which is a one kilometer increase, will likely lead to a drastic increase in running speed. In penalized regression techniques, this high value for $\beta$ would then dominate the penalty function, leaving coefficients of other predictors unregularized.
-
-To equalize predictor scales, a widely used technique is standardization ([@gelman2008scaling]). Standardization sets the mean of all predictors to 0 and their standard deviation to 1. It does so by Z-transforming all predictors as follows:
+Penalized regression analyses typically require the scales of predictors to be equivalent ([@tibshirani1996]).
+This is because the regularization penalizes coefficients without regard for their scale.
+If variable scales differ, this can lead to an imbalanced penalization of coefficients that does not reflect differences in variable importance ([@lee2015note]).
+To clarify, a regression parameter $\beta$ can be interpreted as the expected increase in outcome $\mathbf{Y}$ for a one unit increase in predictor $\mathbf{X}$.
+If the scale of predictor $\mathbf{X}$ is increased by a factor 10, its regression coefficient is reduced by a factor 10.
+Standardization is a widely used method for equalizing predictor scales ([@gelman2008scaling]).
+It sets the mean of all predictors to 0 and their standard deviation to 1 by Z-transforming all predictors as follows:
 
 $$
 \mathbf{Z} = \frac{\mathbf{X}- \bar{\mathbf{X}}}{\mathbf{s_X}}
 $$
-where $\bar{\mathbf{X}}$ is a vector of predictor means and $\mathbf{s_X}$ is a vector of standard deviations of the predictors. `brma()` standardizes the predictors by default on which the model is estimated. The function returns the estimated parameters back to their original scales. This is achieved for the intercept by applying:
+where $\bar{\mathbf{X}}$ is a vector of predictor means and $\mathbf{s_X}$ is a vector of standard deviations of the predictors.
+By default, `brma()` standardizes the predictors on which the model is estimated.
+The function returns the estimated parameters back to their original scales.
+This is achieved for the intercept by applying:
 
 $$
 b_0 = b_{0Z} - \mathbf{b}_Z\frac{\bar{\mathbf{X}}}{\mathbf{s}_X} \\
 $$
-where $b_0$ is the intercept, $b_{0Z}$ is the intercept for the standardized predictors and $\mathbf{b_Z}$ is the vector of regression coefficients for the standardized predictors. The regression coefficients are returned to their original scale by applying:
+where $b_0$ is the intercept, $b_{0Z}$ is the intercept for the standardized predictors and $\mathbf{b_Z}$ is the vector of regression coefficients for the standardized predictors.
+The regression coefficients are returned to their original scale by applying:
 
 $$
 \mathbf{b_X} = \frac{\mathbf{b_Z}}{\mathbf{s_X}}
 $$
 
-It is not always necessary or desirable to standardize predictors, however. The most straightforward instance is when predictors are already standardized or on the same scale for different reasons. In these cases standardization does not make scales more equal, nor the penalization more fair. 
+It is not always necessary or desirable to standardize predictors, however.
+For example, if predictors are already standardized or on a unified scale for different reasons.
+In these cases standardization does not make scales more equal, nor the penalization more fair, and the default standardization in `brma()` can be disabled.
+<!--Alternatively, if the goal of a study is to compare results to prior findings based on unstandardized predictors, standardization would make penalization unequal across studies.-->
 
-Also, if the desire is to directly compare current research outcomes with prior research outcomes that did not standardize predictors, standardization in the current research would make penalization unequal across studies.
+There are additional considerations regarding standardization of binary and dummy predictors ([@alkharusi2012categorical]).
+Some suggest to always standardize binary predictors ([@tibshirani1997lasso]).
+This makes that, irrespective of initial scaling, the binary predictor will be on the same scale as the continuous standardized predictors ([@gelman2008scaling]).
+However, standardizing binary predictors may decrease model interpretability ([@wissmann2007role]).
+To illustrate this point, consider bivariate regression with a single binary predictor $X$ that takes on values 0 and 1 predicting outcome $Y$.
+The intercept represents the expected value of $Y$ when $X == 0$, and the regression coefficient represents the difference in the expected value of $Y$ between the two conditions ([@alkharusi2012categorical]).
+By standardizing this binary predictor, the reference value is no longer zero, and both the intercept and its regression coefficient have no clear interpretation anymore, especially in multivariate cases ([@wissmann2007role]). 
 
-Finally, standardization should be thought over when dealing with binary/dummy predictors ([@alkharusi2012categorical]). Some suggest to always standardize binary predictors ([@tibshirani1997lasso]). This makes that, irrespective of initial scaling, the binary predictor will be on the same scale as the continuous standardized predictors ([@gelman2008scaling]). However, standardizing binary predictors may decrease model interpretability ([@wissmann2007role]). Consider a regression problem including only a binary predictor $X$ that takes on values 0 and 1 predicting outcome $Y$. The intercept represents $\mathbb{E}(Y | X = 0)$ and the regression coefficient represents $\mathbb{E}(Y | X = 1)$, or the difference in means on $Y$ between conditions ([@alkharusi2012categorical]). By standardizing binary predictors, they lose 0 as a value to take on and both the intercept and its regression coefficient have no clear interpretation anymore, especially in multivariate cases ([@wissmann2007role]). 
+Multiple coding schemes for categorical predictors exist that are equivalent in OLS regression.
+In penalized regression, however, the choice of coding might affect model fit and interpretation ([@chiquet2016coding; @detmer2020note]).<!--ELI: weet je dit zeker? Ik heb nu gezegd "might" affect model fit and interpretation, omdat ik het niet zeker weet. Kan jij checken en als het inderdaad zo is, hier "does affect" van maken? -->
+In `brma()`, the default is to use dummy coding for categorical predictors and standardize the dummies.
+Users may specify alternative solutions, keeping in mind the aforementions considerations. 
 
-Also note that there are multiple coding schemes for categorical predictors in penalized regression, but that the coding choice can affect model accuracy and interpretation ([@chiquet2016coding; @detmer2020note]). The standard option is to dummy code categorical predictors and standardize the dummies afterwards, dependent on considerations mentioned above. 
-
-For all cases where standardization is undesired, the default standardization option in `brma()` can be overwritten entirely by setting `standardize = False`. `brma()` also allows the user to standardize only some of the predictors. This is done by constructing a vector of means and a vector of standard deviations of the predictors in their original scales, except for the predictors that **should not** be standardized. For the latter, a mean of 0 and a standard deviation of 1 must be passed. The predictors that need to be standardized should then be standardized manually. Finally, the mean and standard deviation vectors are passed to the `standardize` argument as follows: `standardize = list(center = MeanVector, scale = SdVector)`. 
-
+There are two ways to circumvent the default standardization in `brma()`.
+The first is to disable standardization entirely, analyzing predictors in their original scale,
+by setting `standardize = FALSE`.
+Alternatively, `brma()` allows custom standardization.
+To use this option, first manually standardize (some of) the predictors.
+Then, when calling `brma()`, pass a vector of means and a vector of standard deviations to restore the coefficients to the predictors' original scale.
+This can be accomplished using the argument `standardize = list(center = meanvector, scale = sdvector)`.
+For predictors that **should not** be standardized, a mean of 0 and a standard deviation of 1 must be passed; this will leave the coefficient in question unaffected.
 
 ### Intercepts
 
@@ -405,7 +429,7 @@ In other cases, there may not be a straightforward reference category.
 For example, imagine a study on the effectiveness of one intervention for specific phobia in two continents.
 In such cases, the average effect in both continents may be estimated by omitting the intercept, and including all $c$ dummy variables.
 This so-called *ANOVA specification* of a model estimates a mean for all dummy-coded categories.
-In BRMA, as in other R functions, one can use ANOVA specification by explicitly removing the intercept from the model formula; for example, if  `yi` is the effect size and $C$ a categorical moderator, regression specification with $c-1$ dummies is specified as `yi ~ C`, and ANOVA specification with $c$ dummies is specified as `yi ~ -1 + C`.
+In BRMA, as in other R functions, one can use ANOVA specification by explicitly removing the intercept from the model formula; for example, if `yi` is the effect size and $C$ a categorical moderator, regression specification with $c-1$ dummies is specified as `yi ~ C`, and ANOVA specification with $c$ dummies is specified as `yi ~ -1 + C`.
 The appropriate standardization of dummy variables in penalized regression analyses is a topic of ongoing debate.
 Suffice it to say that, for greater interpretability, users may want the freedom to leave dummy variables unstandardized.
 This is possible in `brma()` by ...
