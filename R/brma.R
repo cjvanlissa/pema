@@ -196,7 +196,7 @@ brma.formula <-
     X <- model.matrix(mt, mf)
     if(all(X[,1] == 1)){
       intercept <- TRUE
-      X <- X[, -1]
+      X <- X[, -1, drop = FALSE]
     } else {
       intercept <- FALSE
     }
@@ -251,6 +251,7 @@ brma.default <-
     }
     # Check validity of prior
     method <- "invalid"
+    if(is.null(ncol(X))) stop("Object 'X' must be a matrix.")
     if(all(c("df", "df_global", "df_slab", "scale_slab") %in% names(prior))){
       if("par_ratio" %in% names(prior)){
         message("Prior element 'par_ratio' is deprecated and will be ignored. Use 'relevant_pars' instead.")
