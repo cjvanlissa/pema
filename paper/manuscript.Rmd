@@ -399,9 +399,10 @@ The intercept represents the expected value of $Y$ when $X == 0$, and the regres
 By standardizing this binary predictor, the reference value is no longer zero, and both the intercept and its regression coefficient have no clear interpretation anymore, especially in multivariate cases ([@wissmann2007role]). 
 
 Multiple coding schemes for categorical predictors exist that are equivalent in OLS regression.
-In penalized regression, however, the choice of coding might affect model fit and interpretation ([@chiquet2016coding; @detmer2020note]).<!--ELI: weet je dit zeker? Ik heb nu gezegd "might" affect model fit and interpretation, omdat ik het niet zeker weet. Kan jij checken en als het inderdaad zo is, hier "does affect" van maken? -->
+In penalized regression, however, the choice of coding does affect model fit and interpretation ([@chiquet2016coding; @detmer2020note]). Although this paper does not cover such considerations, a more elaborate discussion on how coding schemes affect model accuracy and interpretability in penalized regression can be found in @chiquet2016coding and @detmer2020note.
+
 In `brma()`, the default is to use dummy coding for categorical predictors and standardize the dummies.
-Users may specify alternative solutions, keeping in mind the aforementions considerations. 
+Users may specify alternative solutions, keeping in mind the aforementioned considerations. 
 
 There are two ways to circumvent the default standardization in `brma()`.
 The first is to disable standardization entirely, analyzing predictors in their original scale,
