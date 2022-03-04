@@ -11,12 +11,17 @@ author:
     role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
       - Conceptualization
       - Writing - Original Draft Preparation
-      - Programming front-end
+      - Programming front- and back-end
   - name: "Sara van Erp"
     affiliation: "1"
     role:
       - Writing - Contributions and feedback
       - Programming back-end
+  - name: "Eli-Boaz Clapper"
+    affiliation: "1"
+    role:
+      - Writing - Contributions and feedback
+      - Preliminary analyses
 affiliation:
   - id            : "1"
     institution   : "Utrecht University, dept. Methodology & Statistics"
@@ -60,7 +65,7 @@ abstract: |
 keywords          : "meta-analysis, machine learning, bayesian, lasso, horseshoe, regularized"
 wordcount         : "5356"
 
-bibliography      : ["r-references.bib", "references.bib", "sara-references.bib"]
+bibliography      : ["r-references.bib", "references.bib", "sara-references.bib", "eli-references.bib"]
 
 floatsintext      : no
 figurelist        : no
@@ -341,7 +346,6 @@ The study displayed also other advantages from random forests over singletrees. 
 ### Standardizing predictors
 
 <!-- Eli? -->
-<!-- Staclexchange: Lasso regression puts constraints on the size of the coefficients associated to each variable. However, this value will depend on the magnitude of each variable. It is therefore necessary to center and reduce, or standardize, the variables. -->
 <!-- * Eli, kan jij het algemene principe van standardization hier uitleggen, met een paar referenties?
 In de volgende paragraaf over intercepts moet ook nog een referentie, over wel/niet standaardizeren van dummies.-->
 <!-- * In BRMA werk het als volgt: -->
@@ -349,12 +353,66 @@ In de volgende paragraaf over intercepts moet ook nog een referentie, over wel/n
 <!--     + The penalized model (without an intercept) is estimated on the normalized data -->
 <!--     + The intercept is then restored to the original scale by applying  -->
 <!--     $b_0 = b_{0z} - \mathbf{b}_z\frac{\bar{\mathbf{x}}}{\mathbf{s}_x}$ -->
-<!--     Where b_0 is the intercept, b_0z is the intercept for the normalized predictors, b_z is the vector of regression coefficients for the normalized predictors, bar x is the vector of means of X, and s_x is the vector of standard deviations of x -->
+<!--     Where b_0 is the intercept, b_0z is the intercept for the normalized predictors, b_z is the vector of     regression coefficients for the normalized predictors, bar x is the vector of means of X, and s_x is the vector of standard deviations of x -->
 <!--     + The regression coefficients are restored to the original scale by applying  -->
 <!--     $\mathbf{b} = \mathbf{b}_z\mathbf{s}_x$ -->
 <!-- * Leg vervolgens uit dat mensen dummies misschien niet willen standaardizeren -->
 <!-- * Gebruikers kunnen de default standaardization overschrijven door een aantal van de variabelen handmatig te standaardizeren, en de vector met means en vector met SDs handmatig mee te geven via het argument `standardize = list(center = meanvec, scale = sdvec)`. Als ze een bepaalde variabele NIET willen standaardizeren moeten ze voor die variabele mean= 0 en sd= 1 meegeven. -->
-  
+
+Penalized regression analyses typically require the scales of predictors to be equivalent ([@tibshirani1996]).
+This is because the regularization penalizes coefficients without regard for their scale.
+If variable scales differ, this can lead to an imbalanced penalization of coefficients that does not reflect differences in variable importance ([@lee2015note]).
+To clarify, a regression parameter $\beta$ can be interpreted as the expected increase in outcome $\mathbf{Y}$ for a one unit increase in predictor $\mathbf{X}$.
+If the scale of predictor $\mathbf{X}$ is increased by a factor 10, its regression coefficient is reduced by a factor 10.
+Standardization is a widely used method for equalizing predictor scales ([@gelman2008scaling]).
+It sets the mean of all predictors to 0 and their standard deviation to 1 by Z-transforming all predictors as follows:
+
+$$
+\mathbf{Z} = \frac{\mathbf{X}- \bar{\mathbf{X}}}{\mathbf{s_X}}
+$$
+where $\bar{\mathbf{X}}$ is a vector of predictor means and $\mathbf{s_X}$ is a vector of standard deviations of the predictors.
+By default, `brma()` standardizes the predictors on which the model is estimated.
+The function returns the estimated parameters back to their original scales.
+This is achieved for the intercept by applying:
+
+$$
+b_0 = b_{0Z} - \mathbf{b}_Z\frac{\bar{\mathbf{X}}}{\mathbf{s}_X} \\
+$$
+where $b_0$ is the intercept, $b_{0Z}$ is the intercept for the standardized predictors and $\mathbf{b_Z}$ is the vector of regression coefficients for the standardized predictors.
+The regression coefficients are returned to their original scale by applying:
+
+$$
+\mathbf{b_X} = \frac{\mathbf{b_Z}}{\mathbf{s_X}}
+$$
+
+It is not always necessary or desirable to standardize predictors, however.
+For example, if predictors are already standardized or on a unified scale for different reasons.
+In these cases standardization does not make scales more equal, nor the penalization more fair, and the default standardization in `brma()` can be disabled.
+<!--Alternatively, if the goal of a study is to compare results to prior findings based on unstandardized predictors, standardization would make penalization unequal across studies.-->
+
+There are additional considerations regarding standardization of binary and dummy predictors ([@alkharusi2012categorical]).
+Some suggest to always standardize binary predictors ([@tibshirani1997lasso]).
+This makes that, irrespective of initial scaling, the binary predictor will be on the same scale as the continuous standardized predictors ([@gelman2008scaling]).
+However, standardizing binary predictors may decrease model interpretability ([@wissmann2007role]).
+To illustrate this point, consider bivariate regression with a single binary predictor $X$ that takes on values 0 and 1 predicting outcome $Y$.
+The intercept represents the expected value of $Y$ when $X == 0$, and the regression coefficient represents the difference in the expected value of $Y$ between the two conditions ([@alkharusi2012categorical]).
+By standardizing this binary predictor, the reference value is no longer zero, and both the intercept and its regression coefficient have no clear interpretation anymore, especially in multivariate cases ([@wissmann2007role]). 
+
+Multiple coding schemes for categorical predictors exist that are equivalent in OLS regression.
+In penalized regression, however, the choice of coding does affect model fit and interpretation ([@chiquet2016coding; @detmer2020note]). Although this paper does not cover such considerations, a more elaborate discussion on how coding schemes affect model accuracy and interpretability in penalized regression can be found in @chiquet2016coding and @detmer2020note.
+
+In `brma()`, the default is to use dummy coding for categorical predictors and standardize the dummies.
+Users may specify alternative solutions, keeping in mind the aforementioned considerations. 
+
+There are two ways to circumvent the default standardization in `brma()`.
+The first is to disable standardization entirely, analyzing predictors in their original scale,
+by setting `standardize = FALSE`.
+Alternatively, `brma()` allows custom standardization.
+To use this option, first manually standardize (some of) the predictors.
+Then, when calling `brma()`, pass a vector of means and a vector of standard deviations to restore the coefficients to the predictors' original scale.
+This can be accomplished using the argument `standardize = list(center = meanvector, scale = sdvector)`.
+For predictors that **should not** be standardized, a mean of 0 and a standard deviation of 1 must be passed; this will leave the coefficient in question unaffected.
+
 ### Intercepts
 
 The standard linear model estimates an intercept, which reflects the expected value of the outcome when all predictors are equal to zero, and regression coefficients for the effect of moderators.
