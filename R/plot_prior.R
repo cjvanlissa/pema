@@ -1,6 +1,7 @@
-#' @title Plot Prior Distribution
-#' @description Plots the kernal density function of samples from a prior
-#' distribution with parameters defined in `prior`.
+#' @title Sample from the Prior Distribution
+#' @description Samples from a prior
+#' distribution with parameters defined in `prior`. The result can be plotted
+#' using the \code{\link{plot}} function.
 #' @param method Character string, indicating which prior to sample from.
 #' Default: first element of `c("hs", "lasso")`.
 #' @param prior Numeric vector, specifying the prior to use. See [pema::brma]
@@ -10,18 +11,27 @@
 #' @return NULL, function is called for its side-effect of plotting to the
 #' graphics device.
 #' @examples
-#' plot_prior("lasso", iter = 10)
-#' @rdname plot_prior
+#' sample_prior("lasso", iter = 10)
+#' @rdname sample_prior
 #' @importFrom rstan sampling
 #' @export
-plot_prior <- function(method = c("hs", "lasso"),
+sample_prior <- function(method = c("hs", "lasso"),
                        prior = switch(method,
                                       "lasso" = c(df = 1, scale = 1),
                                       "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
                        iter = 1000){
-  smpls <- suppressWarnings(sampling(object = stanmodels[[c("lasso_prior", "hs_prior")[(method[1] == "hs")+1]]], data = as.list(prior), chains = 1, iter = iter, warmup = 0, show_messages = FALSE, verbose = FALSE, refresh = 0))
-  plot(density(smpls@sim$samples[[1]]$b), main = c("Lasso prior", "Horseshoe prior")[(method == "hs")+1],
-       xlab = paste0("Samples: ", iter, ", ", paste0(names(prior), " = ", prior, collapse = ", ")),
+  out <- as.list(match.call()[-1])
+  out[["samples"]] <- suppressWarnings(sampling(object = stanmodels[[c("lasso_prior", "hs_prior")[(method[1] == "hs")+1]]], data = as.list(prior), chains = 1, iter = iter, warmup = 0, show_messages = FALSE, verbose = FALSE, refresh = 0))
+  if(is.null(out[["iter"]])) out[["iter"]] <- iter
+  class(out) <- c("brma_prior", class(out))
+  out
+}
+
+#' @method plot brma_prior
+#' @export
+plot.brma_prior <- function(x, y, ...){
+  plot(density(x$samples@sim$samples[[1]]$b), main = c("Lasso prior", "Horseshoe prior")[(x$method == "hs")+1],
+       xlab = paste0("Samples: ", x$iter, ", ", paste0(names(x$prior), " = ", x$prior, collapse = ", ")),
        xlim = c(-5, 5))
 }
 

@@ -453,9 +453,6 @@ To avoid this overhead, `pema` uses pre-compiled models corresponding to random-
 Future updates may bring additional models.
 At the time of writing, `brma()` supports two priors: the LASSO and the regularized horseshoe.
 The LASSO prior is implemented as follows:
-<!-- CJ: Sara, kan jij checken of La de juiste notatie is voor de Laplace prior? 
-SvE: ik heb er DE van gemaakt voor double exponential, aangezien dat de aanduiding is die ook in Stan en de Stan manual wordt gebruikt.
--->
 
 $$
 \beta_{j} \sim \text{DE}(0, \frac{s}{\lambda})
@@ -466,7 +463,6 @@ and the inverse-tuning parameter is given a $\chi^2$ prior with 1 degree of free
 Its value is thus optimized during model estimation.
 
 The implementation of the horseshoe prior is based on the regularized horseshoe proposed by @PiironenVehtari2017b:
-<!-- CJ: Sara, Kan jij checken wat de juiste notatie is voor "half-t"? -->
 
 $$
 \begin{aligned}
@@ -476,7 +472,8 @@ $$
 c^2 &\sim \Gamma^{-1}(\frac{\nu_3}{2}, \frac{\nu_3 s^2}{2})
 \end{aligned}
 $$
-where N denotes the normal distribution, student-$t^+$ denotes the half-t distribution and $\Gamma^{-1}$ denotes the inverse Gamma distribution. This extension of the horseshoe is more numerically stable in certain cases. <!-- CJ: Je spreekt hier over het argument par_ratio van de functie in Stan. Maar hier in de tekst verwacht ik uitleg over de formule. Zien we par_ratio terug in die formule?; SvE: ik heb dit hieronder nu extra uitgelegd -->
+where N denotes the normal distribution, student-$t^+$ denotes the half-t distribution and $\Gamma^{-1}$ denotes the inverse Gamma distribution. 
+This extension of the horseshoe is more numerically stable in certain cases.
 In this formula, $\lambda^2_0$ is a global scale parameter that affects the overall shrinkage of the prior, with smaller values resulting in more shrinkage. The default value in `brma()` is 1. However, if prior information regarding the number of relevant moderators is available, it is best to include this information by setting $\lambda^2_0 = \frac{p_0}{p-p_0}{\frac{\sigma}{\sqrt{n}}$, where $p_0$ represents the number of relevant moderators, $p$ the total number of moderators, $\sigma$ is the residual standard deviation and $n$ equals the number of observations. This can be done by setting the argument `relevant_pars` equal to the expected number of relevant moderators. 
 <!-- SvE: nu twijfel ik toch weer of dit helemaal goed gaat. sigma is in ons model namelijk op 0 gezet en wordt hier dus niet in meegenomen. Klopt het dat de residual SD 0 moet zijn in dit model? De rest van de global scale wordt berekend buiten het Stan model om in de brma functie zelf. -->
 The thickness of the tails is controlled by two degrees of freedom parameters, $\nu_1$ and $\nu_2$, which default to 1 in `brma()`.
@@ -485,7 +482,7 @@ which is strictly no longer a horseshoe prior.
 However, in cases where the model is weakly identified, for example when there are more moderators than observations, these lighter tails can aid model convergence. 
 The regularized horseshoe differs from the standard horseshoe in the specification of a finite "slab". This slab ensures at least some regularization of large coefficients and as a consequence,
 more stable results.
-This slab is governed by a degrees of freedom parameter ($\nu_3$, set to 4) and a scale parameter ($s$, set to 1). <!--Sara, eigenlijk is het niet helemaal duidelijk wat al deze nummers doen. Kunnen we een interactieve plot maken waarmee gebruikers kunnen zien hoe aanpassingen de vorm van de prior beinvloeden?; SvE: ik heb een prototype shiny app gemaakt.-->
+This slab is governed by a degrees of freedom parameter ($\nu_3$, set to 4) and a scale parameter ($s$, set to 1).
 
 Default settings for these hyperparameters in `brma()` were chosen such that the values are reasonable in most applications.
 However, in a Bayesian analysis it is good practice to perform a prior sensitivity analysis in which different hyperparameters are chosen and the model is rerun to see if this leads to different results. 
@@ -533,8 +530,8 @@ The model is estimated on the training data, which has a varying number of cases
 Predictive performance is then operationalized as the explained variance in the testing data, $R^2_{test}$.
 The testing data has 100 cases in all simulation conditions.
 The $R^2_{test}$ reflects the fraction of variance in the testing data explained by the model,
-relative to the variance explained by the mean of the training data.
-For a predictive performance measure, it is necessary to use the mean of the training data, as the mean of the testing set is a descriptive statistic of that sample. **ik vind deze zin niet heel duidelijk** <!-- SvE: dit was nog een eerdere comment van mij (toen ik nog niet wist hoe ik echt kon commenten binnen Rmarkdown :) ) -->
+relative to the mean.
+Note that the mean of the training data, not of the testing data, is used as a benchmark.
 The resulting metric $R_{test}^{2}$ is expressed by the following equation:
 
 $$
@@ -555,7 +552,7 @@ and the variance is given by the variance of this deviation.
 
 To examine performance in a range of realistic meta-analysis scenarios,
 several design factors were manipulated:
-The number of studies in the training data $k \in (20, 40, 100)$, the average within-study sample size $\bar{n} \in (40, 80, 160)$, the population effect size of relevant moderators $\beta \in (0, .2, .5, .8)$, the number of moderators $p \in (2, 3, 6)$, and residual heterogeneity $\tau^{2} \in (.01, .04, .1)$. **het aantal moderatoren is redelijk laag; ik zou vooral nog voordelen van brma verwachten met meer moderatoren maar is dat realistisch in de praktijk? Zo ja, dan is het iets om te noemen in de discussie** <!-- hier ook nog een eerdere comment. Mocht je een keer een toepassing tegenkomen met echt veel moderatoren, kan het interessant zijn hier nog een kleine simulatie op te baseren. Een voorbeeld kan zijn een set van moderatoren die de kwaliteit van studies proberen te vatten zoals we laatst hebben besproken -->
+The number of studies in the training data $k \in (20, 40, 100)$, the average within-study sample size $\bar{n} \in (40, 80, 160)$, the population effect size of relevant moderators $\beta \in (0, .2, .5, .8)$, the number of moderators $p \in (2, 3, 6)$, and residual heterogeneity $\tau^{2} \in (.01, .04, .1)$. <!-- **het aantal moderatoren is redelijk laag; ik zou vooral nog voordelen van brma verwachten met meer moderatoren maar is dat realistisch in de praktijk? Zo ja, dan is het iets om te noemen in de discussie** hier ook nog een eerdere comment. Mocht je een keer een toepassing tegenkomen met echt veel moderatoren, kan het interessant zijn hier nog een kleine simulatie op te baseren. Een voorbeeld kan zijn een set van moderatoren die de kwaliteit van studies proberen te vatten zoals we laatst hebben besproken -->
 According to a review of 705 published psychological meta-analyses (Van Erp et al., 2017),
 these values of $\tau^2$ fall within the range observed in practice.
 Note that both BRMA and RMA assume linear effects.
