@@ -6,6 +6,10 @@
 #' Default: first element of `c("hs", "lasso")`.
 #' @param prior Numeric vector, specifying the prior to use. See [pema::brma]
 #' for more details.
+#' @param nmod A positive integer specifying the total number of moderators.
+#' Required to include prior info via `relevant_pars`.
+#' @param N A positive integer specifying the sample size.
+#' Required to include prior info via `relevant_pars`.
 #' @param iter A positive integer specifying the number of iterations to sample.
 #' Default: 1000
 #' @return NULL, function is called for its side-effect of plotting to the
@@ -18,8 +22,25 @@
 sample_prior <- function(method = c("hs", "lasso"),
                        prior = switch(method,
                                       "lasso" = c(df = 1, scale = 1),
-                                      "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
+                                      "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1,
+                                               relevant_pars = NULL, nmod = NULL, N = NULL)),
                        iter = 1000){
+  # use prior info in global scale if available
+  if(all(c("df", "df_global", "df_slab", "scale_slab") %in% names(prior))){
+    if("par_ratio" %in% names(prior)){
+      message("Prior element 'par_ratio' is deprecated and will be ignored. Use 'relevant_pars' instead.")
+    }
+    if("relevant_pars" %in% names(prior)){ # use prior information if available
+      prior["scale_global"] <- prior["relevant_pars"]/((nmod - prior["relevant_pars"]) * sqrt(N)) # multiplication with sigma happens within stan model
+    }
+    prior <- prior[c("df", "df_global", "df_slab", "scale_global", "scale_slab")]
+    method <- "horseshoe_MA"
+  }
+  if(all(c("df", "scale") %in% names(prior))){
+    prior <- prior[c("df", "scale")]
+    method <- "lasso_MA"
+  }
+
   out <- as.list(match.call()[-1])
   out[["samples"]] <- suppressWarnings(sampling(object = stanmodels[[c("lasso_prior", "hs_prior")[(method[1] == "hs")+1]]], data = as.list(prior), chains = 1, iter = iter, warmup = 0, show_messages = FALSE, verbose = FALSE, refresh = 0))
   if(is.null(out[["iter"]])) out[["iter"]] <- iter
