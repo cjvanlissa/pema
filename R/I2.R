@@ -22,7 +22,7 @@ I2.brma <- function(x, ...){
 
   fit <- x$fit
   taus <- sapply(grep("^tau2", rownames(x$coefficients), value = TRUE), function(p){
-    pema:::.extract_samples(fit@sim, par = p)
+    .extract_samples(fit@sim, par = p)
   })
 
   W <- diag(1/x$vi)
@@ -35,6 +35,8 @@ I2.brma <- function(x, ...){
   I2(I2mat)
 }
 
+#' @method I2 default
+#' @export
 I2.default <- function(x, ...){
   cbind(
     mean = colMeans(x),

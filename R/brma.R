@@ -214,8 +214,8 @@ brma.formula <-
 
     cl[names(cl) %in% c("formula", "data", "method")] <- NULL
     cl[[1L]] <- quote(brma)
-    cl[["Y"]] <- Y
-    cl[["X"]] <- X
+    cl[["x"]] <- X
+    cl[["y"]] <- Y
     cl[["vi"]] <- vi
     cl[["prior"]] <- prior
     cl[["mute_stan"]] <- mute_stan
@@ -231,8 +231,8 @@ brma.formula <-
 #' @export
 #' @rdname brma
 brma.default <-
-  function(Y,
-           X,
+  function(x,
+           y,
            vi,
            study = NULL,
            prior,
@@ -241,6 +241,8 @@ brma.default <-
            intercept,
            #prior_only = FALSE,
            ...) {
+    X <- x
+    Y <- y
     dots <- list(...)
     outputdots <- match(c("formula", "vi_column", "study_column"), names(dots), nomatch = 0L)
     if(any(outputdots > 0)){
