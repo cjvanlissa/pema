@@ -16,6 +16,8 @@ I2 <- function(x, ...){
   UseMethod("I2", x)
 }
 
+#' @method I2 brma
+#' @export
 I2.brma <- function(x, ...){
 
   fit <- x$fit

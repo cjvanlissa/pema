@@ -1,5 +1,4 @@
 library(shiny)
-library(LaplacesDemon)
 library(ggplot2)
 
 ui <- fluidPage(
