@@ -28,6 +28,46 @@ as.stan.brma <- function(x, ...){
   for(thisatt in as_atts){
     attr(out, which = thisatt) <- x[[thisatt]]
   }
+
+  # Try to replace all betas with true parameter names
+  renm <- rownames(x$coefficients)
+  renm <- renm[!renm %in% c("Intercept", "tau2", "tau2_w", "tau2_b")]
+  names(renm) <- paste0("betas[", 1:x$fit@par_dims$betas, "]")
+
+  oldposition <- which(names(out@sim$samples[[1]]) %in% names(renm))
+  oldnames <- names(out@sim$samples[[1]])[oldposition]
+  newnames <- unname(renm[oldnames])
+
+  for(thischain in seq_along(out@sim$samples)){
+    names(out@sim$samples[[thischain]])[oldposition] <- newnames
+  }
+
+  isbetas <- which(out@sim$pars_oi == "betas")
+  out@sim$pars_oi <- append(out@sim$pars_oi, newnames, after = isbetas)
+  out@sim$pars_oi <- out@sim$pars_oi[-isbetas]
+
+  out@model_pars <- append(out@model_pars, newnames, after = isbetas)
+  out@model_pars <- out@model_pars[-isbetas]
+
+  out@sim$fnames_oi[oldposition] <- newnames
+
+  appendthis <- replicate(length(newnames), {vector(mode = "numeric")})
+  names(appendthis) <- newnames
+
+  out@sim$dims_oi <- append(out@sim$dims_oi, appendthis, after = isbetas)
+  out@sim$dims_oi <- out@sim$dims_oi[-isbetas]
+
+  out@par_dims <- append(out@par_dims, appendthis, after = isbetas)
+  out@par_dims <- out@par_dims[-isbetas]
+
+  for(thischain in seq_along(out@inits)){
+    appendthis <- as.list(out@inits[[thischain]][["betas"]])
+    names(appendthis) <- newnames
+    out@inits[[thischain]] <- append(out@inits[[thischain]], appendthis, after = isbetas)
+    out@inits[[thischain]][["betas"]] <- NULL
+  }
+
   attr(out, which = "type") <- "brma"
   return(out)
 }
+

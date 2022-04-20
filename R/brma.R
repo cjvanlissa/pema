@@ -227,6 +227,11 @@ brma.formula <-
     eval.parent(cl)
 }
 
+#' @param x An k x m numeric matrix, where k is the number of effect sizes and m
+#' is the number of moderators.
+#' @param y A numeric vector of k effect sizes.
+#' @param y Logical, indicating whether or not an intercept should be included
+#' in the model.
 #' @method brma default
 #' @export
 #' @rdname brma

@@ -22,8 +22,8 @@ brma(x, ...)
 )
 
 \method{brma}{default}(
-  Y,
-  X,
+  x,
+  y,
   vi,
   study = NULL,
   prior,
@@ -34,6 +34,9 @@ brma(x, ...)
 )
 }
 \arguments{
+\item{x}{An k x m numeric matrix, where k is the number of effect sizes and m
+is the number of moderators.}
+
 \item{...}{Additional arguments passed on to \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.
 Use this, e.g., to override default arguments of that function.}
 
@@ -74,6 +77,9 @@ different \code{method}s require this vector to contain specific named
 elements.}
 
 \item{mute_stan}{Logical, indicating whether mute all 'Stan' output or not.}
+
+\item{y}{Logical, indicating whether or not an intercept should be included
+in the model.}
 }
 \value{
 A \code{list} object of class \code{brma}, with the following structure:\preformatted{list(

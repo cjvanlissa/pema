@@ -81,6 +81,7 @@ output            : papaja::apa6_pdf
 ---
 
 ```{r setup, include = FALSE}
+run_everything = FALSE
 library("papaja")
 library(tidySEM)
 library(kableExtra)
@@ -782,46 +783,44 @@ apa_table(tabbeta, caption = "Effect size of design factors on bias in beta squa
 ```
 
 # Applied example
-In this application, we will work with the bonapersona data (@BonapersonaEtal2019) which is available in the `pema` package.In this study, over 400 rodent experiments where meta-analysed to investigate the effects of early life adversity on cognitive performance. The study includes over 30 potential moderators. Here, we select a small random subset of moderators to illustrate the regularized horseshoe prior. We focus specifically on how to choose the different hyperparameters of the regularized horseshoe prior.
 
-<!-- Caspar: misschien is het handig om de data binnen het package aan te passen zodat de eerste stappen hieronder niet nodig zijn? Wil je daarnaast de code voor de toepassing ook nog in een apart bestand of wil je de snippets laten zien binnen het paper?
--->
+In this application, we will work with the `pema::bonapersona` data [@BonapersonaEtal2019].
+This meta-analysis of over 400 experiments investigated the effects of early life adversity on cognitive performance in rodents.
+This example uses a small subset of the more than 30 moderators.
+<!-- We focus specifically on how to choose the different hyperparameters of the regularized horseshoe prior. -->
 
 ```{r exdata, eval = TRUE}
-# Load the relevant packages
+# Set random seed
+set.seed(1)
+# Load relevant packages
 library(pema)
-library(fastDummies)
+library(tidySEM)
+library(ggplot2)
 library(bayesplot)
 
-#  Data prep
-summary(bonapersona)
-bonapersona$yi <- as.numeric(bonapersona$yi)
-bonapersona$vi <- as.numeric(bonapersona$vi)
-bonapersona$bias <- as.numeric(bonapersona$bias)
-
-# Use a small random subset of moderators
-datsel <- bonapersona %>% 
-  select(yi, vi, mTimeLength, year, model, ageWeek) 
-
-# First recode categorical moderators
-catmod <- c("model")
-datdum <- dummy_cols(datsel, 
-                     select_columns = catmod,
-                     remove_first_dummy = TRUE,
-                     remove_selected_columns = TRUE) 
+# Select data to analyze
+df <- bonapersona[ , c("yi", "vi", "mTimeLength", "year", "model", "ageWeek")] 
+# Impute missings
+df$ageWeek[is.na(df$ageWeek)] <- median(df$ageWeek, na.rm = TRUE)
 ```
 
 ## Visualizing the prior
-In any Bayesian analysis, it is a good idea to visualize the prior. One way to do so is through the shiny app that is implemented in the `pema` package. This app can be launched with the following command: `shiny_prior()` and provides the user the opportunity to plot draws from the prior distribution given specific values for the hyperparameters. It can be seen that increasing `scale_global` or `hs_scale_slab` will lead to a prior that is more spread out and will therefore pull coefficients less heavily towards zero. The degrees of freedom parameters influence the heaviness of the tails with higher values leading to thinner tails. Generally, it is not needed to adapt these hyperparameters and so we will only consider the default values.
 
-A second way to gain insight into the prior distribution is by plotting the implied prior on the effective number of nonzero coefficients given specific hyperparameters. One advantage of the regularized horseshoe prior is its ability to include prior information on the number of nonzero coefficients. This can be done by setting the `relevant_pars` argument to the expected number of relevant moderators, which will determine the `scale_global` hyperparameter setting. If no prior information is given via the `relevant_pars` argument, the `scale_global` is fixed to 1. 
-In this application, we have a total of 7 possible moderators, including the dummy variables for the categorical moderator "model". We can visualize the implied prior on the number of nonzero coefficients for different values of `relevant_pars`: p0 = 1; p0 = 3; p0 = 6; or p0 = NA, in which case no prior information is given and `scale_global`= 1.
+Our simulation study shows good performance with default hyperparameters.
+However, experienced users may want to customize the prior.
+Visualizing the prior can be helpful in this process.
+This is accomplished using the interactive application visualization application available through `shiny_prior()`.
+The user can plot the prior distributions resulting from different sets of hyperparameters and compare them.
+Increasing the values of the scale parameters (`scale_global` and `hs_scale_slab`) results in a more spread out prior, which applies less regularization.
+Increasing the degrees of freedom (`df_global` and `df_slab`) results in thinner tails, which applies more regularization.
+<!-- One advantage of the regularized horseshoe prior is its ability to define the prior in terms of the expected number of nonzero coefficients, using the argument `relevant_pars`. -->
+<!-- This argument in turn influences the other hyperparameters. -->
+<!-- We can also plot the implied prior on the effective number of nonzero coefficients given specific hyperparameters. -->
+<!-- In this application, we have a total of 7 possible moderators, including the dummy variables for the categorical moderator "model". We can visualize the implied prior on the number of nonzero coefficients for different values of `relevant_pars`: p0 = 1; p0 = 3; p0 = 6; or p0 = NA, in which case no prior information is given and `scale_global`= 1. -->
 
-<!-- Caspar: zou het mogelijk zijn om dit nog als functie in te bouwen in het package? Het benodigde stan model staat nu bij de andere stan modellen.
--->
-
-```{r exprior, eval = TRUE}
-mod <- stan_model("./prior_meff.stan")
+```{r exprior, eval = FALSE, include = FALSE}
+mod <- stan_model("../inst/stan/prior_meff.stan")
+datdum <- data.frame(model.matrix(~., df)[, -1])
 meff_prior_fun <- function(priorinfo = TRUE, p0){
   D <- ncol(datdum) - 2
   n <-  nrow(datdum)
@@ -864,91 +863,127 @@ ggplot(df, aes(x=draws)) +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank())
 ```
+<!-- It is clear that the implied prior on the number of nonzero coefficients follows the prior information it has been given, with more mass on a small number of relevant moderators if that is expected a priori (p0 = 1) and more mass on a larger number of relevant moderators if that is expected a priori (p0 = 6). Interestingly, when no prior information is provided (p0 = NA), the default `global_scale` setting of 1 implies a relatively large number of nonzero coefficients, which is important to keep in mind when using this default setting. -->
 
-It is clear that the implied prior on the number of nonzero coefficients follows the prior information it has been given, with more mass on a small number of relevant moderators if that is expected a priori (p0 = 1) and more mass on a larger number of relevant moderators if that is expected a priori (p0 = 6). Interestingly, when no prior information is provided (p0 = NA), the default `global_scale` setting of 1 implies a relatively large number of nonzero coefficients, which is important to keep in mind when using this default setting.
+In this example, we will estimate the model using default settings, which includes a horseshoe prior with default hyperparameters.
+To see the default values, open the function documentation using `?brma`.
 
-## Regularized meta-analysis with the horseshoe prior
-Next, we run the model using the default hyperparameter settings.
+```{r exmodel1, echo = TRUE, eval = FALSE}
+fit_hs1 <- brma(yi ~ ., data = df, vi = "vi")
+```
+```{r, echo = FALSE, eval = run_everything}
+fit_hs1 <- brma(yi ~ ., data = df, vi = "vi")
+saveRDS(fit_hs1, "fit_hs1.RData")
+```
+```{r, echo = FALSE, eval = TRUE}
+fit_hs1 <- readRDS("fit_hs1.RData")
+```
 
-<!-- Caspar: in de originele toepassing met 26 moderatoren kreeg ik een foutmelding als ik probeerde te standaardizeren via de brma functie zelf, maar nu doet ie het wel. Misschien iets om nog even naar te kijken hoe dat precies komt?
--->
 
-```{r exmodel1, eval = TRUE}
-fit.hs1 <- brma(yi ~ .,
-                data = datdum,
+Note the warning message about divergent transitions, which may indicate problems with model convergence.
+This warning is generated by `Stan`, the computational back-end of `brma()`.
+Divergent transitions can result in biased estimates. 
+However, if the number of divergences is small and there are no further indications of non-convergence,
+the posterior distribution is often good enough to safely interpret the results.
+In some cases, this problem may be resolved by increasing the values for the degrees of freedom parameters.
+Note that increasing both `df_global` and `df_slab` to 5 results in fewer divergences,
+but does not otherwise influence the substantive interpretation of the results:
+
+```{r exmodel2, eval = FALSE, echo = TRUE}
+fit_hs2 <- brma(yi ~ .,
+                data = df,
                 vi = "vi",
-                method = "hs",
-                standardize = TRUE,
-                prior = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = NULL),
-                mute_stan = FALSE)
+                prior = c(df = 5, df_global = 5, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = NULL))
 ```
-
-### Convergence
-By setting `mute_stan = FALSE` we can see how far the sampling procedure is and we obtain all messages from Stan, the computational back-end of `brma()`. This is important to assess convergence of the sampler to the posterior distribution. Various numeric and visual diagnostics exist to assess convergence. If any serious convergence issues occur, Stan will provide warning messages. One warning message often seen with the horseshoe prior is that of divergent transitions after warmup. Divergent transitions can result in biased estimates, but if the number of divergences is small and the other convergence diagnostics do not indicate any issues, the posterior distribution is often good enough to safely interpret the results. In some cases, the number of divergences can be reduced by increasing the values for the degrees of freedom parameters. 
-
-In this case, the default settings result in 111 divergent transitions. Increasing both `df_global` and `df_slab` to 5 results in slightly less divergences but does not have any substantial influence on the results.
-
-```{r exmodel2, eval = TRUE}
-fit.hs2 <- brma(yi ~ .,
-                data = datdum,
+```{r, echo = FALSE, eval = run_everything}
+fit_hs2 <- brma(yi ~ .,
+                data = df,
                 vi = "vi",
-                method = "hs",
-                standardize = TRUE,
-                prior = c(df = 5, df_global = 5, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = NULL),
-                mute_stan = FALSE)
+                prior = c(df = 5, df_global = 5, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = NULL))
+saveRDS(fit_hs2, "fit_hs2.RData")
+```
+```{r, echo = FALSE, eval = TRUE}
+fit_hs2 <- readRDS("fit_hs2.RData")
 ```
 
-Traceplots can be created for each parameter to visualize the MCMC draws, for example using the `bayesplot` package. Ideally, these traceplots look like 'fat caterpillars' with the different MCMC chains mixing together. Note that there are many auxiliary parameters used for the regularized horseshoe prior. No information on these parameters is returned in the `brma` fitobject, however, once the fitobject is transformed into a Stan object for plotting, these parameters are included.
+In general, it is prudent to assess model convergence.
+Various numeric and visual diagnostics exist, for example, in the R-package `rstan`.
+These functions can be used by converting a `brma` object to a `stanfit` object, using the function `pema::as.stan()`:
 
-```{r extrace, eval = TRUE}
-fit <- as.stan(fit.hs1)
-posterior <- as.array(fit)
-pars <- dimnames(posterior)$parameters
-parsel <- c("Intercept", pars[grep("betas", pars)], "tau2")
-mcmc_trace(posterior, pars = parsel)
+```{r}
+fit_stan <- as.stan(fit_hs1)
+check_hmc_diagnostics(fit_stan)
 ```
 
-Additionally, convergence can be checked manually by asking for the summary of the fitobject:
+Additionally, traceplots can be created for each parameter to visualize the MCMC draws using the `bayesplot` R-package.
+The traceplots of a converged model look like "fat caterpillars", with the different MCMC chains mixing together: 
+<!-- Note that there are many auxiliary parameters used for the regularized horseshoe prior. No information on these parameters is returned in the `brma` fitobject, however, once the fitobject is transformed into a Stan object for plotting, these parameters are included. -->
+
+```{r extrace, eval = FALSE, echo = TRUE}
+mcmc_trace(fit_stan, pars = c("Intercept", "year"))
+```
+```{r, eval = run_everything, echo = FALSE}
+p <- mcmc_trace(fit_stan, pars = c("Intercept", "year"))
+ggsave("traceplot.png", p, device = "png", width = 4, height = 3, dpi = 300, scale = 1.5)
+```
+```{r, eval = TRUE, echo = FALSE}
+knitr::include_graphics("traceplot.png")
+```
+
+Convergence can also be checked by examining for the summary of the model object.
+The column `Rhat` provides information on the split $\hat{R}$, a version of the potential scale reduction factor (PSRF; @GelmanRubin1992).
+Values close to 1 indicate convergence.
+In addition, the column `n_eff` provides information on the number of effective (independent) MCMC samples, which should be high relative to the total number of samples (in this case, 4000):
 
 ```{r exsumm, eval = TRUE}
-summary(fit.hs1)
+summary(fit_hs1)
 ```
+All `Rhat` values are close to 1, indicating convergence.
+The effective number of MCMC samples is relatively small compared to the total number of MCMC samples.
+An often used heuristic is to consider ratios smaller than 0.1 as problematic.
+Even though this is not the case here, consider increasing the number of MCMC iterations.
+<!-- These diagnostics can be easily visualized using the `bayesplot` package: -->
 
-The column `Rhat` provides information on the split $\hat{R}$, a version of the potential scale reduction factor (PSRF; @GelmanRubin1992). `Rhat` values close to 1 indicate convergence. In addition, the column `n_eff` provides information on the number of effective MCMC samples, which should be high relative to the total number of samples. These diagnostics can be easily visualized using the `bayesplot` package.
-
-```{r exrhat, eval = TRUE}
+```{r exrhat, eval = FALSE, echo = FALSE}
 rhats <- rhat(fit)
 mcmc_rhat(rhats[names(rhats) %in% parsel])
 ```
 
-```{r exeffn, eval = TRUE}
+```{r exeffn, eval = FALSE, echo = FALSE}
 ratios_neff <- neff_ratio(fit)
 mcmc_neff(ratios_neff[names(ratios_neff) %in% parsel])
 ```
 
-All `Rhat` values are close to 0, indicating convergence. The ratios of effective number of MCMC samples to total number of MCMC samples are on the low side. An often used heuristic is to consider ratios smaller than 0.1 as problematic. Even though this is not the case here, it might still be a good idea to increase the number of MCMC iterations.
+<!-- ### Results -->
 
-### Results
-We can request the results using the `summary()` function, which provides the posterior mean estimate for the effect of each moderator. Since Bayesian penalization does not automatically shrink estimates exactly to zero, some additional criterion is needed to determine which moderators should be selected in the model. Currently, this is done using the 95% credible intervals, with a moderator being selected if zero is excluded in this interval. In the `summary` this is denoted by an asterisk for that moderator. In this model, there are no moderators for which the 95% CI excludes 0. The results can also be visualized.
+The `summary()` function also provides summary statistics for the model parameters.
+For each parameter, the posterior mean, standard deviation, and quantiles are reported by default (the 50% quantile is the median).
+To perform inference, consider using the posterior median and 95% credible interval (2.5% - 97.5%).
+Since Bayesian penalization does not automatically shrink estimates exactly to zero,
+we retained moderators when the 95% credible interval excluded zero in the simulation study.
+The `summary()` flags such parameters with an asterisk.
+If the model is converted using `as.stan()`, the results can also be visualized using standard `rstan` functions.
+In this example, we conclude that there are no moderators for which the 95% CI excludes zero.
 
-```{r exres, eval = TRUE}
-summary(fit.hs1)
-
-# plot
-df <- as.data.frame(summary(fit.hs1)[[1]])
-df$par <- rownames(df)
-plotdat <- filter(df, !par %in% c("Intercept", "tau2"))
-ggplot(plotdat, aes(x = mean, y = par)) +
-  geom_point() +
-  geom_errorbar(aes(xmin = `2.5%`, xmax = `97.5%`), width = 0.1) +
-  theme_bw() + xlab("Posterior mean") + ylab("")
+```{r exres, eval = FALSE}
+plot(fit_stan, pars = rownames(coef(fit_hs1))[2:8])
+```
+```{r, eval = run_everything, echo = FALSE}
+p <- plot(fit_stan, pars = rownames(coef(fit_hs1))[2:8])
+ggsave("plot_es.png", p, device = "png", width = 4, height = 3, dpi = 300, scale = 1.5)
+```
+```{r, eval = TRUE, echo = FALSE}
+knitr::include_graphics("plot_es.png")
 ```
 
-## Prior sensitivity
-Finally, we run the model with different prior hyperparameters to assess the sensitivity of the results to the chosen values of the hyperparameters. Specifically, we focus on different settings for the expected number of relevant moderators `relevant_pars`. 
+<!-- ## Prior sensitivity -->
 
-```{r expriorsens, eval = TRUE}
-fit.hs3 <- brma(yi ~ .,
+<!-- To assess the sensitivity of the results to the chosen values of the hyperparameters, -->
+<!-- one can run the model with a different prior. -->
+<!-- In this example, we vary the expected number of relevant moderators `relevant_pars`.  -->
+
+```{r expriorsens, eval = FALSE, echo = FALSE}
+fit_hs3 <- brma(yi ~ .,
                 data = datdum,
                 vi = "vi",
                 method = "hs",
@@ -956,7 +991,7 @@ fit.hs3 <- brma(yi ~ .,
                 prior = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = 1),
                 mute_stan = FALSE)
 
-fit.hs4 <- brma(yi ~ .,
+fit_hs4 <- brma(yi ~ .,
                 data = datdum,
                 vi = "vi",
                 method = "hs",
@@ -964,7 +999,7 @@ fit.hs4 <- brma(yi ~ .,
                 prior = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = 3),
                 mute_stan = FALSE)
 
-fit.hs5 <- brma(yi ~ .,
+fit_hs5 <- brma(yi ~ .,
                 data = datdum,
                 vi = "vi",
                 method = "hs",
@@ -980,10 +1015,10 @@ df.fun <- function(fit, prior){
   return(plotdat)
 }
 
-df1 <- df.fun(fit.hs1, prior = "hs default")
-df3 <- df.fun(fit.hs3, prior = "hs with p0 = 1")
-df4 <- df.fun(fit.hs4, prior = "hs with p0 = 3")
-df5 <- df.fun(fit.hs5, prior = "hs with p0 = 6")
+df1 <- df.fun(fit_hs1, prior = "hs default")
+df3 <- df.fun(fit_hs3, prior = "hs with p0 = 1")
+df4 <- df.fun(fit_hs4, prior = "hs with p0 = 3")
+df5 <- df.fun(fit_hs5, prior = "hs with p0 = 6")
 
 df <- rbind.data.frame(df1, df3, df4, df5)
 df$par <- as.factor(df$par)
@@ -997,8 +1032,8 @@ ggplot(plotdat, aes(x=mean, y=par, group = Prior)) +
   theme_bw() + xlab("Posterior mean") + ylab("")
 ```
 
-When running the models with prior information regarding the number of relevant moderators, it becomes clear that there are convergence issues. The number of divergent transitions is very high and the maximum treedepth is often exceeded. For the model with `relevant_pars` = 1, these convergence issues are also reflected in high `rhat` values.
-When comparing the results, it is clear that the horseshoe specifications that include prior information shrink coefficients more towards zero compared to the default setting. This is a consequence of the fact that these settings imply more prior mass on smaller numbers of relevant moderators, as was shown previously. However, in this situation, this high shrinkage results in convergence issues so these results should not be fully trusted but are only shown for the purpose of illustration. In our experience, the default prior settings are suitable for most applications, but conducting a prior sensitivity analysis as well as prior visualizations before running the analysis can help users to better understand the prior and its influence on the results.
+<!-- When running the models with prior information regarding the number of relevant moderators, it becomes clear that there are convergence issues. The number of divergent transitions is very high and the maximum treedepth is often exceeded. For the model with `relevant_pars` = 1, these convergence issues are also reflected in high `rhat` values. -->
+<!-- When comparing the results, it is clear that the horseshoe specifications that include prior information shrink coefficients more towards zero compared to the default setting. This is a consequence of the fact that these settings imply more prior mass on smaller numbers of relevant moderators, as was shown previously. However, in this situation, this high shrinkage results in convergence issues so these results should not be fully trusted but are only shown for the purpose of illustration. In our experience, the default prior settings are suitable for most applications, but conducting a prior sensitivity analysis as well as prior visualizations before running the analysis can help users to better understand the prior and its influence on the results. -->
 
 # Discussion
 
