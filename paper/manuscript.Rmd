@@ -781,9 +781,229 @@ tabbeta <- tabbeta[, c(ncol(tabbeta), 2:(ncol(tabbeta)-1))]
 apa_table(tabbeta, caption = "Effect size of design factors on bias in beta squared for the different algorithms, and of the difference between algorithms.", digits = 2, escape = FALSE, col.names = gsub("(?<!vs)\\.", " ", names(tabbeta), perl = TRUE))
 ```
 
+# Applied example
+In this application, we will work with the bonapersona data (@BonapersonaEtal2019) which is available in the `pema` package.In this study, over 400 rodent experiments where meta-analysed to investigate the effects of early life adversity on cognitive performance. The study includes over 30 potential moderators. Here, we select a small random subset of moderators to illustrate the regularized horseshoe prior. We focus specifically on how to choose the different hyperparameters of the regularized horseshoe prior.
+
+<!-- Caspar: misschien is het handig om de data binnen het package aan te passen zodat de eerste stappen hieronder niet nodig zijn? Wil je daarnaast de code voor de toepassing ook nog in een apart bestand of wil je de snippets laten zien binnen het paper?
+-->
+
+```{r exdata, eval = TRUE}
+# Load the relevant packages
+library(pema)
+library(fastDummies)
+library(bayesplot)
+
+#  Data prep
+summary(bonapersona)
+bonapersona$yi <- as.numeric(bonapersona$yi)
+bonapersona$vi <- as.numeric(bonapersona$vi)
+bonapersona$bias <- as.numeric(bonapersona$bias)
+
+# Use a small random subset of moderators
+datsel <- bonapersona %>% 
+  select(yi, vi, mTimeLength, year, model, ageWeek) 
+
+# First recode categorical moderators
+catmod <- c("model")
+datdum <- dummy_cols(datsel, 
+                     select_columns = catmod,
+                     remove_first_dummy = TRUE,
+                     remove_selected_columns = TRUE) 
+```
+
+## Visualizing the prior
+In any Bayesian analysis, it is a good idea to visualize the prior. One way to do so is through the shiny app that is implemented in the `pema` package. This app can be launched with the following command: `shiny_prior()` and provides the user the opportunity to plot draws from the prior distribution given specific values for the hyperparameters. It can be seen that increasing `scale_global` or `hs_scale_slab` will lead to a prior that is more spread out and will therefore pull coefficients less heavily towards zero. The degrees of freedom parameters influence the heaviness of the tails with higher values leading to thinner tails. Generally, it is not needed to adapt these hyperparameters and so we will only consider the default values.
+
+A second way to gain insight into the prior distribution is by plotting the implied prior on the effective number of nonzero coefficients given specific hyperparameters. One advantage of the regularized horseshoe prior is its ability to include prior information on the number of nonzero coefficients. This can be done by setting the `relevant_pars` argument to the expected number of relevant moderators, which will determine the `scale_global` hyperparameter setting. If no prior information is given via the `relevant_pars` argument, the `scale_global` is fixed to 1. 
+In this application, we have a total of 7 possible moderators, including the dummy variables for the categorical moderator "model". We can visualize the implied prior on the number of nonzero coefficients for different values of `relevant_pars`: p0 = 1; p0 = 3; p0 = 6; or p0 = NA, in which case no prior information is given and `scale_global`= 1.
+
+<!-- Caspar: zou het mogelijk zijn om dit nog als functie in te bouwen in het package? Het benodigde stan model staat nu bij de andere stan modellen.
+-->
+
+```{r exprior, eval = TRUE}
+mod <- stan_model("./prior_meff.stan")
+meff_prior_fun <- function(priorinfo = TRUE, p0){
+  D <- ncol(datdum) - 2
+  n <-  nrow(datdum)
+  sigma <- 1
+  
+  vars <- apply(datdum, 2, var)[-c(1:2)]
+  
+  if(priorinfo == TRUE){
+    tausq0 <-  p0/(D-p0)*(sigma/sqrt(n))
+  } else if(priorinfo == FALSE){
+    p0 <- NA
+    tausq0 <- 1
+  }
+  
+  dat <- list(tausq0 = tausq0,
+              D = D,
+              n = n,
+              sigma = sigma, # fixed to 1 in the current implementation; alternative would be to scale to tau
+              s2 = vars)
+  fit <- sampling(mod, data = dat, iter = 4000)
+  draws <- as.matrix(fit)
+  df <- cbind.data.frame("p0" = paste0("p0 = ", p0),
+                         "draws" = draws[, "meff"])
+  return(df)
+}
+
+df1 <- meff_prior_fun(priorinfo = FALSE)
+df2 <- meff_prior_fun(priorinfo = TRUE, p0 = 1)
+df3 <- meff_prior_fun(priorinfo = TRUE, p0 = 3)
+df4 <- meff_prior_fun(priorinfo = TRUE, p0 = 6)
+df <- rbind.data.frame(df1, df2, df3, df4)
+
+# plot
+ggplot(df, aes(x=draws)) + 
+  geom_histogram() +
+  facet_wrap(~p0) +
+ theme_bw() + 
+  xlab("Effective number of nonzero coefficients") + 
+  ylab("") +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+```
+
+It is clear that the implied prior on the number of nonzero coefficients follows the prior information it has been given, with more mass on a small number of relevant moderators if that is expected a priori (p0 = 1) and more mass on a larger number of relevant moderators if that is expected a priori (p0 = 6). Interestingly, when no prior information is provided (p0 = NA), the default `global_scale` setting of 1 implies a relatively large number of nonzero coefficients, which is important to keep in mind when using this default setting.
+
+## Regularized meta-analysis with the horseshoe prior
+Next, we run the model using the default hyperparameter settings.
+
+<!-- Caspar: in de originele toepassing met 26 moderatoren kreeg ik een foutmelding als ik probeerde te standaardizeren via de brma functie zelf, maar nu doet ie het wel. Misschien iets om nog even naar te kijken hoe dat precies komt?
+-->
+
+```{r exmodel1, eval = TRUE}
+fit.hs1 <- brma(yi ~ .,
+                data = datdum,
+                vi = "vi",
+                method = "hs",
+                standardize = TRUE,
+                prior = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = NULL),
+                mute_stan = FALSE)
+```
+
+### Convergence
+By setting `mute_stan = FALSE` we can see how far the sampling procedure is and we obtain all messages from Stan, the computational back-end of `brma()`. This is important to assess convergence of the sampler to the posterior distribution. Various numeric and visual diagnostics exist to assess convergence. If any serious convergence issues occur, Stan will provide warning messages. One warning message often seen with the horseshoe prior is that of divergent transitions after warmup. Divergent transitions can result in biased estimates, but if the number of divergences is small and the other convergence diagnostics do not indicate any issues, the posterior distribution is often good enough to safely interpret the results. In some cases, the number of divergences can be reduced by increasing the values for the degrees of freedom parameters. 
+
+In this case, the default settings result in 111 divergent transitions. Increasing both `df_global` and `df_slab` to 5 results in slightly less divergences but does not have any substantial influence on the results.
+
+```{r exmodel2, eval = TRUE}
+fit.hs2 <- brma(yi ~ .,
+                data = datdum,
+                vi = "vi",
+                method = "hs",
+                standardize = TRUE,
+                prior = c(df = 5, df_global = 5, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = NULL),
+                mute_stan = FALSE)
+```
+
+Traceplots can be created for each parameter to visualize the MCMC draws, for example using the `bayesplot` package. Ideally, these traceplots look like 'fat caterpillars' with the different MCMC chains mixing together. Note that there are many auxiliary parameters used for the regularized horseshoe prior. No information on these parameters is returned in the `brma` fitobject, however, once the fitobject is transformed into a Stan object for plotting, these parameters are included.
+
+```{r extrace, eval = TRUE}
+fit <- as.stan(fit.hs1)
+posterior <- as.array(fit)
+pars <- dimnames(posterior)$parameters
+parsel <- c("Intercept", pars[grep("betas", pars)], "tau2")
+mcmc_trace(posterior, pars = parsel)
+```
+
+Additionally, convergence can be checked manually by asking for the summary of the fitobject:
+
+```{r exsumm, eval = TRUE}
+summary(fit.hs1)
+```
+
+The column `Rhat` provides information on the split $\hat{R}$, a version of the potential scale reduction factor (PSRF; @GelmanRubin1992). `Rhat` values close to 1 indicate convergence. In addition, the column `n_eff` provides information on the number of effective MCMC samples, which should be high relative to the total number of samples. These diagnostics can be easily visualized using the `bayesplot` package.
+
+```{r exrhat, eval = TRUE}
+rhats <- rhat(fit)
+mcmc_rhat(rhats[names(rhats) %in% parsel])
+```
+
+```{r exeffn, eval = TRUE}
+ratios_neff <- neff_ratio(fit)
+mcmc_neff(ratios_neff[names(ratios_neff) %in% parsel])
+```
+
+All `Rhat` values are close to 0, indicating convergence. The ratios of effective number of MCMC samples to total number of MCMC samples are on the low side. An often used heuristic is to consider ratios smaller than 0.1 as problematic. Even though this is not the case here, it might still be a good idea to increase the number of MCMC iterations.
+
+### Results
+We can request the results using the `summary()` function, which provides the posterior mean estimate for the effect of each moderator. Since Bayesian penalization does not automatically shrink estimates exactly to zero, some additional criterion is needed to determine which moderators should be selected in the model. Currently, this is done using the 95% credible intervals, with a moderator being selected if zero is excluded in this interval. In the `summary` this is denoted by an asterisk for that moderator. In this model, there are no moderators for which the 95% CI excludes 0. The results can also be visualized.
+
+```{r exres, eval = TRUE}
+summary(fit.hs1)
+
+# plot
+df <- as.data.frame(summary(fit.hs1)[[1]])
+df$par <- rownames(df)
+plotdat <- filter(df, !par %in% c("Intercept", "tau2"))
+ggplot(plotdat, aes(x = mean, y = par)) +
+  geom_point() +
+  geom_errorbar(aes(xmin = `2.5%`, xmax = `97.5%`), width = 0.1) +
+  theme_bw() + xlab("Posterior mean") + ylab("")
+```
+
+## Prior sensitivity
+Finally, we run the model with different prior hyperparameters to assess the sensitivity of the results to the chosen values of the hyperparameters. Specifically, we focus on different settings for the expected number of relevant moderators `relevant_pars`. 
+
+```{r expriorsens, eval = TRUE}
+fit.hs3 <- brma(yi ~ .,
+                data = datdum,
+                vi = "vi",
+                method = "hs",
+                standardize = FALSE,
+                prior = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = 1),
+                mute_stan = FALSE)
+
+fit.hs4 <- brma(yi ~ .,
+                data = datdum,
+                vi = "vi",
+                method = "hs",
+                standardize = FALSE,
+                prior = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = 3),
+                mute_stan = FALSE)
+
+fit.hs5 <- brma(yi ~ .,
+                data = datdum,
+                vi = "vi",
+                method = "hs",
+                standardize = FALSE,
+                prior = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = 6),
+                mute_stan = FALSE)
+
+# plot
+df.fun <- function(fit, prior){
+  plotdat <- data.frame(fit$coefficients)
+  plotdat$par <- rownames(plotdat)
+  plotdat$Prior <- prior
+  return(plotdat)
+}
+
+df1 <- df.fun(fit.hs1, prior = "hs default")
+df3 <- df.fun(fit.hs3, prior = "hs with p0 = 1")
+df4 <- df.fun(fit.hs4, prior = "hs with p0 = 3")
+df5 <- df.fun(fit.hs5, prior = "hs with p0 = 6")
+
+df <- rbind.data.frame(df1, df3, df4, df5)
+df$par <- as.factor(df$par)
+plotdat <- filter(df, !par %in% c("Intercept", "tau2"))
+
+pd <- 0.5
+
+ggplot(plotdat, aes(x=mean, y=par, group = Prior)) + 
+  geom_errorbar(aes(xmin=X2.5., xmax=X97.5., colour = Prior), width=.1, position = position_dodge(width = pd)) +
+  geom_point(aes(colour = Prior), position = position_dodge(width = pd)) +
+  theme_bw() + xlab("Posterior mean") + ylab("")
+```
+
+When running the models with prior information regarding the number of relevant moderators, it becomes clear that there are convergence issues. The number of divergent transitions is very high and the maximum treedepth is often exceeded. For the model with `relevant_pars` = 1, these convergence issues are also reflected in high `rhat` values.
+When comparing the results, it is clear that the horseshoe specifications that include prior information shrink coefficients more towards zero compared to the default setting. This is a consequence of the fact that these settings imply more prior mass on smaller numbers of relevant moderators, as was shown previously. However, in this situation, this high shrinkage results in convergence issues so these results should not be fully trusted but are only shown for the purpose of illustration. In our experience, the default prior settings are suitable for most applications, but conducting a prior sensitivity analysis as well as prior visualizations before running the analysis can help users to better understand the prior and its influence on the results.
+
 # Discussion
 
-This simulation study validated the performance of two versions of the new BRMA algorithm, relative to state-of-the-art meta-regression (RMA).
+This study presented a novel algorithm to select relevant moderators that can explain heterogeneity in meta-analyses, using Bayesian shrinkage priors. 
+The simulation study validated the performance of two versions of the new BRMA algorithm, relative to state-of-the-art meta-regression (RMA).
 Our analyses examined the algorithms' predictive performance, which is a measure of generalizability,
 their ability to perform variable selection,
 and their ability to recover population parameters.
@@ -843,13 +1063,16 @@ One limitation is that, by necessity, computational resources and journal space 
 To facilitate further exploration and follow-up research,
 we have made all simulation data and analysis code for the present study available online.
 This code also enables researchers to conduct Monte Carlo power analyses for applied research.
-Another limitation is that the present study did not examine the effect of multicollinear predictors.
+
+A second limitation is that the present study did not examine the effect of multicollinear predictors.
 Regularizing estimators typically have an advantage over OLS regression in the presence of multicollinearity;
 future research ought to examine whether this also applies to BRMA.
 
-A final limitation is that the present study did not examine the effect of dependent data (e.g., multiple effect sizes per study).
+A third limitation is that the present study did not examine the effect of dependent data (e.g., multiple effect sizes per study).
 In principle, the BRMA algorithm can accommodate dependent data by means of three-level multilevel analysis.
 To our knowledge, there are no theoretical reasons to expect that dependent data would result in a different pattern of findings than we found for independent data, but future research is required to ascertain this.
+
+A final limitation of the current implementation is that it relies on 95% credible intervals to select relevant moderators. However, these marginal credible intervals can behave differently compared to the joint credible intervals ([@PiironenEtal2017]). A future direction of research is therefore to implement more advanced selection procedures, such as projection predictive variable selection ([@PiironenVehtari2017a]).
 
 Another direction for future research is the specification of different priors, aside from the horseshoe and LASSO priors that were examined in this study.
 To facilitate such research, we provide a generalized BRMA function which is not compiled, and can be fully customized with user-specified priors.
@@ -859,7 +1082,6 @@ Compiling the function thus requires some technological sophistication and is mo
 Alghough the use of Bayesian estimation has several advantages, one major downside is that Bayesian models are not directly comparable with frequentist models.
 Another disadvantage is that Bayesian estimation is typically more computationally expensive than frequentist estimation.
 One future direction of research is thus to develop a frequentist estimator for regularized meta-regression.
-Additionally, the current implementation relies on 95% credible intervals to select relevant moderators. However, these marginal credible intervals can behave differently compared to the joint credible intervals ([@PiironenEtal2017]). A second future direction of research is therefore to implement more advanced selection procedures, such as projection predictive variable selection ([@PiironenVehtari2017a]).
 
 ## Recommendations for applied research
 
@@ -907,7 +1129,7 @@ The null hypothesis is rejected if such intervals exclude zero.
 As both types of intervals performed identically in the present study,
 we suggest using credible intervals, which are computationally less expensive.
 
-Finally, with regards to publication, we highly recommend sharing the data and
+Finally, with regard to publication, we highly recommend sharing the data and
 syntax for the meta-analysis publicly; for example, by making the entire paper reproducible using the Workflow for Reproducible Code in Science (WORCS; REF).
 Transparency allows readers and reviewers to verify that methods were correctly applied, and try alternative analyses.
 Particularly when using a new method like BRMA, this transparency is likely to inspire confidence in the results.
@@ -930,12 +1152,12 @@ For example, if a dataset is small, or the number of moderators is high relative
 RMA models may prove to be empirically under-identified.
 This can be indicated by convergence problems.
 In such cases, Bayesian estimation may converge on a solution where frequentist estimation does not [@kohliFittingLinearLinearPiecewise2015].
-Similarly, BRMA may perform better in the presence of multicolinearity among predictors,
+Similarly, BRMA may perform better in the presence of multicollinearity among predictors,
 which can be examined using the function `vif()` in the R-package `metafor`.
 Values exceeding 5 are cause for concern.
-Multicolinearity increases the variance of regression coefficients.
+Multicollinearity increases the variance of regression coefficients.
 BRMA may have an advantage here, because the regularizing priors restrict variance.
-If multicolinearity is observed, researchers might thus prefer BRMA over RMA.
+If multicollinearity is observed, researchers might thus prefer BRMA over RMA.
 
 # Conclusion
 
