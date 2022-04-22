@@ -476,7 +476,7 @@ $$
 where N denotes the normal distribution, student-$t^+$ denotes the half-t distribution and $\Gamma^{-1}$ denotes the inverse Gamma distribution. 
 This extension of the horseshoe is more numerically stable in certain cases.
 In this formula, $\lambda^2_0$ is a global scale parameter that affects the overall shrinkage of the prior, with smaller values resulting in more shrinkage. The default value in `brma()` is 1. However, if prior information regarding the number of relevant moderators is available, it is best to include this information by setting $\lambda^2_0 = \frac{p_0}{p-p_0}{\frac{\sigma}{\sqrt{n}}$, where $p_0$ represents the number of relevant moderators, $p$ the total number of moderators, $\sigma$ is the residual standard deviation and $n$ equals the number of observations. This can be done by setting the argument `relevant_pars` equal to the expected number of relevant moderators. 
-<!-- SvE: nu twijfel ik toch weer of dit helemaal goed gaat. sigma is in ons model namelijk op 0 gezet en wordt hier dus niet in meegenomen. Klopt het dat de residual SD 0 moet zijn in dit model? De rest van de global scale wordt berekend buiten het Stan model om in de brma functie zelf. -->
+<!-- SvE: nu twijfel ik toch weer of dit helemaal goed gaat. sigma is in ons model namelijk op 0 gezet en wordt hier dus niet in meegenomen. Klopt het dat de residual SD 0 moet zijn in dit model? De rest van de global scale wordt berekend buiten het Stan model om in de brma functie zelf. Dit is ondertussen gecheckt en in de huidige implementatie is sigma op 1 gezet, wat de meest voor de hand liggende adhoc manier is. Uitgebreider onderzoek is nodig om te kijken of scaling naar tau beter zou kunnen zijn. Overigens is dit enkel relevant als er prior info wordt meegenomen via relevant_pars -->
 The thickness of the tails is controlled by two degrees of freedom parameters, $\nu_1$ and $\nu_2$, which default to 1 in `brma()`.
 Increasing these degrees of freedom parameters results in a prior with lighter tails,
 which is strictly no longer a horseshoe prior.
@@ -809,9 +809,9 @@ df$ageWeek[is.na(df$ageWeek)] <- median(df$ageWeek, na.rm = TRUE)
 Our simulation study shows good performance with default hyperparameters.
 However, experienced users may want to customize the prior.
 Visualizing the prior can be helpful in this process.
-This is accomplished using the interactive application visualization application available through `shiny_prior()`.
+This is accomplished using the interactive visualization application available through `shiny_prior()`.
 The user can plot the prior distributions resulting from different sets of hyperparameters and compare them.
-Increasing the values of the scale parameters (`scale_global` and `hs_scale_slab`) results in a more spread out prior, which applies less regularization.
+For the regularized horseshoe, increasing the values of the scale parameters (`scale_global` and `hs_scale_slab`) results in a more spread out prior, which applies less regularization.
 Increasing the degrees of freedom (`df_global` and `df_slab`) results in thinner tails, which applies more regularization.
 <!-- One advantage of the regularized horseshoe prior is its ability to define the prior in terms of the expected number of nonzero coefficients, using the argument `relevant_pars`. -->
 <!-- This argument in turn influences the other hyperparameters. -->
@@ -865,7 +865,7 @@ ggplot(df, aes(x=draws)) +
 ```
 <!-- It is clear that the implied prior on the number of nonzero coefficients follows the prior information it has been given, with more mass on a small number of relevant moderators if that is expected a priori (p0 = 1) and more mass on a larger number of relevant moderators if that is expected a priori (p0 = 6). Interestingly, when no prior information is provided (p0 = NA), the default `global_scale` setting of 1 implies a relatively large number of nonzero coefficients, which is important to keep in mind when using this default setting. -->
 
-In this example, we will estimate the model using default settings, which includes a horseshoe prior with default hyperparameters.
+In this example, we will estimate the model using the default settings, which implies a horseshoe prior with default hyperparameters.
 To see the default values, open the function documentation using `?brma`.
 
 ```{r exmodel1, echo = TRUE, eval = FALSE}
@@ -930,7 +930,7 @@ ggsave("traceplot.png", p, device = "png", width = 4, height = 3, dpi = 300, sca
 knitr::include_graphics("traceplot.png")
 ```
 
-Convergence can also be checked by examining for the summary of the model object.
+Convergence can also be checked by examining the summary of the model object.
 The column `Rhat` provides information on the split $\hat{R}$, a version of the potential scale reduction factor (PSRF; @GelmanRubin1992).
 Values close to 1 indicate convergence.
 In addition, the column `n_eff` provides information on the number of effective (independent) MCMC samples, which should be high relative to the total number of samples (in this case, 4000):
@@ -1066,10 +1066,10 @@ Conversely, when meta-analyzing a highly curated body of literature with a small
 
 With regard to the algorithms' ability to recover population effect sizes of moderators,
 we observed that BRMA with a horseshoe prior had the greatest bias towards zero across simulation conditions, followed by LASSO, and then RMA.
-Note that all algorithms provided, on average, negatively biased estimated.
+Note that all algorithms provided, on average, negatively biased estimates.
 The variance of the estimates followed the opposite pattern.
 This unsurprising result illustrates the bias-variance trade-off in penalized regression.
-The greater predictive performance of the BRMA algorithms is a direct consequence off this trade-off.
+The greater predictive performance of the BRMA algorithms is a direct consequence of this trade-off.
 
 We further observed that BRMA with a horseshoe prior had the lowest bias when estimating residual heterogeneity.
 The BRMA algorithms also had lower variance than RMA when estimating residual heterogeneity.
@@ -1078,7 +1078,7 @@ Together, these results suggest that BRMA has superior predictive performance an
 
 We examined the effect of several violations of model assumptions, including simulating data from a cubic model, and then analyzing these data with a linear model.
 In applied research, it is often not known what the true shape of the association between a moderator and effect size is.
-Thus, model mis-specification is likely to occur.
+Thus, model misspecification is likely to occur.
 One advantage of BRMA is that it can accommodate more moderators than RMA and has superior specificity.
 This allows researchers to specify a more flexible model to account for potential misspecification, with less concern for overfitting and non-convergence.
 For example, researchers could add polynomials of continuous variables with suspected non-linear effects, or interactions between predictors.
@@ -1114,13 +1114,13 @@ To facilitate such research, we provide a generalized BRMA function which is not
 The downside of this flexible function is that it is not compiled, and requires the user to set up a compilation toolchain.
 Compiling the function thus requires some technological sophistication and is more computationally costly.
 
-Alghough the use of Bayesian estimation has several advantages, one major downside is that Bayesian models are not directly comparable with frequentist models.
+Although the use of Bayesian estimation has several advantages, one major downside is that Bayesian models are not directly comparable with frequentist models.
 Another disadvantage is that Bayesian estimation is typically more computationally expensive than frequentist estimation.
 One future direction of research is thus to develop a frequentist estimator for regularized meta-regression.
 
 ## Recommendations for applied research
 
-BRMA aims to address the challenge that arises when meta-analysing heterogeneous bodies of literature, with few studies relative to the number of moderators.
+BRMA aims to address the challenge that arises when meta-analyzing heterogeneous bodies of literature, with few studies relative to the number of moderators.
 BRMA can be used to identify relevant moderators when it is not known beforehand which moderators are responsible for between-studies differences in observed effect sizes.
 To facilitate adoption of this method in applied research, we have published the function `brma()` in the R package `pema`.
 Here, we offer several recommendations for its use.
@@ -1140,7 +1140,7 @@ or manually aggregate the results across multiple imputations.
 The effect sizes and their variances must be computed using suitable methods;
 note that many such methods are available in the R package `metafor` (Viechtbauer et al., 2010).
 With regard to data analysis, we recommend the use of a horseshoe prior by default,
-because it demonstrated the best predictive performance and most attractive trade-off between sensitivity and specificity in our simulations.
+because it demonstrated the best predictive performance and most attractive trade-off between sensitivity and specificity in our simulations. Visualizations of the prior distribution can be helpful to understand the influence of choosing specific hyperparameters and a prior sensitivity analysis after estimation can further aid this understanding.
 
 When estimating the model, it is important to ascertain that the algorithm has converged before interpreting the results.
 Stan, the computational back-end of `brma()`, should return warnings and errors if there are indications of non-convergence.
@@ -1165,7 +1165,7 @@ As both types of intervals performed identically in the present study,
 we suggest using credible intervals, which are computationally less expensive.
 
 Finally, with regard to publication, we highly recommend sharing the data and
-syntax for the meta-analysis publicly; for example, by making the entire paper reproducible using the Workflow for Reproducible Code in Science (WORCS; REF).
+syntax for the meta-analysis publicly; for example, by making the entire paper reproducible using the Workflow for Reproducible Code in Science (WORCS; REF). <!--Caspar: hier mist nog een ref. Ik krijg errors als ik alles probeer te knitten, dus weet niet of alle andere referenties correct worden weergegeven. -->
 Transparency allows readers and reviewers to verify that methods were correctly applied, and try alternative analyses.
 Particularly when using a new method like BRMA, this transparency is likely to inspire confidence in the results.
 Secondly, the results of a meta-analysis can be used to obtain predictions for the expected effect size of a new study on the same topic, given specific design characteristics.
@@ -1194,7 +1194,8 @@ Multicollinearity increases the variance of regression coefficients.
 BRMA may have an advantage here, because the regularizing priors restrict variance.
 If multicollinearity is observed, researchers might thus prefer BRMA over RMA.
 
-# Conclusion
+# Conclusion 
+<!-- Ik weet niet hoe we zitten qua woordenlimiet, maar als er gekort moet worden zou deze laatste conclusie sectie er wat mij betreft uit kunnen. Is vooral herhaling van wat eerder al is genoemd. -->
 
 The present research has demonstrated that BRMA is a powerful tool for
 exploring heterogeneity in meta-analysis, with a number of advantages over classic RMA.
