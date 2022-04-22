@@ -43,8 +43,9 @@ Use this, e.g., to override default arguments of that function.}
 \item{formula}{An object of class \code{formula} (or one that can be coerced to
 that class), see \code{\link[stats]{lm}}.}
 
-\item{data}{Optional data.frame containing the variables in the model, see
-\code{\link[stats]{lm}}.}
+\item{data}{Either a \code{data.frame} containing the variables in the model,
+see \code{\link[stats]{lm}}, or a \code{list} of multiple imputed \code{data.frame}s,
+or an object returned by \code{\link[mice]{mice}}.}
 
 \item{vi}{Character. Name of the column in the \code{data} that
 contains the variances of the effect sizes. This column will be removed from

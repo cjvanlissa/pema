@@ -178,7 +178,7 @@ Note that the horseshoe prior results in some divergent transitions. This can be
 
 Next, we plot the posterior mean estimates for a selection of moderators for the different priors. 
 
-```{r, eval = TRUE}
+```{r, eval = FALSE, echo = TRUE}
 make_plotdat <- function(fit, prior){
   plotdat <- data.frame(fit$coefficients)
   plotdat$par <- rownames(plotdat)
@@ -199,6 +199,30 @@ ggplot(df, aes(x=mean, y=par, group = Prior)) +
   geom_point(aes(colour = Prior), position = position_dodge(width = pd)) +
   geom_vline(xintercept = 0) +
   theme_bw() + xlab("Posterior mean") + ylab("")
+```
+```{r, eval = TRUE, echo = FALSE, out.width='80%'}
+make_plotdat <- function(fit, prior){
+  plotdat <- data.frame(fit$coefficients)
+  plotdat$par <- rownames(plotdat)
+  plotdat$Prior <- prior
+  return(plotdat)
+}
+
+df0 <- make_plotdat(fit_lasso, prior = "lasso")
+df1 <- make_plotdat(fit_hs1, prior = "hs default")
+df2 <- make_plotdat(fit_hs2, prior = "hs reduced global scale")
+df3 <- make_plotdat(fit_hs3, prior = "hs increased slab scale")
+
+df <- rbind.data.frame(df0, df1, df2, df3)
+df <- df[!df$par %in% c("Intercept", "tau2"), ]
+pd <- 0.5
+p <- ggplot(df, aes(x=mean, y=par, group = Prior)) + 
+  geom_errorbar(aes(xmin=X2.5., xmax=X97.5., colour = Prior), width=.1, position = position_dodge(width = pd)) +
+  geom_point(aes(colour = Prior), position = position_dodge(width = pd)) +
+  geom_vline(xintercept = 0) +
+  theme_bw() + xlab("Posterior mean") + ylab("")
+ggsave("sensitivity.png", p, device = "png", width = 3, height = 1.5, dpi = 300, scale = 2.5)
+knitr::include_graphics("sensitivity.png")
 ```
 
 We can see that, in general, the different priors give quite similar results in this application. A notable exception is the estimate for the dummy variable `testAuthorGrouped_stepDownAvoidance` which is much smaller for the lasso compared to the horseshoe specification. This indicates that the lasso can shrink large coefficients more towards zero whereas the horseshoe is better at keeping them large.

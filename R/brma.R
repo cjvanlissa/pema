@@ -7,8 +7,9 @@
 #' See Details.
 #' @param formula An object of class `formula` (or one that can be coerced to
 #' that class), see \code{\link[stats]{lm}}.
-#' @param data Optional data.frame containing the variables in the model, see
-#' \code{\link[stats]{lm}}.
+#' @param data Either a `data.frame` containing the variables in the model,
+#' see \code{\link[stats]{lm}}, or a `list` of multiple imputed `data.frame`s,
+#' or an object returned by \code{\link[mice]{mice}}.
 #' @param vi Character. Name of the column in the \code{data} that
 #' contains the variances of the effect sizes. This column will be removed from
 #' the data prior to analysis. Defaults to \code{"vi"}.
@@ -163,6 +164,16 @@ brma.formula <-
            #prior_only = FALSE,
            ...) {
     cl <- match.call()
+    # Check if data is multiply imputed
+    if(inherits(data, "mids")){
+      data <- mice::complete(data, action = "all")
+    }
+    if(inherits(data, "list") & !inherits(data, "data.frame")){
+      cl[["data"]] <- data
+      return(brma_imp(cl = cl))
+    }
+    # Check for complete data
+    if(anyNA(data)) stop("The function brma() requires complete data.")
     # Bookkeeping for columns that should not be in X or Y
     vi_column <- NULL
     study_column <- NULL
@@ -230,7 +241,7 @@ brma.formula <-
 #' @param x An k x m numeric matrix, where k is the number of effect sizes and m
 #' is the number of moderators.
 #' @param y A numeric vector of k effect sizes.
-#' @param y Logical, indicating whether or not an intercept should be included
+#' @param intercept Logical, indicating whether or not an intercept should be included
 #' in the model.
 #' @method brma default
 #' @export
@@ -248,6 +259,9 @@ brma.default <-
            ...) {
     X <- x
     Y <- y
+    # Check for complete data
+    if(anyNA(X) | anyNA(Y)) stop("The function brma() requires complete data.")
+
     dots <- list(...)
     outputdots <- match(c("formula", "vi_column", "study_column"), names(dots), nomatch = 0L)
     if(any(outputdots > 0)){
@@ -302,6 +316,7 @@ brma.default <-
         J_2 = as.integer(factor(study)),
         Z_2_1 = rep(1, N)
       ))
+      foroutput[["study"]] <- study
     }
     # Prepare standard error
     se <- sqrt(vi)
@@ -338,39 +353,93 @@ brma.default <-
       }
     }
     fit <- eval(cl)
-    sums <- summary(fit)$summary
-    rnam <- rownames(sums)
-    row_int <- which(startsWith(rnam, "Intercept"))
-    row_beta <- which(startsWith(rnam, "betas"))
-    row_tau <- which(startsWith(rnam, "tau2"))
-    keepthese <- c(row_int, row_beta, row_tau)
-    sums <- sums[keepthese, , drop = FALSE]
+    sums <- make_sums(fit, colnames(X))
     tau2 <- sums[which(startsWith(rownames(sums), "tau2"))[1], 1]
-    if(length(row_beta) == length(colnames(X))){
-      rownames(sums)[startsWith(rownames(sums), "betas")] <- colnames(X)
-    }
-    Wi <- 1 / vi
-    tau2_before <-
-      max(0, (sum(Wi * (Y - (
-        sum(Wi * Y) / sum(Wi)
-      )) ^ 2) - (N - 1)) / (sum(Wi) - (sum(Wi ^ 2) / sum(Wi))))
-
-    R2 <- max(0, 100 * (tau2_before-tau2)/tau2_before)
-    #I2 <- 100 * tau2/(vt + tau2)
-    #H2 <- tau2/vt + 1
-
-    out <- list(fit = fit,
-                coefficients = sums,
-                X = Xunscale,
-                Y = Y,
-                vi = vi,
-                tau2 = tau2,
-                #I2 = I2,
-                #H2 = H2,
-                R2 = R2,
-                k = N)
-    if(!is.null(foroutput)) out <- c(out, foroutput)
-    if(threelevel) out$study <- study
-    class(out) <- c("brma", class(out))
-    return(out)
+    foroutput <- c(
+      list(fit = fit,
+           coefficients = sums,
+           X = Xunscale,
+           Y = Y,
+           vi = vi,
+           tau2 = tau2,
+           R2 = calc_r2(tau2, vi, Y, N),
+           k = N),
+      foroutput
+    )
+    return(do.call(stanfit_to_brma, foroutput))
   }
+
+#' @importFrom rstan sflist2stanfit
+brma_imp <- function(cl){
+  Args <- as.list(cl)
+  cl[[1L]] <- quote(brma)
+  out <- lapply(cl[["data"]], function(df){
+    cl[["data"]] <- df
+    eval.parent(cl)
+  })
+  foroutput <- out[[1]]
+  fit <- sflist2stanfit(sapply(out, `[[`, "fit"))
+  sums <- make_sums(fit, colnames(foroutput[["X"]]))
+  tau2 <- sums[which(startsWith(rownames(sums), "tau2"))[1], 1]
+  foroutput[["fit"]] <- fit
+  foroutput[["coefficients"]] <- sums
+  foroutput[["X"]] <- lapply(out,`[[`, "X")
+  foroutput[["Y"]] <- lapply(out,`[[`, "Y")
+  foroutput[["vi"]] <- lapply(out,`[[`, "vi")
+  foroutput[["tau2"]] <- mean(sapply(out,`[[`, "tau2"))
+  foroutput[["R2"]] <- mean(sapply(out,`[[`, "R2"))
+  if(!is.null(foroutput[["study"]])) foroutput[["study"]] <- lapply(out,`[[`, "study")
+  return(do.call(stanfit_to_brma, foroutput))
+}
+
+make_sums <- function(fit, parnames){
+  sums <- summary(fit)$summary
+  rnam <- rownames(sums)
+  row_int <- which(startsWith(rnam, "Intercept"))
+  row_beta <- which(startsWith(rnam, "betas"))
+  row_tau <- which(startsWith(rnam, "tau2"))
+  keepthese <- c(row_int, row_beta, row_tau)
+  sums <- sums[keepthese, , drop = FALSE]
+  if(length(row_beta) == length(parnames)){
+    rownames(sums)[startsWith(rownames(sums), "betas")] <- parnames
+  }
+  return(sums)
+}
+
+calc_r2 <- function(tau2, vi, Y, N){
+  #tau2 <- sums[which(startsWith(rownames(sums), "tau2"))[1], 1]
+  Wi <- 1 / vi
+  tau2_before <-
+    max(0, (sum(Wi * (Y - (
+      sum(Wi * Y) / sum(Wi)
+    )) ^ 2) - (N - 1)) / (sum(Wi) - (sum(Wi ^ 2) / sum(Wi))))
+
+  R2 <- max(0, 100 * (tau2_before-tau2)/tau2_before)
+  return(c(tau2, R2))
+}
+
+stanfit_to_brma <- function(fit, coefficients, X, Y, vi, tau2, R2, k, ...){
+  frmls <- names(formals(stanfit_to_brma))
+  frmls <- frmls[-length(frmls)]
+  out <- replicate(length(frmls), NULL)
+  names(out) <- frmls
+  Args <- as.list(match.call()[-1])
+  if(any(names(out) %in% names(Args))){
+    repthese <- names(out)[which(names(out) %in% names(Args))]
+    out[repthese] <- Args[repthese]
+    Args[repthese] <- NULL
+  }
+  out <- c(out, Args)
+  # out <- list(fit = fit,
+  #             coefficients = sums,
+  #             X = Xunscale,
+  #             Y = Y,
+  #             vi = vi,
+  #             tau2 = tau2,
+  #             R2 = R2,
+  #             k = N)
+  #if(!is.null(foroutput)) out <- c(out, foroutput)
+  #if(threelevel) out$study <- study
+  class(out) <- c("brma", class(out))
+  return(out)
+}
