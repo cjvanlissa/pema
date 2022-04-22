@@ -12,3 +12,12 @@ simulatie_2021/Simulatie 2021_3.R
 *.dll
 !curry.rda
 inst/doc
+*.aux
+*.out
+*.ttt
+paper/nul
+*.cpp
+*.dll
+*.o
+*.h
+*.cc
