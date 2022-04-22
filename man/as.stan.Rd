@@ -21,7 +21,5 @@ so that all methods for \code{stanfit} objects can be used.
 \examples{
 stanfit <- "a"
 class(stanfit) <- "stanfit"
-brmaobject <- list(fit = stanfit)
-class(brmaobject) <- "brma"
-converted <- as.stan(brmaobject)
+converted <- as.stan(stanfit)
 }

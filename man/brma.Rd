@@ -79,7 +79,9 @@ elements.}
 
 \item{mute_stan}{Logical, indicating whether mute all 'Stan' output or not.}
 
-\item{y}{Logical, indicating whether or not an intercept should be included
+\item{y}{A numeric vector of k effect sizes.}
+
+\item{intercept}{Logical, indicating whether or not an intercept should be included
 in the model.}
 }
 \value{

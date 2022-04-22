@@ -9,9 +9,9 @@
 #' @examples
 #' stanfit <- "a"
 #' class(stanfit) <- "stanfit"
-#' brmaobject <- list(fit = stanfit)
-#' class(brmaobject) <- "brma"
-#' converted <- as.stan(brmaobject)
+# brmaobject <- list(fit = stanfit)
+# class(brmaobject) <- "brma"
+#' converted <- as.stan(stanfit)
 #' @importFrom stats rbinom rnorm rt
 #' @importFrom sn rsn
 as.stan <- function(x, ...){
@@ -71,3 +71,14 @@ as.stan.brma <- function(x, ...){
   return(out)
 }
 
+#' @method as.stan default
+#' @export
+as.stan.default <- function(x, ...){
+  if(inherits(x, "stanfit")){
+    return(x)
+  } else {
+    message("Could not coerce to 'stanfit'.")
+    return(NULL)
+  }
+
+}
