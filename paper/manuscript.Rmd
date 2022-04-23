@@ -47,17 +47,18 @@ abstract: |
   applied meta-analyses lack the power to adequately account for multiple
   moderators, as the number of studies on any given topic is often low. The
   present study introduces Bayesian Regularized Meta-Analysis (BRMA), an
-  exploratory algorithm that can select relevant moderators from a larger number
-  of candidates. This approach is suitable when heterogeneity is suspected, but
+  algorithm that performs variable selection to identify relevant moderators
+  from a larger number of candidates.
+  This approach is suitable when heterogeneity is suspected, but
   it is not known which moderators most strongly inﬂuence the observed effect
   size. We present a simulation study to validate the performance of BRMA
   relative to state-of-the-art meta-regression (RMA). Results indicated that
-  BRMA compared favorably to RMA on three metrics: predictive performance,
-  which is a measure of the generalizability of results, the ability to reject
-  irrelevant moderators, and the ability to recover population parameters with
+  BRMA compared favorably to RMA on three metrics: predictive performance (a
+  measure of generalizability), the ability to reject irrelevant moderators,
+  and the ability to recover population parameters with
   low bias. BRMA had slightly lower ability to detect true effects of relevant
   moderators, but the overall proportion of Type I and Type II errors was
-  equivalent to RMA. Furthermore, BRMA regression coefficients were slightly
+  equivalent to RMA. BRMA regression coefficients were slightly
   biased towards zero (by design), but its estimates of residual heterogeneity
   were unbiased. BRMA performed well with as few as 20 studies in the training
   data, suggesting its suitability as a small sample solution. We discuss how
@@ -142,10 +143,10 @@ Weighting accounts for the fact that some observed effect sizes are assumed to b
 <!-- Each effect size is assigned a weight that determines how influential it is in calculating the summary effect. -->
 The weights are based on specific assumptions;
 for example, the *fixed effect* model assumes that all observed effect sizes reflect one underlying true population effect.
-This assumption is well-suited to the situation where effect sizes from close replication studies are meta-analyzed [@higginsReevaluationRandomeffectsMetaanalysis2009; @@fabrigarConceptualizingEvaluatingReplication2016; @@maxwellPsychologySufferingReplication2015]. 
+This assumption is well-suited to the situation where effect sizes from close replication studies are meta-analyzed [@higginsReevaluationRandomeffectsMetaanalysis2009]. 
 The *random effects* model, by contrast, assumes that population effect sizes follow a normal distribution.
 Each observed effect size provides information about the mean and standard deviation of this distribution of population effect sizes.
-This assumption is more appropriate when studies are conceptually similar and differences between them are random [@higginsReevaluationRandomeffectsMetaanalysis2009; @@fabrigarConceptualizingEvaluatingReplication2016; @@maxwellPsychologySufferingReplication2015]. 
+This assumption is more appropriate when studies are conceptually similar and differences between them are random [@higginsReevaluationRandomeffectsMetaanalysis2009]. 
 
 Not all heterogeneity in effect sizes is random, however.
 Quantifiable between-study differences may introduce systematic heterogeneity.
@@ -549,6 +550,7 @@ We evaluated the algorithms' predictive performance in new data,
 and their ability to recover population parameters. 
 Our research questions are whether BRMA offers a performance advantage over RMA in terms of any of these indicators,
 and which prior (regularized horseshoe versus LASSO) is to be preferred.
+All analysis code is available in a version-controlled repository at <https://github.com/cjvanlissa/pema>.
 
 ## Performance indicators
 
@@ -880,7 +882,7 @@ ggplot(df, aes(x=draws)) +
 ```
 <!-- It is clear that the implied prior on the number of nonzero coefficients follows the prior information it has been given, with more mass on a small number of relevant moderators if that is expected a priori (p0 = 1) and more mass on a larger number of relevant moderators if that is expected a priori (p0 = 6). Interestingly, when no prior information is provided (p0 = NA), the default `global_scale` setting of 1 implies a relatively large number of nonzero coefficients, which is important to keep in mind when using this default setting. -->
 
-In this example, we will estimate the model using default settings, which includes a horseshoe prior with default hyperparameters.
+As no prior is specified, this example uses a horseshoe prior with default hyperparameters.
 To see the default values, open the function documentation using `?brma`.
 
 ```{r exmodel1, echo = TRUE, eval = FALSE}
@@ -895,11 +897,14 @@ fit <- readRDS("fit.RData")
 ```
 
 By running `summary(fit)`, we obtain the posterior mean, standard deviation, and quantiles of the model parameters (see Table \@ref(tab:tabsumex)).
-To perform inference, consider using the posterior median (50% quantile) and 95% credible interval (2.5% - 97.5%).
+Use the posterior mean or median (50% quantile) and 95% credible interval (2.5% - 97.5%) to perform inference on model parameters.
 <!-- In the simulation study, -->
 <!-- we retained moderators when the 95% credible interval excluded zero, -->
 <!-- Since Bayesian penalization does not automatically shrink estimates exactly to zero. -->
 Parameters whose 95% credible interval excludes zero are marked with an asterisk.
+Note that Bayesian analyses do not use the frequentist notion of significance.
+Instead, we say that there is a 95% probability that the true population parameter lies within the interval,
+given the prior and observed data.
 In this example, however, there are no moderators for which the 95\% CI excludes zero.
 
 ```{r, echo = FALSE, eval = FALSE}
@@ -1160,16 +1165,15 @@ them from their analyses for lack of statistical power.
 Moderators can be continuous or categorical.
 Missing data must be accounted for.
 The best way to do so is by retrieving the missing information, by contacting authors or comparing different publications on the same data.
-If missing data remains, users can either use a single imputation method (for example, a non-parametric imputation method like missForest),
-or use multiple imputation and provide a list of multiply imputed data to the `data` argument.
+If missing data remains, users can either use a single imputation method
+or supply multiple imputed data to the `data` argument (see function documentation).
 The effect sizes and their variances must be computed using suitable methods;
-note that many such methods are available in the R package `metafor` (Viechtbauer et al., 2010).
+note that many such methods are available in the R package `metafor` [@viechtbauerConductingMetaanalysesMetafor2010].
 With regard to data analysis, we recommend the use of a horseshoe prior by default,
 because it demonstrated the best predictive performance and most attractive trade-off between sensitivity and specificity in our simulations.
-
 When estimating the model, it is important to ascertain that the algorithm has converged before interpreting the results.
-Stan, the computational back-end of `brma()`, should return warnings and errors if there are indications of non-convergence.
-<!-- Sara, wat kan men nog meer doen om convergence te checken? Iets met trace plots? Alle standaard plots voor stan-model objecten zijn beschikbaar, dankzij de functie `as.stan()`. Misschien kan je wat tips geven hier?; SvE: ik zal dit verwerken in de toepassing. -->
+Stan, the computational back-end of `brma()`, returns warnings and errors if there are any indications of non-convergence.
+Additionally, users can obtain trace plots as described in the illustrative example.
 
 When reporting results, researchers should substantiate their decision to explore heterogeneity on both subjective and objective grounds.
 The former can be achieved by simply ascertaining that the body of literature
@@ -1189,11 +1193,15 @@ The null hypothesis is rejected if such intervals exclude zero.
 As both types of intervals performed identically in the present study,
 we suggest using credible intervals, which are computationally less expensive.
 
-Finally, with regard to publication, we highly recommend sharing the data and
-syntax for the meta-analysis publicly; for example, by making the entire paper reproducible using the Workflow for Reproducible Code in Science [WORCS, @vanlissaWORCSWorkflowOpen2020].
-Transparency allows readers and reviewers to verify that methods were correctly applied, and try alternative analyses.
-Particularly when using a new method like BRMA, this transparency is likely to inspire confidence in the results.
-Secondly, the results of a meta-analysis can be used to obtain predictions for the expected effect size of a new study on the same topic, given specific design characteristics.
+Finally, with regard to publication, we highly recommend making the data and code for the meta-analysis publicly available.
+One way to do this is by creating a reproducible research repository,
+for example, using the Workflow for Reproducible Code in Science [WORCS, @vanlissaWORCSWorkflowOpen2020].
+Transparency allows readers and reviewers to verify that methods were correctly applied,
+which should inspire greater confidence in the results.
+Others can easily perform sensitivity analyses by changing the analysis code.
+Sharing data allows the meta-analysis to be updated in the future,
+which increases the reuse value of the data.
+Finally, sharing the model object (or code to reproduce it) allows others to obtain predictions for the expected effect size of a new study on the same topic.
 This prediction can be used to conduct power analysis for future research.
 To this end, researchers can simply enter their planned
 design (or several alternative designs) as new lines of data, using the codebook of the
@@ -1201,15 +1209,17 @@ original meta-analysis, and use the published BRMA model to calculate the
 predicted effect size for a study with these specifications.
 
 BRMA may not be the best solution for every situation.
-Several trade-offs must be made to decide what method is most appropriate.
-Firstly, the fact that BRMA has high predictive performance compared to RMA suggests that it is a particularly suitable technique when a researcher intends to obtain results that will generalize beyond the sample at hand, and is willing to accept some bias in parameter estimates.
-Conversely, RMA might be more suitable when the goal is to describe the sample at hand in an unbiased manner, with less concern for generalizability to future studies.
-Secondly, the fact that BRMA has high specificity compared to RMA suggests that it is a suitable technique when a researcher seeks to eliminate irrelevant moderators at the cost of increasing the Type II error rate.
+Several trade-offs must be considered to decide what method is most appropriate.
+Firstly, the fact that BRMA has high predictive performance compared to RMA suggests that it is particularly suitable when a researcher intends to obtain results that will generalize beyond the sample at hand,
+and is willing to accept some bias in parameter estimates.
+Conversely, RMA might be more suitable when the goal is to describe the sample at hand in an unbiased manner,
+with less concern for generalizability to future studies.
+Secondly, the fact that BRMA has high specificity compared to RMA suggests that it is more suitable when a researcher seeks to eliminate irrelevant moderators at the cost of increasing the Type II error rate.
 Conversely, RMA might be more suitable when the researcher seeks to identify relevant moderators, at the cost of increasing the Type I error rate.
-If many moderators have been coded, and many of them are expected to be irrelevant, then BRMA may thus be prererable.
+If many moderators have been coded, and many of them are expected to be irrelevant, then BRMA may thus be preferable.
 Thirdly, there may be pragmatic reasons for preferring BRMA over RMA.
 For example, if a dataset is small, or the number of moderators is high relative to the number of cases,
-RMA models may prove to be empirically under-identified.
+RMA models may be empirically under-identified.
 This can be indicated by convergence problems.
 In such cases, Bayesian estimation may converge on a solution where frequentist estimation does not [@kohliFittingLinearLinearPiecewise2015].
 Similarly, BRMA may perform better in the presence of multicollinearity among predictors,
@@ -1224,9 +1234,9 @@ If multicollinearity is observed, researchers might thus prefer BRMA over RMA.
 The present research has demonstrated that BRMA is a powerful tool for
 exploring heterogeneity in meta-analysis, with a number of advantages over classic RMA.
 BRMA had better predictive performance than RMA, which indicates that results from BRMA analysis generalize better to new data.
-This predictive performance advantage was especially pronounced when training data were as small as 20 studies, suggesting that BRMA is suitable as a small sample solution.
-This is an appealing quality, because many meta-analyses have small sample sizes.
-BRMA further has greater specificity in rejecting irrelevant moderators from a larger set of potential candidates, while keeping overall variable selection accuracy approximately constant to RMA.
+This predictive performance advantage was especially pronounced when training data were as small as 20 studies.
+This is appealing because many meta-analyses have small sample sizes.
+BRMA further has greater specificity in rejecting irrelevant moderators from a larger set of potential candidates, while maintaining an overall variable selection accuracy equivalent to RMA.
 Although the estimated regression coefficients are biased towards zero by design,
 the estimated residual heterogeneity did not show evidence of bias in our simulation.
 A final advantage of BRMA over other variable selection methods for meta-analysis is that it is an extension of the linear model.
@@ -1255,9 +1265,14 @@ Adoption of this new method may be further facilitated by the availability of th
 <!-- Finally, the average number of observations in the studies did not have a substantial effect on $\Delta\tau^{2}$. Image 5D shows the marginal relationship. -->
 
 
+\newpage
+# Highlights
 
-
-
+* Many applied meta-analyses concern heterogeneous bodies of literature, with many between-studies differences (moderators).
+* Simultaneously, meta-analytic samples are often small. There is thus limited statistical power to account for moderators.
+* The present study introduces Bayesian Regularized Meta-Analysis (BRMA), an algorithm that applies regularization to identify relevant moderators from a larger number of candidates.
+* The algorithm is made available in a user-friendly R-package, `pema`, which is published on CRAN.
+* Readers across fields can use this method to account for between-studies heterogeneity in meta-analysis, without concern that models may be underfit or underpowered. 
 
 \newpage
 
@@ -1269,3 +1284,6 @@ Adoption of this new method may be further facilitated by the availability of th
 
 <div id="refs" custom-style="Bibliography"></div>
 \endgroup
+
+
+

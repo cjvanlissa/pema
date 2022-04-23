@@ -34,6 +34,7 @@ options(mc.cores = 4)
 In this application, we will work with the bonapersona data (Bonapersona et al., 2019). The data and codebook can be found [here](https://zenodo.org/record/2540657#.XEGPP2ko9aR). First, we read in the data and make sure all relevant variables are of the correct type. 
 
 ```{r data}
+data("bonapersona")
 descriptives(bonapersona)[, c("name", "type", "n", "unique", "mean", "sd", "v")]
 ```
 

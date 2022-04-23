@@ -386,6 +386,8 @@ brma_imp <- function(cl){
   foroutput[["X"]] <- lapply(out,`[[`, "X")
   foroutput[["Y"]] <- lapply(out,`[[`, "Y")
   foroutput[["vi"]] <- lapply(out,`[[`, "vi")
+  # Check if all Y is the same; if so, compute tau2 and R2 over all chains.
+  # If not, take mean of tau2s and R2s
   foroutput[["tau2"]] <- mean(sapply(out,`[[`, "tau2"))
   foroutput[["R2"]] <- mean(sapply(out,`[[`, "R2"))
   if(!is.null(foroutput[["study"]])) foroutput[["study"]] <- lapply(out,`[[`, "study")
@@ -413,9 +415,7 @@ calc_r2 <- function(tau2, vi, Y, N){
     max(0, (sum(Wi * (Y - (
       sum(Wi * Y) / sum(Wi)
     )) ^ 2) - (N - 1)) / (sum(Wi) - (sum(Wi ^ 2) / sum(Wi))))
-
-  R2 <- max(0, 100 * (tau2_before-tau2)/tau2_before)
-  return(c(tau2, R2))
+  return(max(0, 100 * (tau2_before-tau2)/tau2_before))
 }
 
 stanfit_to_brma <- function(fit, coefficients, X, Y, vi, tau2, R2, k, ...){
