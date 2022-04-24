@@ -28,7 +28,7 @@ A data.frame with 56 rows and 18 columns.
 }
 }
 \usage{
-curry
+data(curry)
 }
 \description{
 A systematic review and meta-analysis of the effects of performing acts of

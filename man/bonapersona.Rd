@@ -8,7 +8,7 @@
 A data.frame with 734 rows and 65 columns.
 }
 \usage{
-bonapersona
+data(bonapersona)
 }
 \description{
 This meta-analysis of rodent studies examined whether early life adversity
