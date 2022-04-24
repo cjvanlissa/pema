@@ -12,7 +12,7 @@ so that all methods for stanfit objects can be used."><!-- mathjax --><script sr
     
     <a class="navbar-brand me-2" href="../index.html">pema</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,6 +22,12 @@ so that all methods for stanfit objects can be used."><!-- mathjax --><script sr
     <div id="navbar" class="collapse navbar-collapse ms-2">
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/using-brma.html">Conducting a Bayesian Regularized Meta-analysis</a>
+  </div>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
@@ -73,9 +79,8 @@ so that all methods for <code>stanfit</code> objects can be used.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">stanfit</span> <span class="op">&lt;-</span> <span class="st">"a"</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">stanfit</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"stanfit"</span></span>
-<span class="r-in"><span class="va">brmaobject</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fit <span class="op">=</span> <span class="va">stanfit</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">brmaobject</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"brma"</span></span>
-<span class="r-in"><span class="va">converted</span> <span class="op">&lt;-</span> <span class="fu">as.stan</span><span class="op">(</span><span class="va">brmaobject</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">converted</span> <span class="op">&lt;-</span> <span class="fu">as.stan</span><span class="op">(</span><span class="va">stanfit</span><span class="op">)</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in UseMethod("as.stan", x):</span> no applicable method for 'as.stan' applied to an object of class "stanfit"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

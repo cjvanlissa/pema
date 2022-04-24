@@ -18,7 +18,7 @@ See Details."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
     
     <a class="navbar-brand me-2" href="../index.html">pema</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,6 +28,12 @@ See Details."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
     <div id="navbar" class="collapse navbar-collapse ms-2">
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/using-brma.html">Conducting a Bayesian Regularized Meta-analysis</a>
+  </div>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
@@ -63,7 +69,10 @@ See Details.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">brma</span><span class="op">(</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">brma</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span>
+
+<span class="co"># S3 method for formula</span>
+<span class="fu">brma</span><span class="op">(</span>
   <span class="va">formula</span>,
   <span class="va">data</span>,
   vi <span class="op">=</span> <span class="st">"vi"</span>,
@@ -71,20 +80,40 @@ See Details.</p>
   method <span class="op">=</span> <span class="st">"hs"</span>,
   standardize <span class="op">=</span> <span class="cn">TRUE</span>,
   prior <span class="op">=</span> <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span><span class="va">method</span>, lasso <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>df <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, hs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>df <span class="op">=</span> <span class="fl">1</span>, df_global <span class="op">=</span> <span class="fl">1</span>,
-    df_slab <span class="op">=</span> <span class="fl">4</span>, scale_global <span class="op">=</span> <span class="fl">1</span>, scale_slab <span class="op">=</span> <span class="fl">1</span>, par_ratio <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">)</span>,
+    df_slab <span class="op">=</span> <span class="fl">4</span>, scale_global <span class="op">=</span> <span class="fl">1</span>, scale_slab <span class="op">=</span> <span class="fl">1</span>, relevant_pars <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">)</span>,
   mute_stan <span class="op">=</span> <span class="cn">TRUE</span>,
+  <span class="va">...</span>
+<span class="op">)</span>
+
+<span class="co"># S3 method for default</span>
+<span class="fu">brma</span><span class="op">(</span>
+  <span class="va">x</span>,
+  <span class="va">y</span>,
+  <span class="va">vi</span>,
+  study <span class="op">=</span> <span class="cn">NULL</span>,
+  <span class="va">prior</span>,
+  mute_stan <span class="op">=</span> <span class="cn">TRUE</span>,
+  <span class="va">standardize</span>,
+  <span class="va">intercept</span>,
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>formula</dt>
+    <dl><dt>x</dt>
+<dd><p>An k x m numeric matrix, where k is the number of effect sizes and m
+is the number of moderators.</p></dd>
+<dt>...</dt>
+<dd><p>Additional arguments passed on to <code><a href="https://mc-stan.org/rstan/reference/stanmodel-method-sampling.html" class="external-link">rstan::sampling()</a></code>.
+Use this, e.g., to override default arguments of that function.</p></dd>
+<dt>formula</dt>
 <dd><p>An object of class <code>formula</code> (or one that can be coerced to
 that class), see <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></code>.</p></dd>
 <dt>data</dt>
-<dd><p>Optional data.frame containing the variables in the model, see
-<code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></code>.</p></dd>
+<dd><p>Either a <code>data.frame</code> containing the variables in the model,
+see <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></code>, or a <code>list</code> of multiple imputed <code>data.frame</code>s,
+or an object returned by <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice</a></code>.</p></dd>
 <dt>vi</dt>
 <dd><p>Character. Name of the column in the <code>data</code> that
 contains the variances of the effect sizes. This column will be removed from
@@ -100,8 +129,16 @@ See <code>Details</code> for more information about analyzing dependent data.</p
 Supports one of <code>c("lasso", "hs")</code>, see Details. Defaults to
 <code>"lasso"</code>.</p></dd>
 <dt>standardize</dt>
-<dd><p>Logical, indicating whether or not to standardize the
-predictors (defaults to <code>TRUE</code>, which is recommended so that shrinking
+<dd><p>Either a logical argument or a list. If <code>standardize</code> is
+logical, it controls whether all predictors are standardized prior to
+analysis or not. Parameter estimates are restored to the predictors' original
+scale. Alternatively, users can provide a list to <code>standardize</code> to gain
+more control over the standardization process. In this case, it is assumed
+that the standardization has already taken place. This list must have two
+elements: <code>list(center = c(mean(X1) , mean(X2), mean(X...)), scale = c(sd(X1), sd(X2), sd(X...)))</code>. It is used
+only to restore parameter estimates to the original scale of the predictors.
+This is useful, e.g., to standardize continuous and dichotomous variables
+separately. Defaults to <code>TRUE</code>, which is recommended so that shrinking
 affects all parameters similarly.</p></dd>
 <dt>prior</dt>
 <dd><p>Numeric vector, specifying the prior to use. Note that the
@@ -109,9 +146,11 @@ different <code>method</code>s require this vector to contain specific named
 elements.</p></dd>
 <dt>mute_stan</dt>
 <dd><p>Logical, indicating whether mute all 'Stan' output or not.</p></dd>
-<dt>...</dt>
-<dd><p>Additional arguments passed on to <code><a href="https://mc-stan.org/rstan/reference/stanmodel-method-sampling.html" class="external-link">rstan::sampling()</a></code>.
-Use this, e.g., to override default arguments of that function.</p></dd>
+<dt>y</dt>
+<dd><p>A numeric vector of k effect sizes.</p></dd>
+<dt>intercept</dt>
+<dd><p>Logical, indicating whether or not an intercept should be included
+in the model.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -129,11 +168,7 @@ Use this, e.g., to override default arguments of that function.</p></dd>
   tau2         # Numeric, estimated tau2
   R2           # Numeric, estimated heterogeneity explained by the moderators
   k            # Numeric, number of effect sizes
-  vi_column    # Optional, name of the column in the original data
-               # corresponding to vi
   study        # Numeric vector with study id numbers
-  study_column # Optional, name of the column in the original data
-               # corresponding to study
 )
 </code></pre></div>
     </div>
@@ -182,12 +217,11 @@ prior is then strictly no longer a horseshoe. The scale for the Student's t
 prior on the global shrinkage parameter <code>scale_global</code> defaults to 1
 and can be decreased to achieve more shrinkage. Moreover, if prior
 information regarding the number of relevant moderators is available, it is
-recommended to include this information via the <code>par_ratio</code> argument
-by setting it to the ratio of the expected number of non-zero coefficients
-to the expected number of zero coefficients. When <code>par_ratio</code> is
-specified, <code>scale_global</code> is ignored and instead based on the
-available prior information. Contrary to the horseshoe prior, the
-regularized horseshoe applies additional regularization on large
+recommended to include this information via the <code>relevant_pars</code>
+argument by setting it to the expected number of relevant moderators. When
+<code>relevant_pars</code> is specified, <code>scale_global</code> is ignored and
+instead based on the available prior information. Contrary to the horseshoe
+prior, the regularized horseshoe applies additional regularization on large
 coefficients which is governed by a Student's t prior with a
 <code>scale_slab</code> defaulting to 2 and <code>df_slab</code> defaulting to 4.
 This additional regularization ensures at least some shrinkage of large

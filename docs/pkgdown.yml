@@ -1,6 +1,7 @@
 pandoc: 2.14.0.3
 pkgdown: 2.0.1
 pkgdown_sha: ~
-articles: {}
-last_built: 2021-12-14T11:59Z
+articles:
+  using-brma: using-brma.html
+last_built: 2022-04-24T21:31Z
 
