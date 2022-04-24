@@ -1,3 +1,6 @@
 *.html
 *.R
 !bp.RData
+!descs.RData
+!i2.RData
+!sum.RData
