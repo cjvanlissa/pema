@@ -29,4 +29,5 @@
 #' meta-analysis of the effects of performing acts of kindness on the well-being
 #' of the actor. Journal of Experimental Social Psychology, 76, 320-329.
 #' \doi{10.1016/j.ecresq.2007.04.005}
+#' @usage data(curry)
 "curry"

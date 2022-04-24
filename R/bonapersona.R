@@ -10,4 +10,5 @@
 #' The behavioral phenotype of early life adversity: A 3-level meta-analysis of
 #' rodent studies. Neuroscience & Biobehavioral Reviews, 102, 299–307.
 #' \doi{10.1016/j.neubiorev.2019.04.021}
+#' @usage data(bonapersona)
 "bonapersona"
