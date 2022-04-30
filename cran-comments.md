@@ -1,11 +1,9 @@
-# pema 0.1.1
+# pema 0.1.2
 
-* Refactor STAN code
-* Support optional intercept
-* Support three-level meta-analysis
-* Add vignette
-* Add Shiny app for visualizing priors
-* Add support for multiple imputation
+* Use str2lang("pema::function") instead of quote(function) so pema functions
+  work without attaching package namespace
+* Coerce mean and sd to array so stan accepts cases with 1 moderator
+* Throw informative error in cases with 0 moderators
 
 ## Test environments
 * local x86_64-pc-linux-gnu, R 4.1.2

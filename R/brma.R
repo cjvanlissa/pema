@@ -199,7 +199,7 @@ brma.formula <-
     mf <- mf[c(1L, match(c("formula", "subset", "na.action"), names(mf), nomatch = 0L))]
     mf[["data"]] <- data
     mf$drop.unused.levels <- TRUE
-    mf[[1L]] <- quote(stats::model.frame)
+    mf[[1L]] <- str2lang("stats::model.frame")
     mf <- eval(mf, parent.frame())
     Y <- mf[[1]]
     #X <- mf[, -1, drop = FALSE]
@@ -224,7 +224,7 @@ brma.formula <-
     }
 
     cl[names(cl) %in% c("formula", "data", "method")] <- NULL
-    cl[[1L]] <- quote(brma)
+    cl[[1L]] <- str2lang("pema::brma")
     cl[["x"]] <- X
     cl[["y"]] <- Y
     cl[["vi"]] <- vi
@@ -273,6 +273,7 @@ brma.default <-
     # Check validity of prior
     method <- "invalid"
     if(is.null(ncol(X))) stop("Object 'X' must be a matrix.")
+    if(dim(X)[2] == 0) stop("The function 'brma()' performs moderator selection, but this model does not include any moderators.")
     if(all(c("df", "df_global", "df_slab", "scale_slab") %in% names(prior))){
       if("par_ratio" %in% names(prior)){
         message("Prior element 'par_ratio' is deprecated and will be ignored. Use 'relevant_pars' instead.")
@@ -301,6 +302,9 @@ brma.default <-
     }
     Xunscale <- do.call(unscale, c(list(x = X), standardize))
     names(standardize) <- c("means_X", "sds_X")
+    if(ncol(X) == 1){
+      standardize <- lapply(standardize, as.array)
+    }
     # Prepare standat for study-level data
     N <- length(Y)
     standat <- list(
