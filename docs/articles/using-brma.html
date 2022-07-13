@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">pema</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,7 +80,10 @@
 <div class="section level2">
 <h2 id="packages">Packages<a class="anchor" aria-label="anchor" href="#packages"></a>
 </h2>
-<p>First, load in the necessary packages. In addition, if you are running the model locally on a multi-core machine, you can set <code>options(mc.cores = 4)</code>. This ensures the different MCMC chains will be run in parallel, making estimation faster.</p>
+<p>First, load in the necessary packages. In addition, if you are
+running the model locally on a multi-core machine, you can set
+<code>options(mc.cores = 4)</code>. This ensures the different MCMC
+chains will be run in parallel, making estimation faster.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/cjvanlissa/pema" class="external-link">pema</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://cjvanlissa.github.io/tidySEM/" class="external-link">tidySEM</a></span><span class="op">)</span>
@@ -91,7 +94,10 @@
 <div class="section level2">
 <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
 </h2>
-<p>In this application, we will work with the bonapersona data (Bonapersona et al., 2019). The data and codebook can be found <a href="https://zenodo.org/record/2540657#.XEGPP2ko9aR" class="external-link">here</a>. First, we read in the data and make sure all relevant variables are of the correct type.</p>
+<p>In this application, we will work with the bonapersona data
+(Bonapersona et al., 2019). The data and codebook can be found <a href="https://zenodo.org/record/2540657#.XEGPP2ko9aR" class="external-link">here</a>. First,
+we read in the data and make sure all relevant variables are of the
+correct type.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://cjvanlissa.github.io/tidySEM/reference/descriptives.html" class="external-link">descriptives</a></span><span class="op">(</span><span class="va">bonapersona</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"name"</span>, <span class="st">"type"</span>, <span class="st">"n"</span>, <span class="st">"unique"</span>, <span class="st">"mean"</span>, <span class="st">"sd"</span>, <span class="st">"v"</span><span class="op">)</span><span class="op">]</span></code></pre></div>
 <pre><code><span class="co">#&gt;                    name      type   n unique     mean     sd     v</span>
@@ -170,22 +176,37 @@
 <div class="section level2">
 <h2 id="moderators">Moderators<a class="anchor" aria-label="anchor" href="#moderators"></a>
 </h2>
-<p>For this application, we use a smaller selection of moderators than in Bonapersona et al. (2019).</p>
+<p>For this application, we use a smaller selection of moderators than
+in Bonapersona et al. (2019).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">datsel</span> <span class="op">&lt;-</span> <span class="va">bonapersona</span><span class="op">[</span> , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yi"</span>, <span class="st">"vi"</span>, <span class="st">"author"</span>, <span class="st">"mTimeLength"</span>, <span class="st">"year"</span>, <span class="st">"model"</span>, <span class="st">"ageWeek"</span>, <span class="st">"strainGrouped"</span>, <span class="st">"bias"</span>, <span class="st">"species"</span>, <span class="st">"domain"</span>, <span class="st">"sex"</span><span class="op">)</span><span class="op">]</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="two-level-model">Two-level model<a class="anchor" aria-label="anchor" href="#two-level-model"></a>
 </h2>
-<p>First, for simplicity, we run a two-level model ignoring the fact that certain effect sizes come from the same study.</p>
+<p>First, for simplicity, we run a two-level model ignoring the fact
+that certain effect sizes come from the same study.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dat2l</span> <span class="op">&lt;-</span> <span class="va">datsel</span>
 <span class="va">dat2l</span><span class="op">[[</span><span class="st">"author"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></code></pre></div>
 <div class="section level3">
 <h3 id="two-level-model-with-the-lasso-prior">Two-level model with the lasso prior<a class="anchor" aria-label="anchor" href="#two-level-model-with-the-lasso-prior"></a>
 </h3>
-<p>We start with running a penalized meta-analysis using the lasso prior. Compared to the horseshoe prior, the lasso is easier to use because it has only two hyperparameters to set. However, the lighter tails of the lasso can result in large coefficients being shrunken too much towards zero thereby leading to potentially more bias compared to the regularized horseshoe prior.</p>
-<p>For the lasso prior, we need to specify the degrees of freedom <code>df</code> and the <code>scale</code>. Both default to 1. The degrees of freedom determines the chi-square prior that is specified for the inverse-tuning parameter. Increasing the degrees of freedom will allow larger values for the inverse-tuning parameter, leading to less shrinkage. Increasing the scale parameter will also result in less shrinkage. The influence of these hyperparameters can be visualized through the implemented shiny app, which can be called via <code><a href="../reference/shiny_prior.html">shiny_prior()</a></code>.</p>
+<p>We start with running a penalized meta-analysis using the lasso
+prior. Compared to the horseshoe prior, the lasso is easier to use
+because it has only two hyperparameters to set. However, the lighter
+tails of the lasso can result in large coefficients being shrunken too
+much towards zero thereby leading to potentially more bias compared to
+the regularized horseshoe prior.</p>
+<p>For the lasso prior, we need to specify the degrees of freedom
+<code>df</code> and the <code>scale</code>. Both default to 1. The
+degrees of freedom determines the chi-square prior that is specified for
+the inverse-tuning parameter. Increasing the degrees of freedom will
+allow larger values for the inverse-tuning parameter, leading to less
+shrinkage. Increasing the scale parameter will also result in less
+shrinkage. The influence of these hyperparameters can be visualized
+through the implemented shiny app, which can be called via
+<code><a href="../reference/shiny_prior.html">shiny_prior()</a></code>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit_lasso</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brma.html">brma</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">.</span>,
                   data <span class="op">=</span> <span class="va">dat2l</span>,
@@ -196,7 +217,24 @@
 <div class="section level4">
 <h4 id="assessing-convergence-and-interpreting-the-results">Assessing convergence and interpreting the results<a class="anchor" aria-label="anchor" href="#assessing-convergence-and-interpreting-the-results"></a>
 </h4>
-<p>We can request the results using the <code>summary</code> function. Before we interpret the results, we need to ensure that the MCMC chains have converged to the posterior distribution. Two helpful diagnostics provided in the summary are the number of effective posterior samples <code>n_eff</code> and the potential scale reduction factor <code>Rhat</code>. <code>n_eff</code> is an estimate of the number of independent samples from the posterior. Ideally, the ratio <code>n_eff</code> to total samples is as close to 1 as possible. <code>Rhat</code> compares the between- and within-chain estimates and is ideally close to 1 (indicating the chains have mixed well). Should any values for <code>n_eff</code> or <code>Rhat</code> be far from these ideal values, you can try increasing the number of iterations through the <code>iter</code> argument. By default, the <code>brma</code> function runs four MCMC chains with 2000 iterations each, half of which is discarded as burn-in. As a result, a total of 4000 iterations is available on which posterior summaries are based. If this does not help, non-convergence might indicate a problem with the model specification.</p>
+<p>We can request the results using the <code>summary</code> function.
+Before we interpret the results, we need to ensure that the MCMC chains
+have converged to the posterior distribution. Two helpful diagnostics
+provided in the summary are the number of effective posterior samples
+<code>n_eff</code> and the potential scale reduction factor
+<code>Rhat</code>. <code>n_eff</code> is an estimate of the number of
+independent samples from the posterior. Ideally, the ratio
+<code>n_eff</code> to total samples is as close to 1 as possible.
+<code>Rhat</code> compares the between- and within-chain estimates and
+is ideally close to 1 (indicating the chains have mixed well). Should
+any values for <code>n_eff</code> or <code>Rhat</code> be far from these
+ideal values, you can try increasing the number of iterations through
+the <code>iter</code> argument. By default, the <code>brma</code>
+function runs four MCMC chains with 2000 iterations each, half of which
+is discarded as burn-in. As a result, a total of 4000 iterations is
+available on which posterior summaries are based. If this does not help,
+non-convergence might indicate a problem with the model
+specification.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sum</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_lasso</span><span class="op">)</span>
 <span class="va">sum</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"sd"</span>, <span class="st">"2.5%"</span>, <span class="st">"97.5%"</span>, <span class="st">"n_eff"</span>, <span class="st">"Rhat"</span><span class="op">)</span><span class="op">]</span></code></pre></div>
@@ -230,8 +268,28 @@
 <span class="co">#&gt; domainnoMeta                  -0.3626  0.1846  -0.7341 -0.0248  1714    1</span>
 <span class="co">#&gt; sexM                           0.1154  0.0661  -0.0027  0.2554  1864    1</span>
 <span class="co">#&gt; tau2                           0.4280  0.0388   0.3560  0.5041  1368    1</span></code></pre>
-<p>If we are satisfied with the convergence, we can continue looking at the posterior summary statistics. The <code>summary</code> function provides the posterior mean estimate for the effect of each moderator. Since Bayesian penalization does not automatically shrink estimates exactly to zero, some additional criterion is needed to determine which moderators should be selected in the model. Currently, this is done using the 95% credible intervals, with a moderator being selected if zero is excluded in this interval. In the <code>summary</code> this is denoted by an asterisk for that moderator. In this model, the only significant moderator is the dummy variable for sex. All other coefficients are not significant after being shrunken towards zero by the lasso prior.</p>
-<p>Also note the summary statistics for <code>tau2</code>, the (unexplained) residual between-studies heterogeneity. The 95% credible interval for this coefficient excludes zero, indicating that there is a non-zero amount of unexplained heterogeneity. It is customary to express this heterogeneity in terms of <span class="math inline">\(I^2\)</span>, the percentage of variation across studies that is due to heterogeneity rather than chance (Higgins and Thompson, 2002; Higgins et al., 2003). The helper function <code><a href="../reference/I2.html">I2()</a></code> computes the posterior distribution of <span class="math inline">\(I^2\)</span> based on the MCMC draws of <code>tau2</code>:</p>
+<p>If we are satisfied with the convergence, we can continue looking at
+the posterior summary statistics. The <code>summary</code> function
+provides the posterior mean estimate for the effect of each moderator.
+Since Bayesian penalization does not automatically shrink estimates
+exactly to zero, some additional criterion is needed to determine which
+moderators should be selected in the model. Currently, this is done
+using the 95% credible intervals, with a moderator being selected if
+zero is excluded in this interval. In the <code>summary</code> this is
+denoted by an asterisk for that moderator. In this model, the only
+significant moderator is the dummy variable for sex. All other
+coefficients are not significant after being shrunken towards zero by
+the lasso prior.</p>
+<p>Also note the summary statistics for <code>tau2</code>, the
+(unexplained) residual between-studies heterogeneity. The 95% credible
+interval for this coefficient excludes zero, indicating that there is a
+non-zero amount of unexplained heterogeneity. It is customary to express
+this heterogeneity in terms of <span class="math inline">\(I^2\)</span>,
+the percentage of variation across studies that is due to heterogeneity
+rather than chance (Higgins and Thompson, 2002; Higgins et al., 2003).
+The helper function <code><a href="../reference/I2.html">I2()</a></code> computes the posterior
+distribution of <span class="math inline">\(I^2\)</span> based on the
+MCMC draws of <code>tau2</code>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/I2.html">I2</a></span><span class="op">(</span><span class="va">fit_lasso</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">#&gt;    mean sd 2.5% 25% 50% 75% 97.5%</span>
@@ -241,7 +299,12 @@
 <div class="section level3">
 <h3 id="two-level-model-with-the-horseshoe-prior">Two-level model with the horseshoe prior<a class="anchor" aria-label="anchor" href="#two-level-model-with-the-horseshoe-prior"></a>
 </h3>
-<p>Next, we look into the regularized horseshoe prior. The horseshoe prior has five hyperparameters that can be set. Three parameters are degrees of freedom parameters which influence the tails of the distributions in the prior. Generally, it is not needed to specify different values for these hyperparameters. Here, we focus instead on the global scale parameter and the scale of the slab.</p>
+<p>Next, we look into the regularized horseshoe prior. The horseshoe
+prior has five hyperparameters that can be set. Three parameters are
+degrees of freedom parameters which influence the tails of the
+distributions in the prior. Generally, it is not needed to specify
+different values for these hyperparameters. Here, we focus instead on
+the global scale parameter and the scale of the slab.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># use the default settings</span>
 <span class="va">fit_hs1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brma.html">brma</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">.</span>,
@@ -266,8 +329,13 @@
                 method <span class="op">=</span> <span class="st">"hs"</span>,
                 prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>df <span class="op">=</span> <span class="fl">1</span>, df_global <span class="op">=</span> <span class="fl">1</span>, df_slab <span class="op">=</span> <span class="fl">4</span>, scale_global <span class="op">=</span> <span class="fl">1</span>, scale_slab <span class="op">=</span> <span class="fl">5</span>, relevant_pars <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>,
                 mute_stan <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p>Note that the horseshoe prior results in some divergent transitions. This can be an indication of non-convergence. However, these divergences arise often when using the horseshoe prior and as long as there are not too many of them, the results can still be used.<!-- CJ Reference? --></p>
-<p>Next, we plot the posterior mean estimates for a selection of moderators for the different priors.</p>
+<p>Note that the horseshoe prior results in some divergent transitions.
+This can be an indication of non-convergence. However, these divergences
+arise often when using the horseshoe prior and as long as there are not
+too many of them, the results can still be
+used.<!-- CJ Reference? --></p>
+<p>Next, we plot the posterior mean estimates for a selection of
+moderators for the different priors.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">make_plotdat</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">prior</span><span class="op">)</span><span class="op">{</span>
   <span class="va">plotdat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">coefficients</span><span class="op">)</span>
@@ -290,13 +358,20 @@
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Posterior mean"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span></code></pre></div>
 <p><img src="sensitivity.png" width="80%"></p>
-<p>We can see that, in general, the different priors give quite similar results in this application. A notable exception is the estimate for the dummy variable <code>testAuthorGrouped_stepDownAvoidance</code> which is much smaller for the lasso compared to the horseshoe specification. This indicates that the lasso can shrink large coefficients more towards zero whereas the horseshoe is better at keeping them large.</p>
+<p>We can see that, in general, the different priors give quite similar
+results in this application. A notable exception is the estimate for the
+dummy variable <code>testAuthorGrouped_stepDownAvoidance</code> which is
+much smaller for the lasso compared to the horseshoe specification. This
+indicates that the lasso can shrink large coefficients more towards zero
+whereas the horseshoe is better at keeping them large.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="three-level-model">Three-level model<a class="anchor" aria-label="anchor" href="#three-level-model"></a>
 </h2>
-<p>Finally, we can also take into account the fact that some effect sizes might come from the same study by fitting a three-level model as follows:</p>
+<p>Finally, we can also take into account the fact that some effect
+sizes might come from the same study by fitting a three-level model as
+follows:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit_3l</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brma.html">brma</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">.</span>,
                data <span class="op">=</span> <span class="va">datsel</span>,
@@ -310,8 +385,18 @@
 <div class="section level2">
 <h2 id="standardization">Standardization<a class="anchor" aria-label="anchor" href="#standardization"></a>
 </h2>
-<p>It is possible to override the default standardization, which standardizes all variables (including dummies). To do so, first manually standardize any variables that must be standardized. Then, in the call to <code><a href="../reference/brma.html">brma()</a></code>, provide a named list with elements <code>list(center = ..., scale = ...)</code>. For variables that are <strong>not</strong> to be standardized, use <code>center = 0, scale = 1</code>. This retains their original scale. For variables that are to be standardized, use their original <code>center</code> and <code>scale</code> to restore the coefficients to their original scale.</p>
-<p>In the example below, we standardize a continuous predictor, but we do not standardize the dummies:</p>
+<p>It is possible to override the default standardization, which
+standardizes all variables (including dummies). To do so, first manually
+standardize any variables that must be standardized. Then, in the call
+to <code><a href="../reference/brma.html">brma()</a></code>, provide a named list with elements
+<code>list(center = ..., scale = ...)</code>. For variables that are
+<strong>not</strong> to be standardized, use
+<code>center = 0, scale = 1</code>. This retains their original scale.
+For variables that are to be standardized, use their original
+<code>center</code> and <code>scale</code> to restore the coefficients
+to their original scale.</p>
+<p>In the example below, we standardize a continuous predictor, but we
+do not standardize the dummies:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">moderators</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="va">yi</span><span class="op">~</span><span class="va">ageWeek</span> <span class="op">+</span> <span class="va">strainGrouped</span>, data <span class="op">=</span> <span class="va">datsel</span><span class="op">)</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span>
 <span class="va">scale_age</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">moderators</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span>
@@ -326,7 +411,14 @@
                 prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>df <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,
                 standardize <span class="op">=</span> <span class="va">stdz</span>,
                 mute_stan <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p>Note that, in this example, only <code>ageWeek</code> is standardized; the remaining (dummy) variables are untouched. The object <code>stdz</code> provides the original center and scale for <code>ageWeek</code>, which allows <code><a href="../reference/brma.html">brma()</a></code> to properly rescale the coefficient for this moderator. As the center and scale for all remaining (dummy) variables are 0 and 1, these coefficients are <strong>not</strong> rescaled. See the <code>pema</code> paper for a discussion of standardization and further references.</p>
+<p>Note that, in this example, only <code>ageWeek</code> is
+standardized; the remaining (dummy) variables are untouched. The object
+<code>stdz</code> provides the original center and scale for
+<code>ageWeek</code>, which allows <code><a href="../reference/brma.html">brma()</a></code> to properly
+rescale the coefficient for this moderator. As the center and scale for
+all remaining (dummy) variables are 0 and 1, these coefficients are
+<strong>not</strong> rescaled. See the <code>pema</code> paper for a
+discussion of standardization and further references.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
@@ -341,7 +433,8 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.1.</p>
 </div>
 
     </footer>

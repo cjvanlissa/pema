@@ -1,5 +1,6 @@
 # pema 0.1.2
 
+* Updated maintainer email address
 * Use str2lang("pema::function") instead of quote(function) so pema functions
   work without attaching package namespace
 * Coerce mean and sd to array so stan accepts cases with 1 moderator

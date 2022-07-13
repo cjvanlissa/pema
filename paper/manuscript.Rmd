@@ -541,7 +541,7 @@ This is possible in `brma()` by ...
 
 # Simulation study
 
-The present study set out to validate the BRMA algorithm using a simulation study.
+The present simulation study set out to validate the BRMA algorithm.
 As a benchmark for comparison, we used restricted maximum likelihood meta-regression,
 which is the standard in the field.
 We evaluated the algorithms' predictive performance in new data, 

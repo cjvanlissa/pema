@@ -7,7 +7,7 @@ using namespace Rcpp ;
 RCPP_MODULE(stan_fit4lasso_MA_ml_mod) {
 
 
-    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("model_lasso_MA_ml")
+    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("rstantools_model_lasso_MA_ml")
 
     .constructor<SEXP,SEXP,SEXP>()
 

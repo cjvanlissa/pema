@@ -1,9 +1,10 @@
 
 # pema: Penalized Meta-Analysis <!--a href='https://osf.io/zcvbs/'><img src='https://github.com/cjvanlissa/pema/raw/master/docs/pema_icon.png' align="right" height="139" /></a-->
 
-<!-- [![CRAN status](https://www.r-pkg.org/badges/version/pema)](https://cran.r-project.org/package=pema) -->
-<!-- [![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/grand-total/pema?color=blue)](https://r-pkg.org/pkg/pema) -->
-
+[![CRAN
+status](https://www.r-pkg.org/badges/version/pema)](https://CRAN.R-project.org/package=pema)
+[![CRAN RStudio mirror
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/pema?color=blue)](https://r-pkg.org/pkg/pema)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/cjvanlissa/pema/workflows/R-CMD-check/badge.svg)](https://github.com/cjvanlissa/pema/actions)
@@ -28,8 +29,13 @@ towards zero.
 
 ## Installing the package
 
-Use [R-universe](https://cjvanlissa.r-universe.dev) to install the
-development version of `pema` by running the following code:
+Use [CRAN](https://CRAN.R-project.org/package=pema) to install the
+latest release of `pema`:
+
+    install.packages("pema")
+
+Alternatively, use [R-universe](https://cjvanlissa.r-universe.dev) to
+install the development version of `pema` by running the following code:
 
 ``` r
 options(repos = c(

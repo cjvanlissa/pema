@@ -7,7 +7,7 @@ using namespace Rcpp ;
 RCPP_MODULE(stan_fit4horseshoe_MA_mod) {
 
 
-    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("model_horseshoe_MA")
+    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("rstantools_model_horseshoe_MA")
 
     .constructor<SEXP,SEXP,SEXP>()
 
