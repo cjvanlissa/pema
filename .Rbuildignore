@@ -12,3 +12,5 @@ paper/
 ^cran-comments\.md$
 ^news\.md$
 ^CRAN-SUBMISSION$
+^doc$
+^Meta$

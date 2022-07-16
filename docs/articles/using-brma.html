@@ -87,7 +87,6 @@ chains will be run in parallel, making estimation faster.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/cjvanlissa/pema" class="external-link">pema</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://cjvanlissa.github.io/tidySEM/" class="external-link">tidySEM</a></span><span class="op">)</span>
-<span class="co">#&gt; Loading required package: OpenMx</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>mc.cores <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></code></pre></div>
 </div>
@@ -239,35 +238,35 @@ specification.</p>
 <code class="sourceCode R"><span class="va">sum</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_lasso</span><span class="op">)</span>
 <span class="va">sum</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"sd"</span>, <span class="st">"2.5%"</span>, <span class="st">"97.5%"</span>, <span class="st">"n_eff"</span>, <span class="st">"Rhat"</span><span class="op">)</span><span class="op">]</span></code></pre></div>
 <pre><code><span class="co">#&gt;                                  mean      sd     2.5%   97.5% n_eff Rhat</span>
-<span class="co">#&gt; Intercept                    -21.0631 14.3441 -50.8793  3.1855  2202    1</span>
-<span class="co">#&gt; mTimeLength                   -0.0033  0.0049  -0.0145  0.0050  2525    1</span>
-<span class="co">#&gt; year                           0.0106  0.0071  -0.0014  0.0254  2205    1</span>
-<span class="co">#&gt; modelLG                        0.0884  0.1442  -0.1647  0.4143  2414    1</span>
-<span class="co">#&gt; modelLNB                       0.1436  0.1043  -0.0259  0.3670  1828    1</span>
-<span class="co">#&gt; modelM                         0.0230  0.0509  -0.0693  0.1368  2548    1</span>
-<span class="co">#&gt; modelMD                        0.0225  0.0767  -0.1272  0.1873  2779    1</span>
-<span class="co">#&gt; ageWeek                       -0.0073  0.0052  -0.0182  0.0014  1571    1</span>
-<span class="co">#&gt; strainGroupedC57Bl6           -0.0198  0.0681  -0.1706  0.1161  2507    1</span>
-<span class="co">#&gt; strainGroupedCD1              -0.1256  0.1860  -0.5367  0.1996  2470    1</span>
-<span class="co">#&gt; strainGroupedDBA              -0.0305  0.1634  -0.3682  0.3089  3241    1</span>
-<span class="co">#&gt; strainGroupedlisterHooded     -0.0556  0.3242  -0.7567  0.5836  2808    1</span>
-<span class="co">#&gt; strainGroupedlongEvans         0.0752  0.1231  -0.1449  0.3406  2496    1</span>
-<span class="co">#&gt; strainGroupedlongEvansHooded   0.1744  0.2155  -0.1850  0.6499  2308    1</span>
-<span class="co">#&gt; strainGroupedNMRI              0.1186  0.2402  -0.3263  0.6381  2703    1</span>
-<span class="co">#&gt; strainGroupedNS                0.0348  0.1482  -0.2655  0.3497  2741    1</span>
-<span class="co">#&gt; strainGroupedother            -0.0148  0.1220  -0.2692  0.2396  2371    1</span>
-<span class="co">#&gt; strainGroupedspragueDawley    -0.0049  0.0620  -0.1351  0.1233  2942    1</span>
-<span class="co">#&gt; strainGroupedswissWebster      0.5754  0.4996  -0.2536  1.6622  2418    1</span>
-<span class="co">#&gt; strainGroupedwistar            0.0245  0.0558  -0.0780  0.1472  2791    1</span>
-<span class="co">#&gt; strainGroupedwistarKyoto       0.0347  0.2762  -0.5335  0.6131  2912    1</span>
-<span class="co">#&gt; bias                          -0.0085  0.0274  -0.0681  0.0434  2789    1</span>
-<span class="co">#&gt; speciesrat                     0.1183  0.0850  -0.0166  0.2939  1973    1</span>
-<span class="co">#&gt; domainsLearning                0.0032  0.0490  -0.0925  0.1069  3120    1</span>
-<span class="co">#&gt; domainnsLearning               0.1158  0.0807  -0.0195  0.2859  1723    1</span>
-<span class="co">#&gt; domainsocial                   0.1733  0.1204  -0.0263  0.4318  1631    1</span>
-<span class="co">#&gt; domainnoMeta                  -0.3626  0.1846  -0.7341 -0.0248  1714    1</span>
-<span class="co">#&gt; sexM                           0.1154  0.0661  -0.0027  0.2554  1864    1</span>
-<span class="co">#&gt; tau2                           0.4280  0.0388   0.3560  0.5041  1368    1</span></code></pre>
+<span class="co">#&gt; Intercept                    -20.7265 14.4136 -50.9609  3.6187  1657    1</span>
+<span class="co">#&gt; mTimeLength                   -0.0032  0.0048  -0.0143  0.0049  2070    1</span>
+<span class="co">#&gt; year                           0.0104  0.0072  -0.0017  0.0254  1660    1</span>
+<span class="co">#&gt; modelLG                        0.0855  0.1438  -0.1759  0.4025  2283    1</span>
+<span class="co">#&gt; modelLNB                       0.1430  0.1059  -0.0270  0.3721  1210    1</span>
+<span class="co">#&gt; modelM                         0.0213  0.0496  -0.0695  0.1329  2208    1</span>
+<span class="co">#&gt; modelMD                        0.0229  0.0773  -0.1253  0.1856  2320    1</span>
+<span class="co">#&gt; ageWeek                       -0.0073  0.0053  -0.0187  0.0015  1364    1</span>
+<span class="co">#&gt; strainGroupedC57Bl6           -0.0189  0.0662  -0.1587  0.1117  2193    1</span>
+<span class="co">#&gt; strainGroupedCD1              -0.1158  0.1813  -0.5305  0.2004  2074    1</span>
+<span class="co">#&gt; strainGroupedDBA              -0.0253  0.1625  -0.3563  0.3059  1591    1</span>
+<span class="co">#&gt; strainGroupedlisterHooded     -0.0540  0.3135  -0.7133  0.5434  2062    1</span>
+<span class="co">#&gt; strainGroupedlongEvans         0.0712  0.1205  -0.1421  0.3397  2253    1</span>
+<span class="co">#&gt; strainGroupedlongEvansHooded   0.1790  0.2181  -0.1823  0.6557  2302    1</span>
+<span class="co">#&gt; strainGroupedNMRI              0.1200  0.2423  -0.3336  0.6518  2225    1</span>
+<span class="co">#&gt; strainGroupedNS                0.0289  0.1497  -0.2674  0.3448  2842    1</span>
+<span class="co">#&gt; strainGroupedother            -0.0227  0.1263  -0.2832  0.2302  2079    1</span>
+<span class="co">#&gt; strainGroupedspragueDawley    -0.0041  0.0615  -0.1343  0.1176  1921    1</span>
+<span class="co">#&gt; strainGroupedswissWebster      0.5557  0.4900  -0.2266  1.6393  2230    1</span>
+<span class="co">#&gt; strainGroupedwistar            0.0236  0.0567  -0.0807  0.1512  2078    1</span>
+<span class="co">#&gt; strainGroupedwistarKyoto       0.0295  0.2698  -0.5350  0.5813  2392    1</span>
+<span class="co">#&gt; bias                          -0.0086  0.0290  -0.0716  0.0473  2087    1</span>
+<span class="co">#&gt; speciesrat                     0.1191  0.0877  -0.0203  0.3179  1380    1</span>
+<span class="co">#&gt; domainsLearning                0.0017  0.0501  -0.1012  0.1072  1986    1</span>
+<span class="co">#&gt; domainnsLearning               0.1159  0.0815  -0.0215  0.2892  1553    1</span>
+<span class="co">#&gt; domainsocial                   0.1702  0.1183  -0.0249  0.4232  1600    1</span>
+<span class="co">#&gt; domainnoMeta                  -0.3615  0.1843  -0.7299 -0.0184  1212    1</span>
+<span class="co">#&gt; sexM                           0.1205  0.0689  -0.0017  0.2605  1602    1</span>
+<span class="co">#&gt; tau2                           0.4291  0.0394   0.3524  0.5098  1112    1</span></code></pre>
 <p>If we are satisfied with the convergence, we can continue looking at
 the posterior summary statistics. The <code>summary</code> function
 provides the posterior mean estimate for the effect of each moderator.
@@ -293,7 +292,7 @@ MCMC draws of <code>tau2</code>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/I2.html">I2</a></span><span class="op">(</span><span class="va">fit_lasso</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">#&gt;    mean sd 2.5% 25% 50% 75% 97.5%</span>
-<span class="co">#&gt; I2   68  2   64  67  68  69    71</span></code></pre>
+<span class="co">#&gt; I2   68  2   64  67  68  69    72</span></code></pre>
 </div>
 </div>
 <div class="section level3">

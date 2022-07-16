@@ -2,8 +2,8 @@
 title: "Conducting a Bayesian Regularized Meta-analysis"
 output: rmarkdown::html_vignette
 vignette: >
+  %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{Conducting a Bayesian Regularized Meta-analysis}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -22,11 +22,17 @@ run_everything = FALSE
 
 First, load in the necessary packages. In addition, if you are running the model locally on a multi-core machine, you can set `options(mc.cores = 4)`. This ensures the different MCMC chains will be run in parallel, making estimation faster.
 
-```{r, eval = TRUE}
+```{r, eval = FALSE, echo = TRUE}
 library(pema)
 library(tidySEM)
 library(ggplot2)
 options(mc.cores = 4)
+```
+```{r, eval = TRUE, echo = FALSE}
+library(pema)
+library(ggplot2)
+options(mc.cores = 4)
+data("bonapersona")
 ```
 
 
@@ -86,6 +92,10 @@ fit_lasso <- brma(yi ~ .,
 ```
 ```{r, echo = FALSE, eval = TRUE}
 if(run_everything){
+  bonapersona$ageWeek[is.na(bonapersona$ageWeek)] <- median(bonapersona$ageWeek, na.rm = TRUE)
+  datsel <- bonapersona[ , c("yi", "vi", "author", "mTimeLength", "year", "model", "ageWeek", "strainGrouped", "bias", "species", "domain", "sex")]
+  dat2l <- datsel
+  dat2l[["author"]] <- NULL
   fit_lasso <- brma(yi ~ .,
                     data = dat2l,
                     vi = "vi",
