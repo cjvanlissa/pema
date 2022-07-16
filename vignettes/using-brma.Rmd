@@ -2,7 +2,7 @@
 title: "Conducting a Bayesian Regularized Meta-analysis"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Conducting a Bayesian Regularized Meta-analysis}
   %\VignetteEncoding{UTF-8}
 ---
