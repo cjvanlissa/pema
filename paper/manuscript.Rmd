@@ -45,18 +45,22 @@ abstract: |
   potentially relevant between-studies differences. These differences can be
   coded as moderators, and accounted for using meta-regression. However, many
   applied meta-analyses lack the power to adequately account for multiple
-  moderators, as the number of studies on any given topic is often low. The
-  present study introduces Bayesian Regularized Meta-Analysis (BRMA), an
-  algorithm that performs variable selection to identify relevant moderators
-  from a larger number of candidates.
-  This approach is suitable when heterogeneity is suspected, but
-  it is not known which moderators most strongly inﬂuence the observed effect
-  size. We present a simulation study to validate the performance of BRMA
-  relative to state-of-the-art meta-regression (RMA). Results indicated that
-  BRMA compared favorably to RMA on three metrics: predictive performance (a
-  measure of generalizability), the ability to reject irrelevant moderators,
+  moderators, as the number of studies on any given topic is often low.
+  [The present study introduces Bayesian Regularized Meta-Analysis (BRMA),
+  which uses regularizing (LASSO or horseshoe) priors to shrink small
+  regression coefficients towards zero]{#lassoabstract}, thereby selecting relevant
+  moderators from a larger number of candidates.
+  This approach is suitable when heterogeneity is suspected,
+  but it is not known which moderators most strongly inﬂuence the
+  observed effect size.
+  We present a simulation study to validate the performance of BRMA
+  relative to state-of-the-art random effects meta-analysis using REML   (RMA).
+  Results indicated that BRMA compared favorably to RMA on three metrics:
+  predictive performance (a measure of generalizability),
+  the ability to reject irrelevant moderators,
   and the ability to recover population parameters with
-  low bias. BRMA had slightly lower ability to detect true effects of relevant
+  low bias.
+  BRMA had slightly lower ability to detect true effects of relevant
   moderators, but the overall proportion of Type I and Type II errors was
   equivalent to RMA. BRMA regression coefficients were slightly
   biased towards zero (by design), but its estimates of residual heterogeneity
@@ -624,7 +628,7 @@ whichhi <- prop.table(out$which_highest)
 ```
 
 Within data sets, the BRMA with a horseshoe prior had the highest predictive performance `r round(whichhi[1]*100)`% of the time, followed by RMA, `r round(whichhi[3]*100)`%, and finally BRMA with a LASSO prior, `r round(whichhi[2]*100)`%.
-Results indicated that the overall $R^2_{test}$ was highest for BRMA with a horseshoe prior and lowest for RMA, see \@ref(tab:tabr2).
+Results indicated that the overall $R^2_{test}$ was highest for BRMA with a horseshoe prior and lowest for RMA, see Table \@ref(tab:tabr2).
 This difference was driven in part by the fact that explained variance was somewhat higher for the BRMA models when the true effect was non-zero (i.e., in the presence of a population effect),
 and by the fact that RMA had larger negative explained variance when the true effect was equal to zero (i.e., there was no population effect to detect).
 
