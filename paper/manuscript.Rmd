@@ -68,6 +68,8 @@ abstract: |
   data, suggesting its suitability as a small sample solution. We discuss how
   applied researchers can use BRMA to explore between-studies heterogeneity
   in meta-analysis.
+  The method is implemented in the R-package 
+  `pema` (penalized meta-analysis) and in the free open source statistical software package JASP.
   
 keywords          : "meta-analysis, machine learning, bayesian, lasso, horseshoe, regularized"
 wordcount         : "5356"
@@ -210,7 +212,10 @@ An alternative method for variable selection that can be used in linear models i
 shrinking model parameters towards zero, such that irrelevant moderators are eliminated.
 The present paper introduces *Bayesian regularized meta-regression* (BRMA),
 an algorithm that uses Bayesian estimation with regularizing priors to perform variable selection in meta-analysis.
-The algorithm is implemented in the function `brma()` in the R-package `pema`.
+Regularizing priors assign a high probability mass to near-zero values,
+which keeps small regression coefficients close to zero, resulting in a sparse solution.
+This manuscript discusses two shrinkage priors,
+the LASSO and horseshoe prior.
 <!--
 Thus, there is a need of a regularization method to curtail overfitting. Least Absolute Shrinkage and Selection Operator [LASSO] (L1-norm regularization) can fulfill this role, since it has an advantage in terms of feature selection. The goal of this project is to implement L1-norm regularization in the weighted meta-regression, developing an new estimator for regularized meta-regression.
 This dilemma could be resolved by an exploratory technique that can identify relevant moderators in meta-analysis,
