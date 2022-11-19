@@ -85,7 +85,9 @@ elements.}
 in the model.}
 }
 \value{
-A \code{list} object of class \code{brma}, with the following structure:\preformatted{list(
+A \code{list} object of class \code{brma}, with the following structure:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{list(
   fit          # An object of class stanfit, for compatibility with rstan
   coefficients # A numeric matrix with parameter estimates; these are
                # interpreted as regression coefficients, except tau2 and tau,
@@ -101,7 +103,7 @@ A \code{list} object of class \code{brma}, with the following structure:\preform
   k            # Numeric, number of effect sizes
   study        # Numeric vector with study id numbers
 )
-}
+}\if{html}{\out{</div>}}
 }
 \description{
 This function conducts Bayesian regularized meta-regression (Van Lissa & Van
