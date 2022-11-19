@@ -1,6 +1,11 @@
 \begin{figure*}[hbt]
 \ifnextchar[{\eatarg}{}
 
+\includegraphics[width=4.17in]{jasp} \caption{Using BRMA via the JASP software package.}\label{fig:figjasp}
+\end{figure*}
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
 \includegraphics[width=20.67in]{r2} \caption{Predictive R2 for BRMA with horseshoe (HS) and LASSO prior, and RMA. Plots are sorted by largest performance difference between BRMA and RMA.}\label{fig:figr2}
 \end{figure*}
 \begin{figure*}[hbt]

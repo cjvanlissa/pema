@@ -54,7 +54,7 @@ abstract: |
   but it is not known which moderators most strongly inﬂuence the
   observed effect size.
   We present a simulation study to validate the performance of BRMA
-  relative to state-of-the-art random effects meta-analysis using REML   (RMA).
+  relative to state-of-the-art random effects meta-analysis using REML (RMA).
   Results indicated that BRMA compared favorably to RMA on three metrics:
   predictive performance (a measure of generalizability),
   the ability to reject irrelevant moderators,
@@ -149,47 +149,45 @@ Weighting accounts for the fact that some observed effect sizes are assumed to b
 <!-- Each effect size is assigned a weight that determines how influential it is in calculating the summary effect. -->
 The weights are based on specific assumptions;
 for example, the *fixed effect* model assumes that all observed effect sizes reflect one underlying true population effect.
-This assumption is well-suited to the situation where effect sizes from close replication studies are meta-analyzed [@higginsReevaluationRandomeffectsMetaanalysis2009]. 
+This assumption is appropriate when meta-analyzing effect sizes from close replication studies [@higginsReevaluationRandomeffectsMetaanalysis2009]. 
 The *random effects* model, by contrast, assumes that population effect sizes follow a normal distribution.
-Each observed effect size provides information about the mean and standard deviation of this distribution of population effect sizes.
-This assumption is more appropriate when studies are conceptually similar and differences between them are random [@higginsReevaluationRandomeffectsMetaanalysis2009]. 
+<!-- Each observed effect size provides information about the mean and standard deviation of this distribution. -->
+This assumption is more appropriate when studies are conceptually similar but vary in small random ways that introduce heterogeneity in effect sizes [@higginsReevaluationRandomeffectsMetaanalysis2009]. 
 
-Not all heterogeneity in effect sizes is random, however.
-Quantifiable between-study differences may introduce systematic heterogeneity.
-Such between-study differences are known as "moderators".
-For example, if studies have been replicated in Europe and the Americas, this difference could be captured by a binary moderator called "continent".
-Alternatively, if studies have used different dosages of the same drug, this may be captured by a continuous moderator called "dosage".
-Systematic heterogeneity in the observed effect sizes can be accounted for using *meta-regression* [see @lopez-lopezEstimationPredictivePower2014].
-This technique provides estimates of the effect of one or more study characteristics on the overall effect size,
-as well as of the overall effect size and residual heterogeneity after controlling for their influence.
+Heterogeneity in effect sizes is not always random, however.
+When similar research questions are studied by different labs, in different populations, using different study designs, measurement instruments, and methods - those between-study differences may introduce *systematic heterogeneity*.
+Suspected causes of systematic heterogeneity can either be used as exclusion criteria,
+or accounted for using *meta-regression* [see @lopez-lopezEstimationPredictivePower2014].
+Meta-regression estimates the effect of study characteristics on effect size,
+and provides an estimate of the overall effect size and residual heterogeneity after controlling for their influence.
+For example, if studies have been replicated in Europe and the Americas,
+one could either exclude studies from Europe from further analysis,
+or code a binary moderator variable called "continent".
+One could then estimate the average effect size across both continents.
+Similarly, if studies have examined the effect of a drug at different dosages,
+one could code dosage as a continuous moderator, and control for its influence - thus estimating the overall effect size at average dosages.
 
-One common application of meta-analysis is to summarize existing bodies of literature.
-In such situations, the number of moderators is often relatively high because similar research questions have been studied in different laboratories,
-using different methods, instruments, and samples.
-Each of these between-study differences could be coded as a moderator, and some of these moderators may explain systematic heterogeneity.
-
-The influence of multiple moderators can be accounted for using meta-regression.
-However, like any regression-based approach, meta-regression requires a relatively high number of cases (studies) per parameter to obtain sufficient power to examine heterogeneity.
-In applied meta-analyses, the number of available studies is often too low to examine heterogeneity reliably [@rileyInterpretationRandomEffects2011].
-At the same time, there are many potential sources of heterogeneity,
-as similar research questions are studied in different laboratories, using different methods,
-instruments, and samples.
-This leads to a problem known as the "curse of dimensionality": the number of candidate moderators is large relative to the number of cases in the data.
+A common application of meta-analysis is to summarize existing bodies of literature.
+In such situations, there are many potentially relevant between-study differences that could be coded as moderators.
+Although meta-regression can accommodate multiple moderators,
+like any regression-based approach, it requires a relatively high number of cases (studies) per parameter to obtain sufficient statistical power.
+In applied meta-analyses, the number of available studies is often too low to obtain sufficient power [@rileyInterpretationRandomEffects2011],
+or even so low that the model is not identified [@akaikeNewLookStatistical1974].
+This problem is known as the "curse of dimensionality".
 <!-- This poses a challenge in the -->
 <!-- classic meta-analysis paradigm, which, like any regression-based approach, requires a -->
 <!-- high number of cases per parameter.  -->
-Between-studies differences present a non-trivial challenge to data aggregation
-using classic meta-analytic methods.
+Between-studies differences thus pose a non-trivial challenge to classic meta-analytic methods.
 At the same time, they also provide an unexploited
-opportunity to learn which differences between studies have an impact on the effect size
+opportunity to learn which factors impact the effect size
 found, if adequate exploratory techniques are used. 
 
-Addressing this curse of dimensionality necessitates *variable selection*:
-the selection of a smaller subset of relevant moderators from a larger number of candidate moderators.
-One way to perform variable selection is by relying on theory.
-However, in many fields of science, theories exist at the individual level of analysis (e.g., in social science, at the level of individual people).
-These theories do not necessarily generalize to the study level of analysis.
-Using theories at the individual level for moderator selection at the study level amounts to committing the ecological fallacy: generalizing inferences across levels of analysis [@jargowskyEcologicalFallacy2004].
+The curse of dimensionality can be overcome using *variable selection*:
+identifying a smaller subset of relevant moderators from a larger number of candidate moderators [@hastieElementsStatisticalLearning2009].
+One way to perform variable selection is by relying on theory, and selecting only moderators that should theoretically have an impact on effect size.
+Note, however, that theories at the individual level of analysis do not necessarily generalize to the study level of analysis.
+In the social sciences, for example, many theories describe phenomena at the level of individual people.
+Using such theories for variable selection at the study level amounts to committing the ecological fallacy: generalizing inferences across levels of analysis [@jargowskyEcologicalFallacy2004].
 To illustrate what a theory at the study level of analysis might look like, 
 consider the so-called *decline effect*.
 It is a phenomenon whereby effect sizes in a particular tranche of the literature seem to diminish over time [@schoolerUnpublishedResultsHide2011].
@@ -204,12 +202,13 @@ however, this approach will have limited utility for variable selection.
 An alternative solution is to rely on statistical methods for variable selection.
 This is a focal issue in the discipline of machine learning [@hastieElementsStatisticalLearning2009].
 There is precedent for the use of machine learning to perform variable selection in meta-analysis [@vanlissaSmallSampleMetaanalyses2020].
-This work used the *random forest* algorithm; a non-parametric approach that largely ignores irrelevant moderators.
+This prior work used the non-parametric *random forest* algorithm.
 One limitation of random forests is that non-parametric models are harder to interpret,
-particularly for a readership that is accustomed to linear models,
-where the effect of each predictor is described by a single parameter.
-An alternative method for variable selection that can be used in linear models is *regularization*:
-shrinking model parameters towards zero, such that irrelevant moderators are eliminated.
+particularly when the readership is accustomed to linear models that describe the effect of each moderator with a single parameter.
+
+Regularization is a method for variable selection that can be applied in linear models.
+It effectively shrinks small model parameters towards zero,
+such that irrelevant moderators are eliminated.
 The present paper introduces *Bayesian regularized meta-regression* (BRMA),
 an algorithm that uses Bayesian estimation with regularizing priors to perform variable selection in meta-analysis.
 Regularizing priors assign a high probability mass to near-zero values,
@@ -228,39 +227,32 @@ Regularization also provides a solution to the curse of dimensionality; unlike s
 
 ## Statistical underpinnings
 
-To understand how BRMA estimates the relevant parameters and performs variable selection, it is instructional to first review the statistical underpinnings of the aforementioned classic approaches to meta-analysis.
-First is the fixed-effect model, which assumes that each observed effect size $T_i$ is an estimate of an underlying true effect size $\Theta$ [@hedgesFixedRandomeffectsModels1998].
-The only cause of heterogeneity in observed effect sizes is presumed to be effect size-specific sampling variance, $v_i$, which is treated as known, and computed as the square of the standard error of the effect size.
-Thus, for a collection of $k$ studies, the observed effects sizes of individual studies $i$ (for $i$ = 1,2, . . . $k$) are given by:
+To understand how BRMA estimates the relevant parameters and performs variable selection,
+it is instructional to first review the statistical underpinnings of classical meta-analysis.
+As mentioned before, the fixed effect model assumes that each observed effect size $T_i$ is an estimate of an underlying true effect size $\Theta$ [@hedgesFixedRandomeffectsModels1998].
+The only cause of heterogeneity in observed effect sizes is presumed to be sampling error, $v_i$, which is treated as known, and computed as the square of the standard error of the effect size.
+Thus, for a collection of $k$ studies,
+the observed effects sizes of individual studies $i$ (for $i \in [1,2, \ldots k]$) are given by:
 
 \begin{align}
 T_i &= \Theta + \epsilon_i\\
 \text{where } \epsilon_i &\sim N(0, v_i)
 \end{align}
 
-<!--
-\begin{aligned}
-y_i &= \theta_i + \epsilon_i &\text{where } \epsilon_i \sim N(0, \sigma^2_i)\\ % \text{ and } 
-%\theta_1 &= \theta_2 \dots = \theta_k
-\end{aligned}-->
-
-Under the fixed effect model, the estimated population effect size  $\hat{\theta}$ is obtained by computing a weighted average of the observed effect sizes.
-If sampling error is assumed to be the only source of variance in the observed effect size,
-then it follows that studies with smaller standard errors estimate the underlying true effect size more precisely<!--(Schmidt, Oh \& Hayes, 2009)-->.
-The fixed-effect weights are thus simply the reciprocal of the sampling variance, $w_{i} =  \frac{1}{v_i}$.
+The estimated population effect size $\hat{\theta}$ is then a weighted average of the observed effect sizes.
+The assumption that sampling error is the only source of variance in observed effect sizes implies that studies with smaller standard errors estimate the underlying true effect size more precisely and should accrue more weight.
+Therefore, fixed effect weights are simply the reciprocal of the sampling variance, $w_{i} =  \frac{1}{v_i}$.
 The estimate of the true effect is a weighted average across observed effect sizes:
 
 \begin{equation}
 \hat{\theta} = \frac{\sum_{i=1}^k w_iT_i}{\sum_{i=1}^k w_i}
 \end{equation}
 
-<!--A highly likely consequence is that this will lead to a huge amount of possible moderators (Caserio, 2014). Caused by differences in for example cultures of research populations and used methods or instruments (Neuman, 2011). Even in replication studies there are sometimes moderators that are unanticipated (Kunert, 2016). This leads very often to an eventual poor performance of the fixed-effects meta-analysis model (Snijders, 2005). -->
+<!--A highly likely consequence is that this will lead to a huge amount of possible moderators (Caserio, 2014). Caused by differences in for example cultures of research populations and used methods or instruments (Neuman, 2011). Even in replication studies there are sometimes moderators that are unanticipated (Kunert, 2016). This leads very often to an eventual poor performance of the fixed effects meta-analysis model (Snijders, 2005). -->
 	
-Whereas the fixed-effect model assumes that only one true population effect exists,
-the random-effects model assumes that true effects may vary for unknown reasons,
-and thus follow a (normal) distribution of their own [@hedgesFixedRandomeffectsModels1998].
-This heterogeneity of the true effects is represented by their variance, $\tau^{2}$.
-The random effects model thus assumes that the heterogeneity in observed effects can be decomposed into sampling error and between-studies heterogeneity, resulting in the following equation for the observed effect sizes:
+The random effects model assumes that, in addition to sampling error, true effects may vary for random reasons,
+and thus follow a (normal) distribution with mean $\Theta$ and variance $\tau^{2}$ [@hedgesFixedRandomeffectsModels1998].
+The observed effect sizes are thus given by:
 
 \begin{align}
 T_i &= \Theta + \zeta_{i} + \epsilon_i\\
@@ -268,46 +260,36 @@ T_i &= \Theta + \zeta_{i} + \epsilon_i\\
 \text{and } \epsilon_i &\sim N(0, v_i)
 \end{align}
 
-In this model, $\Theta$ is the mean of the distribution of true effect sizes, and $\tau^2$ is its variance, which can be interpreted as the variance between studies.
-
-If the true effect sizes follow a distribution, 
-then even less precise studies (with larger sampling errors) may provide some information about this distribution.
-Like fixed-effect weights, random effects weights are still influenced by sampling error, but this influence is attenuated by the estimated variance of the true effect sizes. 
-The random-effects weights are thus given by $w_{i} =  \frac{1}{v_i + \hat{\tau}^2}$.
-It is important to note that,
-whereas the sampling error for each individual effect size is treated as known, the
-between-study heterogeneity $\tau^{2}$ must be estimated.
+As in the fixed effect model,
+studies with smaller sampling errors are assigned more weight.
+However, to account for the fact that all studies now provide some information about different regions of the distribution of true effect sizes,
+the weights are attenuated in proportion to the spread of that distribution.
+The random effects weights are thus given by $w_{i} =  \frac{1}{v_i + \hat{\tau}^2}$.
+Whereas sampling error is still treated as known,
+the between-study heterogeneity $\tau^{2}$ must be estimated.
 This estimate is represented by $\hat{\tau}^{2}$.
 
-### Meta-regression
-
-The random-effects model assumes that causes of heterogeneity in the true effect sizes are unknown, and that their influence is random.
-Oftentimes, however, there are systematic sources of heterogeneity in true effect sizes.
-These between-study differences can be coded as moderators, and their influence can be estimated and controlled for using meta-regression.
-Meta-regression with $p$ moderators can be expressed with the following equation, where $x_{1\ldots p}$ represent the moderators, and $\beta_{1\ldots p}$ the regression coefficients:
+Meta-regression extends the random effects model to account for systematic sources of heterogeneity, which are coded as moderators.
+The equation below describes a model with $p$ moderators, where $x_{1\ldots p}$ represent the moderators, and $\beta_{1\ldots p}$ their regression coefficients.
+Note that $\beta_0$ represents the intercept of the distribution of true effect sizes after controlling for the moderators
+and the error term $\zeta_{i}$ represents residual unexplained between-studies heterogeneity.
+This is a mixed-effects model; the intercept and effects of moderators are treated as fixed and the residual heterogeneity as random [@lopez-lopezEstimationPredictivePower2014]:
 
 \begin{align}
 T_i &= \beta_{0}+ \beta_{1}x_{1}+ \beta_{2}x_{2} + \ldots + \beta_{p}x_{p} + \zeta_{i} + \epsilon_i\\
 \end{align}
 
-Note that $\beta_0$ represents the intercept of the distribution of true effect sizes after controlling for the moderators
-and the error term $\zeta_{i}$ represents residual between-studies heterogeneity.
-This term is included because unexplained heterogeneity often remains after accounting for the moderators.
-This is a mixed-effects model; the intercept and effects of moderators are treated as fixed and the residual heterogeneity as random [@lopez-lopezEstimationPredictivePower2014].
-
-<!--
-An accurate estimation of the residual heterogeneity contributes to a better interpretation of the effect of the moderators (Panityakul, Bumrungsup \& Knapp, 2013).-->
-
-To solve this model, the regression coefficients and residual heterogeneity must be estimated simultaneously.
 <!--The topic of estimating the residual heterogeneity is a highly discussed one (Veroniki et al., 2016; Viechtbauer \& López-López, 2015; Panityakul et al., 2013). The ability of the estimators to predict the residual heterogeneity is influenced by different factors, such as the number of studies (Guolo \& Varin, 2017; Panityakul et al., 2013; Hardy \& Thompson, 1996) included and the sample size of the individual studies (Panityakul et al., 2013).
 A third, and obvious factor, that is classified as relevant to model performance is heterogeneity among studies being meta-analysed (Kontopantelis \& Reeves, 2011; Jackson \& White, 2018). Coverage from models degrades when the residual heterogeneity increases, mostly when the amount of studies is small (Brockwell \& Gorden, 2001). Considering that all models their performance is linked to the accuracy of the estimate. According to Sidik \& Jonkman (2007), it is generally the case that the larger true between-study variance is, the more biased the estimate can be, which diminishes the performance of the method.-->
-Numerous methods have been proposed to estimate meta-regression models, the most commonly used of which is restricted maximum likelihood (REML).
-REML is an iterative method, meaning it performs the same calculations repeatedly, updating the estimated regression coefficients and residual heterogeneity until these estimates stabilize.
+The parameters of this model are the regression coefficients and residual heterogeneity.
+Numerous methods have been proposed to estimate meta-regression models,
+the most common of which is restricted maximum likelihood (REML).
+REML is an iterative method, which means that it repeatedly performs the same calculations and updates the estimated parameters until their estimates stabilize.
 <!--, including the Hedges (HE), DerSimonian–Laird/Method of Moments (DL), Sidik and Jonkman (SJ), Maximum Likelihood (ML), Restricted Maximum Likelihood (REML), and Empirical Bayes (EB) method. These methods are mostly divided into two groups: closed-form or non-iterative methods and iterative methods. The main difference between these groups is that the closed form group uses a predetermined number of steps to provide an estimation for the residual heterogeneity, whereas the iterative methods run multiple iteration, as the name suggests, to converge to a solution when a specific criterion is met. It is important to note that some iterative methods do not produce a solution when they fail to converge after a predetermined amount of iteration.-->
-This estimator has low bias, which means that the average value of the estimated regression coefficients and residual heterogeneity is close to their true values [@panityakulEstimatingResidualHeterogeneity2013].
+This estimator has low bias, which means that the average values of the parameters are close to their true values [@panityakulEstimatingResidualHeterogeneity2013].
 <!-- ; (Panityakul et al., 2013; Hardy & Thompson, 1996). -->
 However, this bias comes at the cost of higher variance, which means that the estimated values of a population parameter vary more from one sample to the next. 
-In practice, an estimator with higher variance generalizes less well to new data.
+An estimator with low bias and high variance produces results that generalize less well to new data than an estimator with high bias and low variance.
 This phenomenon is known as the *bias-variance trade-off*.
 Regularization increases bias to reduce variance.
 A disadvantage of this trade-off is that model parameters can no longer be interpreted as straightforwardly as OLS regression coefficients.
@@ -321,90 +303,79 @@ However, a least squares method could still be somewhat valuable in some situati
 
 ### Regularized regression
 
-Regularized regression biases parameter estimates towards zero.
-Before examining the Bayesian case, we will explain the general principle of regularization in frequentist regression.
-OLS regression estimates the model parameters by minimizing the Residual Sum of Squares (RSS) of the dependent variable, which is given by:
+Ordinary least squares regression (OLS) estimates the model parameters by minimizing the Residual Sum of Squares (RSS) of the dependent variable.
+The resulting parameter estimates perfectly describe linear relations in the present data set, but generalize less well to new data:
 
 $$
 RSS=\sum_{i=1}^{n}(y_{i} - \beta_{0} - \sum_{j=1}^{p}\beta_{j}x_{ij})^2
 $$
-The resulting parameter estimates are those that give the best predictions of the dependent variable in the present data set.
-Penalized regression, by contrast, adds a penalty term to the RSS.
-One commonly used penalty is the L1-norm of the regression coefficients, or LASSO penalty [@hastieElementsStatisticalLearning2009],
-which corresponds to the sum of their absolute values.
-This gives the penalized residual sum of squares:
+
+Regularized regression biases parameter estimates towards zero by adding a penalty term to the RSS.
+As an example, we will discuss the most common penalty: the sum of the absolute regression coefficients, also known as the the L1- or LASSO penalty [@hastieElementsStatisticalLearning2009].
+Note that other penalties exist.
+As the LASSO penalty is a function of the regression coefficients, it increases when they get bigger.
+This incentivizes the optimizer to keep the regression coefficients as small as possible.
+Note that the amount of regularization can be controlled by multiplying the penalty by a tuning parameter, $\lambda$.
+If $\lambda$ is zero, the shrinkage penalty has no impact.
+If $\lambda \to \infty$,
+all coefficients shrink towards zero, producing the null model.
+<!--Another commonly used penalty is the L2-norm of the coefficients, or ridge penalty,
+which corresponds to the sum of their squared values: $\sum_{j=1}^{p}\beta_{j}^2$.-->
+Cross-validation is often used to find the optimal value for the penalty parameter $\lambda$.
+<!--The LASSO penalty has the unique property of shrinking some coefficients to be exactly zero,
+but the ridge penalty does not do so, as -->
+The LASSO penalized residual sum of squares is given by:
 
 $$
 PRSS= RSS + \lambda \sum_{j=1}^{p}|\beta_{j}|
 $$
 
-Because the penalty term is a function of the regression coefficients,
-the optimizer is incentivized to keep the regression coefficients as small as possible.
-In this equation, $\lambda$ is a tuning parameter that determines how influential the penalty term will be.
-If $\lambda$ is zero, the shrinkage penalty has no impact and the penalized regression will produce the OLS estimates.
-If $\lambda \to \infty$, all coefficients shrink towards zero, producing the null model.
-<!--Another commonly used penalty is the L2-norm of the coefficients, or ridge penalty,
-which corresponds to the sum of their squared values: $\sum_{j=1}^{p}\beta_{j}^2$.-->
-Generally, cross-validation is used to find the optimal value for the penalty parameter $\lambda$.
-<!--The LASSO penalty has the unique property of shrinking some coefficients to be exactly zero,
-but the ridge penalty does not do so, as -->
-Note that the LASSO penalty is but one example of a shrinkage penalty; other penalties exist.
-
 <!--The Lasso shrinkage method is not the only shrinkage method, there do exist some others. Nevertheless, the lasso is in the case the best option. It possesses, as opposed to other methods, the ability to shrink the parameter not towards zero, but to be exactly zero (James et al., 2013; Hesterberg, Choi, Meier, \& Fraley, 2008). This means that the lasso can perform variable selection, something that is specifically aimed for in this study. -->
-
-
-
 <!--
 **Alternative to linear model: Tree Based models**
 An alternative that can perform variable selection, are tree-based models. These kinds of models have numerous other advantages over linear models. Tree-based models can be used for any data type, are easy to represent visually, require little data preparation and got larger power than linear regressions when moderators exceed observations in quantity. They are also more flexible in handling moderator interactions and non-linearity. As a result of that, they are better in modelling the complicated nature of human behaviour (Earp \& Trafimow, 2015). Decision trees split from the top down and group data in so-called ‘sub-nodes’, in which the data’s aspects are most homogeneous. The goal is to split to get the sub-nodes as uniform as possible, which can be until fully homogenous groups, or if a pre-specified touchstone is reached. 
 Still, singletree based models have some limitations. First of all, tree models are unstable, small fluctuations that are utilized to make the model have a possibility to lead to considerable alterations in the constructions of the tree (Dwyer \& Holte, 2007). Second, it has problems with seizing linearity, because it only makes ‘twofold splits’ (Steyerberg, 2019). At last, tree-based models are susceptible to overfitting (Hastie et al, 2009). 
 
 There are also more complex tree-based models, known as random-forests, which surmount most of the disadvantages of singletree. This variant incorporates multiple decision trees, and combines results from those trees to create a single model with a more accurate estimate (Breiman, 2001). The essential idea behind is know as the ‘wisdom of crowds’, a large number of relatively uncorrelated trees operating as a group will outperform any of the individual elements. The somewhat low correlation between the models is fundamental, because uncorrelated models are able to produce ensemble predictions with a higher accuracy that any individual prediction. This is because the trees preserve each other from their own singular errors (Genuer, Poggi \& Tuleau-Malot, 2010). The lower tendency to overfitting is another advantage of random forests over single trees (Bühlmann \& Yu, 2002). As well as the possibility to predict cases that are not components of the bootstrap sample of the tree. This kind of measure is known as out-of-bag error, which is an approximation of the cross-validation error, and provides proper estimates of the prediction accuracy in further samples (Hastie et al., 2009). 
-An alternative to explore heterogeneity in meta-analysis with a singletree-based method is MetaForest. A technique developed by van Lissa (2017), designed to overcome the lacking’s of singletrees by using random forests. MetaForest applies random-effects or fixed-effects weights to random forests.
-Based on two simulation studies, van Lissa (2017) examined the performance of fixed-effects, random-effects and unweighted MetaForest.
+An alternative to explore heterogeneity in meta-analysis with a singletree-based method is MetaForest. A technique developed by van Lissa (2017), designed to overcome the lacking’s of singletrees by using random forests. MetaForest applies random effects or fixed effects weights to random forests.
+Based on two simulation studies, van Lissa (2017) examined the performance of fixed effects, random effects and unweighted MetaForest.
 
 The study displayed also other advantages from random forests over singletrees. It had greater power, was able to make better predictions, gave estimates of the cross-validation error and yielded useful measures of variable importance and partial prediction plots (van Lissa, 2017). MetaForest can at the moment be considered as the best working technique to explore heterogeneity in meta-analysis. In van Lissa (2017), that only presented estimates of $\tau^{2}$ based on the raw data, we saw that MetaForest had certain robustness against a low number of studies. If moderators were continuously distributed, MetaForest had sufficient power at approximately 20 studies. However, there is an important feature to prove before we can make such an assumption. The underlying data generating models in the two simulation studies of van Lissa (2017) only included normal distributed moderators. Renouncing from normal distributions may affect the performance of the model, but since normal distribution in real-life data is more an exception than a normal state of affairs (Micceri, 1989), it is entirely possible that procedures are affected by skewness, leverage, balance etc. It is important to know how MetaForest performs in these kinds of situations.-->
 
 ### Bayesian estimation
 
-One alternative to the use of a shrinkage penalty is Bayesian estimation with a regularizing prior.
-Whereas classical, frequentist estimation relies solely on the data at hand,
+An alternative to the use of a shrinkage penalty is Bayesian estimation with a regularizing prior.
 Bayesian estimation combines information from the data with a *prior distribution*.
-The prior distribution is a probability distribution that reflects expectations about likely parameter values.
-This prior is updated with the likelihood of the data to form a posterior distribution,
-which reflects expectations about likely parameter values after having seen the data.
+The prior distribution assigns a-priori probability to different parameter values.
+Likely parameter values have a high probability density, and unlikely parameter values have a low probability density.
+The aforementioned (frequentist) approaches, by contrast, treat every possible parameter value as equally plausible.
+The prior distribution is updated with the likelihood of the data to form a posterior distribution,
+which reflects expectations about likely parameter values after having seen the data [for an extensive introduction, see @mcelreathStatisticalRethinkingBayesian2020].
 
-A regularizing prior distribution reflects the expectation that not all regression coefficients are substantial enough to be included in the model.
+A regularizing prior distribution shrinks small coefficients towards zero by assigning high probability mass to near-zero values.
 There are many different regularizing prior distributions [@vanErpOberskiMulder2019].
-Some of these result in exactly the same solutions as frequentist penalized methods.
-For example, applying an independent double exponential (i.e., Laplace) prior to regression coefficients results in posterior modes that are equal to the classical LASSO estimates [@ParkCasella2008].
-Other distributions have been developed specifically for the purpose of providing good shrinkage properties,
-meaning that the prior pulls small regression coefficients towards zero,
-while leaving larger regression coefficients mostly unaffected. 
-A popular prior in this regard is the horseshoe prior [@CarvalhoPolsonScott2010].
+Some of these regularizing priors are analogous to specific frequentist methods.
+For example, a double exponential prior (hereafter: LASSO prior) results in posterior distributions whose modes are identical to the estimates from LASSO-penalized regression [@ParkCasella2008].
+
+A limitation of the LASSO prior is that it introduces substantial bias in non-zero regression coefficients.
+To overcome this limitation, regularizing priors with better shrinkage properties have been developed.
+These priors still pull small regression coefficients towards zero,
+but exert less bias on larger regression coefficients.
+One example is the horseshoe prior [@CarvalhoPolsonScott2010].
 It has heavier tails than the LASSO prior,
-which means that it does not shrink (and therefore bias) substantial coefficients as much. 
+which means that it does not shrink (and therefore bias) substantial coefficients as much.
 
-### Implementation
-
-Bayesian penalized meta-analysis is implemented in the function `brma()` in the R-package `pema`.
-For estimation, it depends on Stan, a probabilistic programming language that uses Hamiltonian Monte Carlo to sample from the posterior distribution [@StanManual].
-Being written in C++, Stan is computationally efficient, but models must be compiled prior to estimation.
-This results in substantial computational overhead.
-To avoid this overhead, `pema` uses pre-compiled models corresponding to random-effects and three-level meta-regression, with and without an intercept.
-Future updates may bring additional models.
-At the time of writing, `brma()` supports two priors: the LASSO and the regularized horseshoe.
-The LASSO prior is implemented as follows:
-
+The BRMA method introduced here offers both LASSO and horseshoe priors.
+The LASSO prior is given by:
 $$
 \beta_{j} \sim \text{DE}(0, \frac{s}{\lambda})
 $$
 where DE denotes the double exponential distribution with a location equal to 0 and a scale determined by a global scale parameter $s$ and an inverse-tuning parameter $\lambda$.
-By default in `brma()`, the global scale parameter is set to 1,
-and the inverse-tuning parameter is given a $\chi^2$ prior with 1 degree of freedom.
+In the present study, the global scale parameter is set to 1,
+and the inverse-tuning parameter is assigned a $\chi^2$ prior distribution with 1 degree of freedom.
 Its value is thus optimized during model estimation.
 
-The implementation of the horseshoe prior is based on the regularized horseshoe proposed by @PiironenVehtari2017b:
+The regularizing horseshoe prior was proposed by @PiironenVehtari2017b and is given by:
 $$
 \begin{aligned}
 \beta_{j} &\sim N(0, \tilde{\tau}_j^2\lambda) \text{, with } \tilde{\tau}_j^2 = \frac{c^2 \tau_j^2}{c^2 + \lambda^2 \tau_j^2}\\
@@ -413,27 +384,50 @@ $$
 c^2 &\sim \Gamma^{-1}(\frac{\nu_3}{2}, \frac{\nu_3 s^2}{2})
 \end{aligned}
 $$
-where N denotes the normal distribution, student-$t^+$ denotes the half-t distribution and $\Gamma^{-1}$ denotes the inverse Gamma distribution. 
-This extension of the horseshoe is more numerically stable in certain cases.
+where $N$ denotes the normal distribution, student-$t^+$ denotes the half-t distribution and $\Gamma^{-1}$ denotes the inverse Gamma distribution. 
 In this formula, $\lambda^2_0$ is a global scale parameter that affects the overall shrinkage of the prior, with smaller values resulting in more shrinkage.
-The default value in `brma()` is 1.
-However, if prior information regarding the number of relevant moderators is available,
+In the present study, we assume a default value of $\lambda^2_0 = 1$.
+However, if prior information regarding the expected number of relevant moderators is available,
 it is best to include this information.
-This is accomplished by setting $\lambda^2_0 = \frac{p_0}{p-p_0}{\frac{\sigma}{\sqrt{n}}}$, where $p_0$ represents the number of relevant moderators, $p$ the total number of moderators, $\sigma$ is the residual standard deviation and $n$ equals the number of observations.
-An alternative, user-friendly way to accomplish this is by setting the argument `relevant_pars` equal to the expected number of relevant moderators. 
+This is accomplished by setting $\lambda^2_0 = \frac{p_0}{p-p_0}{\frac{\sigma}{\sqrt{n}}}$, where $p_0$ represents the expected number of relevant moderators, $p$ the total number of moderators, $\sigma$ is the residual standard deviation and $n$ equals the number of observations.
 <!-- SvE: nu twijfel ik toch weer of dit helemaal goed gaat. sigma is in ons model namelijk op 0 gezet en wordt hier dus niet in meegenomen. Klopt het dat de residual SD 0 moet zijn in dit model? De rest van de global scale wordt berekend buiten het Stan model om in de brma functie zelf. -->
-The thickness of the tails is controlled by two degrees of freedom parameters, $\nu_1$ and $\nu_2$, which default to 1 in `brma()`.
+The thickness of the tails is controlled by two degrees of freedom parameters, $\nu_1$ and $\nu_2$.
+In this study, we assume default values of 1 for these parameters.
 Increasing these degrees of freedom parameters results in a prior with lighter tails,
 which is, strictly speaking, no longer a horseshoe prior.
 However, in cases where the model is weakly identified, for example when there are more moderators than observations, these lighter tails can aid model convergence. 
-The regularized horseshoe differs from the standard horseshoe in the specification of a finite "slab".
+The regularizing horseshoe differs from the standard horseshoe in the specification of a finite "slab".
 This slab ensures at least some regularization of large coefficients and as a consequence,
 more stable results.
 This slab is governed by a degrees of freedom parameter ($\nu_3$, set to 4) and a scale parameter ($s$, set to 1).
+This extension ensures greater numerical stability of the results.
 
-Default settings for these hyperparameters in `brma()` were chosen such that the values are reasonable in most applications.
-However, it is good practice to perform a prior sensitivity analysis to compare the effect of different hyperparameters on the model results. 
+The default settings discussed above are reasonable in most applications.
+However, it is good practice to perform sensitivity analysis to determine how sensitive the model results are to different prior specifications. 
 This is particularly important when the sample is small, as the prior is more influential in this case.
+
+<span id = "tauprior">
+The choice of prior distributions is an important decision in any Bayesian analysis.
+This also applies to the heterogeneity parameters.
+In the case of random effects meta-regression,
+the only heterogeneity parameter is the between-studies variance, $\tau^2$.
+In the case of three-level multilevel meta-regression,
+there is a within-study and between-studies variance.
+
+A crucial challenge with heterogeneity parameters in meta-regression is that the number of observations at the within- and between-study level is often small.
+This can result in poor model convergence [@roverWeaklyInformativePrior2021],
+or boundary estimates at zero [@chungAvoidingZeroBetweenstudy2013].
+A well-known advantage of Bayesian meta-analysis is that it can overcome these challenges by using weakly informative priors, which guide the estimator towards plausible values for the heterogeneity parameters.
+There is less consensus, however, about which priors are best for this purpose [@roverWeaklyInformativePrior2021].
+By default, `brma()` uses a prior that was specifically developed for multilevel heterogeneity parameters
+[@gelmanPriorDistributionsVariance2006]:
+the half-Student's t distribution with large variance, $df = 3, scale = 2.5$.
+Note that other suitable weakly informative priors have been discussed in the literature, but have not (yet) been implemented in `brma()`, such as the Wishart prior [@chungWeaklyInformativePrior2015], but has not been implemented in `brma()`.
+There has also been increasing interest in the use of informative priors for heterogeneity parameters when information about their values is available [@thompsonGroupspecificPriorDistribution2020].
+The use of informative priors is out of scope for BRMA, however, as BRMA takes a pragmatic approach to Bayesian analysis, using weakly informative priors to aid convergence for heterogeneity parameters,
+and regularizing priors to perform variable selection for regression coefficients.
+If researchers do wish to construct alternative prior specifications, they may want to develop a custom model in `rstan` instead [@rstan].
+</span>
 
 Unlike the frequentist LASSO algorithm, Bayesian regularized estimation does not shrink coefficients to be exactly equal to zero.
 Therefore, variables must be selected post-estimation.
@@ -474,16 +468,18 @@ In de volgende paragraaf over intercepts moet ook nog een referentie, over wel/n
 <!-- * Gebruikers kunnen de default standaardization overschrijven door een aantal van de variabelen handmatig te standaardizeren, en de vector met means en vector met SDs handmatig mee te geven via het argument `standardize = list(center = meanvec, scale = sdvec)`. Als ze een bepaalde variabele NIET willen standaardizeren moeten ze voor die variabele mean= 0 en sd= 1 meegeven. -->
 
 Penalized regression analyses typically require the scales of predictors to be equivalent [@tibshirani1996].
-This is because the regularization penalizes coefficients without regard for their scale.
-If variable scales differ, this can lead to an imbalanced penalization of coefficients that does not reflect differences in variable importance [@lee2015note].
+This is because regularization penalizes coefficients equally, without regard for their scale.
+If variables are on different scales,
+this can lead to uneven penalization of coefficients in which
+variables with smaller standard deviations are biased more strongly towards zero [@lee2015note].
 To clarify, a regression parameter $\beta$ can be interpreted as the expected increase in outcome $y$ for a one unit increase in predictor $x$.
 If the scale of predictor $x$ is increased by a factor 10, its regression coefficient is reduced by a factor 10.
 Standardization is a widely used method for equalizing predictor scales,
 in which the mean of all predictors is set to 0 and their standard deviation is set to 1 [@gelman2008scaling].
-By default, this type of standardization is used in the `brma()` function.
-The estimated parameters are restored to their original scales.
-For the intercept, the transformation is:
+This type of standardization is also used by default in BRMA.
 
+After standardization, the estimated parameters can be restored to their original scales.
+For the intercept, the transformation is:
 $$
 b_0 = b_{0Z} - \mathbf{b}_Z\frac{\bar{\mathbf{x}}}{\mathbf{s}_X}
 $$
@@ -491,38 +487,33 @@ where $b_0$ is the intercept, $b_{0Z}$ is the intercept for the standardized pre
 $\mathbf{\bar{x}}$ and $\mathbf{s}_{x}$ are the vectors of predictor means and variances,
 and $\mathbf{b_Z}$ is the vector of regression coefficients for the standardized predictors.
 The regression coefficients are returned to their original scale by applying:
-
 $$
 \mathbf{b}_x = \frac{\mathbf{b}_z}{\mathbf{s}_x}
 $$
-It is not always necessary or desirable to standardize predictors, however.
-For example, if predictors are already standardized or on a unified scale for different reasons.
-In these cases standardization does not make scales more equal, nor the penalization more fair, and the default standardization in `brma()` can be disabled.
+Note that standardization is not always necessary or desirable.
+If predictors are already on equivalent scales,
+standardization does not make scales more equal, nor the penalization more fair
 <!--Alternatively, if the goal of a study is to compare results to prior findings based on unstandardized predictors, standardization would make penalization unequal across studies.-->
 
-There are additional considerations regarding standardization of binary and dummy predictors [@alkharusi2012categorical].
-Some suggest to always standardize binary predictors [@tibshirani1997lasso].
-This makes that, irrespective of initial scaling, the binary predictor will be on the same scale as the continuous standardized predictors [@gelman2008scaling].
-However, standardizing binary predictors may decrease model interpretability [@wissmann2007role].
-To illustrate this point, consider bivariate regression with a single binary predictor $x$ that takes on values 0 and 1 predicting outcome $y$.
-The intercept represents the expected value of $y$ when $x == 0$, and the regression coefficient represents the difference in the expected value of $y$ between the two conditions [@alkharusi2012categorical].
-By standardizing this binary predictor, the reference value is no longer zero, and both the intercept and its regression coefficient have no clear interpretation anymore, especially in multivariate cases [@wissmann2007role]. 
+There are additional considerations regarding standardization of categorical predictors [@alkharusi2012categorical].
+As binary predictors can be straightforwardly included as predictors in linear models,
+the most common way to represent categorical predictors is by choosing one response option as reference category,
+and creating binary dummy variables to represent other response categories.
+If these dummies are not standardized,
+they might be unevenly penalized, as explained before.
+However, standardizing dummy variables compromises the interpretability of their regression coefficients [@tibshiraniLassoMethodVariable1997; @wissmann2007role].
+To illustrate this challenge, consider bivariate regression with a single binary predictor $x$ that takes on values 0 and 1 predicting outcome $y$.
+The intercept represents the expected value of $y$ when $x$ is equal to zero, and the regression coefficient represents the difference in the expected value of $y$ between the two conditions [@alkharusi2012categorical].
+By standardizing this binary predictor, the reference value is no longer zero, and both the intercept and its regression coefficient have no clear interpretation anymore.
+Extending this example to the multivariate case further complicates the problem [@wissmann2007role]. 
 
-The default in `brma()` is to use dummy coding for categorical predictors and standardize the dummies.
-Other coding schemes for categorical predictors exist that are equivalent in OLS regression.
-In penalized regression, by contrast, the choice of coding does affect model fit and interpretation due to the introduction of bias [@chiquet2016coding; @detmer2020note].
-Although the `brma()` function allows users to specify alternative coding schemes and standardization options,
-be advised that these decisions do affect model accuracy and interpretability in penalized regression [see @chiquet2016coding; @detmer2020note].
-
-There are two ways to circumvent the default standardization in `brma()`.
-The first is to disable standardization entirely, analyzing predictors in their original scale,
-by setting `standardize = FALSE`.
-Alternatively, `brma()` allows custom standardization.
-To use this option, first manually standardize (some of) the predictors.
-Then, when calling `brma()`, pass a vector of means and a vector of standard deviations to restore the coefficients to the predictors' original scale.
-This can be accomplished using the argument `standardize = list(center = meanvector, scale = sdvector)`.
-For predictors that **should not** be standardized, pass a mean of 0 and a standard deviation of 1;
-this leaves the coefficient in question unaffected.
+The appropriate solution depends on the research goals;
+if the primary goal is variable selection,
+then the dummies should be standardized.
+However, if the primary goal is interpretation of the coefficients,
+they should not be [@gelman2008scaling].
+A related challenge is that, whereas various coding schemes for categorical predictors are equivalent in OLS regression, this is not the case in penalized regression.
+The choice of coding affects model fit and interpretation of the coefficients [@chiquet2016coding; @detmer2020note].
 
 ### Intercepts
 
@@ -541,12 +532,85 @@ In other cases, there may not be a straightforward reference category.
 For example, imagine a study on the effectiveness of one intervention for specific phobia in two continents.
 In such cases, the average effect in both continents may be estimated by omitting the intercept, and including all $c$ dummy variables.
 This so-called *ANOVA specification* of a model estimates a mean for all dummy-coded categories.
-In BRMA, as in other R functions, one can use ANOVA specification by explicitly removing the intercept from the model formula; for example, if `yi` is the effect size and $C$ a categorical moderator, regression specification with $c-1$ dummies is specified as `yi ~ C`, and ANOVA specification with $c$ dummies is specified as `yi ~ -1 + C`.
+
 <!-- This part seems a repetition from the info on standardization of dummies above?: 
 The appropriate standardization of dummy variables in penalized regression analyses is a topic of ongoing debate.
 Suffice it to say that, for greater interpretability, users may want the freedom to leave dummy variables unstandardized.
 This is possible in `brma()` by ... 
 -->
+
+## Implementation
+
+We implemented BRMA in the function `brma()` in the statistical programming language R [@R-base],
+in the package `pema`, short for *pe*nalized *m*eta *a*nalysis.
+The `brma()` function aims to make Bayesian regularized regression readily available via a user-friendly interface.
+R-users can install the package from CRAN, by running `install.packages("pema")`.
+Non-R-users can use BRMA via the "Penalized Meta-Analysis" extension of JASP [@JASP2022],
+a free open source statistical software package with a graphical user interface, see Figure \@ref(fig:figjasp).
+
+```{r figjasp, fig.cap="Using BRMA via the JASP software package." }
+knitr::include_graphics("jasp.png")
+```
+
+For estimation, `brma()` depends on Stan, a probabilistic programming language that uses Hamiltonian Monte Carlo to sample from the posterior distribution [@StanManual].
+Stan is written in C++, and thus computationally efficient, but custom models must be compiled prior to estimation.
+This results in substantial computational overhead,
+and installing a toolchain to compile models requires some technical sophistication.
+To avoid this overhead, `pema` uses pre-compiled stock models with opinionated default options.
+At the time of writing, these include random effects and three-level meta-regression with and without an intercept.
+R-users can refer to the package documentation to see what options are available at the time of reading by running `?pema::brma`.
+Researchers who wish to construct a model that is currently out of scope of `brma()` are referred to `rstan` instead [@rstan].
+As a starting point, the `rstan` source code for the stock models included with `pema` is available in `pema:::stanmodels`.
+We welcome contributions of additional models.
+
+The function `brma()` has two main interfaces:
+a formula interface, corresponding to base-R functions like `lm()`,
+in which the user provides a model `formula` that references variables in a `data` argument.
+The second interface is more amenable to machine learning applications,
+and accepts an `x` matrix of predictors and a `y` vector of effect sizes.
+Additionally, `brma()` has an argument `vi`, which refers to the effect size variances,
+and `study`, which (optionally) refers to a clustering variable for three-level meta-regression.
+Both of these arguments accept either the name of a column in `data`, or a numeric vector.
+
+As mentioned before, the R-implementation of BRMA has several options that can be customized.
+The most important option relates to the choice of priors f the regression coefficients.
+At the time of writing, `brma()` supports two priors for regression coefficients: the LASSO and the regularized horseshoe.
+A prior is selected using the `method` argument;
+the `prior` argument is used to specify custom values for the prior hyperparameters (see Statistical underpinnings).
+The lasso prior uses Laplace priors, whose scale is determined by the `scale` parameter multiplied with a scale parameter,
+which in turn is assigned a chi-square prior distribution with `df` degrees of freedom.
+Increasing `df` allows for larger values for the inverse-tuning parameter, leading to less shrinkage.
+
+The horseshoe prior has several shrinkage parameters,
+all assigned Student's t prior distributions with parameters `df` and `scale`.
+The `df` parameter controls the thickness of the tails,
+with higher values corresponding to thinner tails, which assign less probability mass to extreme values.
+The `scale` parameter controls how wide the prior is;
+smaller values assign most probability mass to values near zero, thus resulting in more regularization.
+The parameters `df` and `scale` are local shrinkage parameters, enabling flexible shrinkage of separate regression coefficients.
+Parameters `df_global` and `scale_global` control global shrinkage that influences all coefficients similarly.
+The regularized horseshoe applies additional regularization to very large coefficients,
+which is governed by parameters `df_slab` and `scale_slab`.
+This additional regularization ensures at least some shrinkage of large coefficients to avoid any sampling problems.
+When prior information regarding the expected number of relevant moderators is available,
+this information can be incorporated via the `relevant_pars` argument.
+The `scale_global` argument is then ignored and instead calculated based on `relevant_pars`.
+
+Another important decision is whether or not to standardize parameters.
+By default, `brma()` standardizes the predictor matrix,
+and restores model coefficients to their original scale,
+as explained in Statistical underpinnings.
+There are two ways to circumvent this default standardization.
+The first is to disable standardization entirely, analyzing predictors in their original scale,
+by setting `standardize = FALSE`.
+Alternatively, `brma()` allows custom standardization.
+To use this option, first manually standardize (some of) the predictors.
+Then, when calling `brma()`, provide the means (`means`) and standard deviations (`sds`) that should be used to restore coefficients to the predictors' original scale.
+This can be accomplished using the argument `standardize = list(center = means, scale = sds)`.
+This approach can also be used to select predictors that **should not** be standardized:
+For these predictors,
+simply pass a mean of 0 and a standard deviation of 1;
+this leaves the coefficient in question unaffected.
 
 # Simulation study
 
@@ -557,7 +621,7 @@ We evaluated the algorithms' predictive performance in new data,
 <!-- examining its predictive performance in new data, its sensitivity and specificity in variable selection, and its bias and variance in recovering population parameters. -->
 <!-- their ability to perform variable selection, -->
 and their ability to recover population parameters. 
-Our research questions are whether BRMA offers a performance advantage over RMA in terms of any of these indicators,
+Our research questions are whether BRMA offers a performance advantage over state-of-the-art random effects meta-analysis using restricted maximum likelihood [RMA, @viechtbauerConductingMetaanalysesMetafor2010] in terms of any of these indicators,
 and which prior (regularized horseshoe versus LASSO) is to be preferred.
 All analysis code is available in a version-controlled repository at <https://github.com/cjvanlissa/pema>.
 
@@ -589,22 +653,32 @@ and the variance is given by the variance of this deviation.
 
 ## Design factors
 
-To examine performance in a range of realistic meta-analysis scenarios,
-several design factors were manipulated:
-The number of studies in the training data $k \in (20, 40, 100)$, the average within-study sample size $\bar{n} \in (40, 80, 160)$, the population effect size of relevant moderators $\beta \in (0, .2, .5, .8)$, the number of moderators $p \in (2, 3, 6)$, and residual heterogeneity $\tau^{2} \in (.01, .04, .1)$. <!-- **het aantal moderatoren is redelijk laag; ik zou vooral nog voordelen van brma verwachten met meer moderatoren maar is dat realistisch in de praktijk? Zo ja, dan is het iets om te noemen in de discussie** hier ook nog een eerdere comment. Mocht je een keer een toepassing tegenkomen met echt veel moderatoren, kan het interessant zijn hier nog een kleine simulatie op te baseren. Een voorbeeld kan zijn een set van moderatoren die de kwaliteit van studies proberen te vatten zoals we laatst hebben besproken -->
-According to a review of 705 published psychological meta-analyses (Van Erp et al., 2017),
-these values of $\tau^2$ fall within the range observed in practice.
-Note that both BRMA and RMA assume linear effects.
-To test the robustness of the algorithms to violations of this assumption, true effect sizes were simulated using two models:
+<span id = "designfactors">To examine performance in a range of realistic meta-analysis scenarios,
+seven design factors were manipulated:
+First, we manipulated the number of studies in the training data $k \in (20, 40, 100)$. 
+Second, the average within-study sample size $\bar{n} \in (40, 80, 160)$. 
+Third, 
+true effect sizes were simulated according to two models:
 one with a linear effect of one moderator, $T_{i}= \beta x_{1i} + \epsilon_i$, and one with a non-linear (cubic) effect of one moderator, $T_{i}= \beta x_{1i} + \beta x_{1i}^{2} + \beta x_{1i}^{3} + \epsilon_i$,
 where $\epsilon_i \sim N(0, \tau^2)$.
-The algorithms further assume normality of residuals.
-To examine robustness of the algorithms to violations of this assumption,
-moderator variables were simulated as skewed normal moderators, with scale parameter $\omega \in (0, 2, 10)$, where $\omega = 0$ corresponds to the standard normal distribution.
-The design factors combined to produce `r out$conditions` unique conditions.
-For all simulation conditions, 100 data sets were generated. 
+As both BRMA and RMA assume linear effects,
+simulating data from a non-linear model allows us to examine how robust the different methods are to violations of this assumption.
+The fourth design factor was the population effect size $\beta$ in the aforementioned models, with $\beta \in (0, .2, .5, .8)$. 
+Fifth, we manipulated the residual heterogeneity $\tau^2$ in the aforementioned models, with $\tau^{2} \in (.01, .04, .1)$.
+According to a review of 705 published psychological meta-analyses (Van Erp et al., 2017),
+these values of $\tau^2$ fall within the range observed in practice.
+Sixth, we varied the number of moderators not associated with the effect size $M \in (1, 2, 5)$.
+These are the moderators that ought to be shrunk to zero by BRMA.
+Note that the total number of moderators is $M+1$,
+as one moderator is used to compute the true effect size (see the third design factor).
+Finally, moderator variables were simulated as skewed normal moderators, with scale parameter $\omega \in (0, 2, 10)$, where $\omega = 0$ corresponds to the standard normal distribution.</span>
+All unique combinations of these design factors produced `r out$conditions` unique conditions.
+For each simulation condition, 100 data sets were generated.
 In each data set, the observed effect size $y_i$ was simulated as a standardized mean difference (SMD),
 sampled from a non-central $t$-distribution.
+
+<!-- **het aantal moderatoren is redelijk laag; ik zou vooral nog voordelen van brma verwachten met meer moderatoren maar is dat realistisch in de praktijk? Zo ja, dan is het iets om te noemen in de discussie** hier ook nog een eerdere comment. Mocht je een keer een toepassing tegenkomen met echt veel moderatoren, kan het interessant zijn hier nog een kleine simulatie op te baseren. Een voorbeeld kan zijn een set van moderatoren die de kwaliteit van studies proberen te vatten zoals we laatst hebben besproken -->
+
 
 <!-- x = rnorm(1000) -->
 <!-- func <- function(x, b){b*x+(b*(x^2))+(b*(x^3))} -->
@@ -1187,8 +1261,8 @@ Additionally, users can obtain trace plots as described in the illustrative exam
 When reporting results, researchers should substantiate their decision to explore heterogeneity on both subjective and objective grounds.
 The former can be achieved by simply ascertaining that the body of literature
 to be meta-analyzed appears to be heterogeneous;
-the same rationale commonly used to support the use of random-effects meta-analysis (Higgins et al., 2009).
-The latter can be accomplished by conducting a random-effects meta-analysis without any moderators,
+the same rationale commonly used to support the use of random effects meta-analysis (Higgins et al., 2009).
+The latter can be accomplished by conducting a random effects meta-analysis without any moderators,
 and reporting the estimated $\tau^2$.
 Note that significant heterogeneity does not constitute
 sufficient grounds, for deciding to explore ignore heterogeneity, for two reasons:
