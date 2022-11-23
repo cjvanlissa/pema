@@ -1,0 +1,214 @@
+---
+  title: Pema - Comments revision 1
+created: 2022-10-24 09:30
+tags: Pema
+---
+  
+  Associate Editor Comments to Author:  
+  
+  Associate Editor  
+Comments to the Author:  
+  The authors introduce their implementation of a regularisation approach for estimation and variable selection in meta-regression, which seems a timely contribution given the danger of overfitting. Some more detail or elaboration would be helpful in some places.  
+I am sorry the review took quite a while.  
+Besides the two reviewers' comments I only have a few points to add:  
+  
+- please consider whether the title is appropriate, or whether (something like) "Selecting..." or "Selection of..." might be better.  
+  
+  Thank you for this suggestion. We have now changed the title to: "Selecting relevant moderators using Bayesian regularized meta-regression"
+  
+- in abstract and Introduction, please consider being more concrete here: it might be good to mention here already that this is about penalisation/LASSO/horseshoe priors in order to give the reader a better idea.  
+  
+  We have added the following two sentences to the abstract to make it more concrete:
+  "BRMA relies on the use of Bayesian 
+  shrinkage priors to pull coefficients towards zero thereby avoiding overfitting." and
+  "The algorithm has been implemented in the R-package 
+  `pema`  (which stands for penalized meta-analysis) with the lasso and horseshoe priors."
+  
+- on p.16 (Section "design factors"):  
+what were the total numbers of variables (or "noise moderators")?  
+  
+- regarding the 3rd comment by Reviewer 1: in the context of variable selection, the so-called "penalized complexity priors" (here: exponential priors for the heterogeneity standard deviation) might play a role.  
+  
+  
+  
+Reviewers' Comments to Author:  
+  
+  Reviewer: 1  
+
+Comments to the Author  
+The manuscript provides an interesting approach based on regularization to selection of covariates in meta-regression, when the number of covariates is relevant. The Authors focus on a Bayesian strategy.  
+Although I found the topic interesting, the study needs some additional investigations and the text needs to be substantially modified in order to provide a clear and exhaustive picture of the proposal.  
+My comments and questions are listed below.  
+
+1) The introduction is too long in terms of explanation of the meta-regression and selection of covariates problems, with many repetitions. For example, end of page 4 and beginning of page 5 include many repetitions about between-study heterogeneity. Other parts, instead, require a substantially deeper explanation.   
+* Which theories useful for variable selection do you refer to in page 5 ? The description is extremely vague.   
+* The topic of the study is variable selection from a Bayesian point of view: but the description is so short. Just a few lines about the novelty of the paper in page 6, with no clear description of the proposal and with the reference to pema package without even the explanation of the name of the package.  
+
+We have added the following sentence to clarify the idea behind the Bayesian approach:
+  "By specifying a particular type of prior with a peak at zero (a so-called shrinkage prior), regression coefficients for the moderators are pulled towards zero resulting in a penalized solution. We have implemented two popular shrinkage priors, the lasso and horseshoe priors in the function `brma()` in the R-package `pema` (which stands for penalized meta-analysis)."
+We have not included more information in this section to avoid repetition with the "Statistical underpinnings" section.
+
+2) Statistical underpinnings  
+* Again, I found a lot of repetitions in the text.  
+* Probably, in (1) you mean \theta and not \Theta? As you have \theta int the text. Why do you use theta and not beta, as you do for the meta-regression model in (7)? The notation would be simplified and would be more consistent.  
+* The sentence in lines 132-133 is not clear.  
+
+3) Meta-regression.  
+* line 147: probably the explanation of the error term should be anticipated where the error term appears for the first time.  
+* line 152: “to estimate this model “ has a preferable statistical sound than “to solve this model”  
+* lines 163- 166 describe some features of regularization….but regularization is introduced later, from line 167.  
+
+4) Regularized regression + Bayesian estimation  
+I found both the sections very short and lacking of many details.   
+* what about the existing literature using lasso for meta-regression?  
+  
+  Ik weet zo niet naar welke literatuur wordt gerefereerd. Heb wel twee theses gevonden na een snelle search: https://www.proquest.com/openview/8a4d0bcf42eb7cdbf622135d4093bfb9/1?pq-origsite=gscholar&cbl=18750; https://studenttheses.uu.nl/handle/20.500.12932/36196. En er is zoiets als een meta-lasso: https://onlinelibrary.wiley.com/doi/abs/10.1111/biom.12213?casa_token=zY5wxOkhXtcAAAAA:uCyxxTtb4S9mlHlfnVEkcJl_UFtFePOnInB3aG_GwdUZouUm9717rteq_ar1-8sW_mAQ3ruJsndIYX4
+
+* In addition, I expected some references about the theory of LASSO given the relevance of the instrument in the literature.   
+
+We agree and have included the original LASSO reference (Tibshirani, 1996) when first discussing the LASSO penalty.
+
+Caspar: vanaf hier heb ik niks meer aangepast in het manuscript zelf, maar ik doe wel voorstellen voor zinnen die eventueel zo kunnen worden overgenomen.
+
+* line 183-184: “other penalties exist”: ok, so discuss about, indicate advantages and disadvantages of the other solutions; why do you not focus on them in the study? If you do not, just explain why.  
+
+"Note that the LASSO penalty is but one example of a shrinkage penalty; other penalties exist such as the ridge (Hoerl & Kennard, 1970) and elastic net (Zou & Hastie, 2005). In this study, however, we focus on the LASSO penalty due to its popularity in both the classical and Bayesian penalization literature."
+
+* Bayesian estimation: I think that some additional methodological details and additional explanations about priors and their comparison to the classical LASSO would help the reader.   
+
+In the suggested new text below, I have also changed "regularizing prior" to "shrinkage prior" to be consistent with the literature. If you are ok with this change, we should change this throughout the manuscript. Also, the text below now has a small overlap with the implementation section (the part about selecting moderators.) I would still include more details on the selection in the implementation part as well, but perhaps shorten that a bit if this text is used earlier.
+
+"One alternative to the use of a penalty is Bayesian estimation with a shrinkage prior.
+Whereas classical, frequentist estimation relies solely on the data at hand,
+Bayesian estimation combines information from the data with a *prior distribution*.
+The prior distribution is a probability distribution that reflects expectations about likely parameter values.
+This prior is updated with the likelihood of the data to form a posterior distribution,
+which reflects expectations about likely parameter values after having seen the data.
+
+A shrinkage prior distribution reflects the expectation that not all regression coefficients are substantial enough to be included in the model.
+There are many different shrinkage prior distributions [@vanErpOberskiMulder2019].
+Some of these can result in exactly the same solutions as frequentist penalized methods.
+For example, applying independent double exponential (i.e., Laplace) priors to regression coefficients results in posterior modes that are equal to the classical LASSO estimates [@ParkCasella2008]. However, there are some notable differences between the classical LASSO penalty and its Bayesian implementation through a double exponential shrinkage prior. First of all, whereas the tuning parameter $\lambda$ in the classical framework is usually determined using cross-validation, a similar parameter is present in the Bayesian framework as a hyperparameter of the shrinkage prior. Instead of using cross-validation, a hyperprior can be specified for this parameter which will then be estimated simultaneously with the model based on the data. Second, whereas the classical LASSO can set small estimated coefficients to zero, thereby performing automatic variable selection, the Bayesian implementation results in a full posterior distribution. The advantage of this posterior distribution is that it results in uncertainty estimates in the form of the posterior standard deviation. The disadvantage of this posterior distribution is that its usual summary statistics, the posterior mean and median, do not automatically set small coefficients to zero and thus a post-hoc selection mechanism is needed, for example using the credible intervals (i.e., the Bayesian equivalent of the confidence interval). Third, classical penalized regression approaches rely on optimization while the Bayesian framework generally relies on Markov Chain Monte Carlo (MCMC) sampling to obtain the posterior distribution. As a result, Bayesian estimation tends to be slower compared to classical estimation.
+
+In addition to shrinkage priors that have equivalent penalties in the classical framework, other prior distributions have been developed specifically for the purpose of providing good shrinkage properties,
+meaning that the prior pulls small regression coefficients towards zero,
+while leaving larger regression coefficients mostly unaffected. 
+A popular prior in this regard is the horseshoe prior [@CarvalhoPolsonScott2010].
+It has heavier tails than the LASSO prior,
+which means that it does not shrink (and therefore bias) substantial coefficients as much.""
+
+* Why details relevant for the Bayesian estimation are included in the “Implementation” section? I mean lasso prior and horseshoe prior, that is, details useful to understand the methodology.   
+
+Het alternatief zou zijn om de prior equations naar de estimation sectie te verplaatsen, maar het nadeel daarvan is dat je dan pas bij implementatie verwijst naar de hyperparameters. Dit lijkt me niet wenselijk. Of we moeten de implementatie sectie in zijn geheel opnemen in de estimation sectie. Daar kan ik wel mee leven. 
+
+* Can you comment about the choice of the numerical values in the priors at the end of page 11?  
+  
+  As mentioned in the text (lines ...), we have chosen these default settings such that they are reasonable in most applications. However, we also recommend the user to perform a prior sensitivity analysis to compare the effect of different hyperparameters on the results.
+  
+* line 221: “this extension”: which one?  
+  
+  Change to: "The regularized horseshoe is an extension of the horseshoe that is..."
+  
+* line 225: “This is accomplished by..” Why?  
+  
+  By having the scale of the global shrinkage parameter $\lambda^2_0$ depend on the prior guess of the number of relevant moderators $p_0$, we include prior information.
+  
+* line 240: “values are reasonable in most applications” Why? Can you prove this?  
+  
+  These choices are based on our own experience. In addition, we have noticed that in general the choices for the hyperparameters do not influence the results substantially. However, because we cannot prove this for all situations, we recommend the user to perform a prior sensitivity analysis.
+  
+* lines 244-251 seems to be pertinent to the methodology of the proposal not to implementation.  
+  
+  This is now included in the estimation (see text above).
+  
+More in general, I do not like to see a mixture of methodology and R code. I think I would be more useful for  the reader to have sections describing the proposed approach and the underlying methodology (something that is not present at the emano) and then having an appendix about the code.   
+
+Ik ben het hier niet mee eens en denk dat het voor de lezer juist fijner is om direct de methode aan de code te kunnen koppelen, maar als jij het liever splitst Caspar kan ik daar ook mee leven. Wel denk ik dat het onderscheid "Bayesian estimation" en "implementation" duidelijker kan, zoals de reviewer hierboven ook aangeeft. Ik denk dat de toevoeging aan estimation zoals hierboven daar al bij helpt.
+  
+* line 278: “x==0” could be substituted by “x is equal to 0” as this is a text, not a source code.  
+
+Mee eens.
+  
+5) Intercept.  
+I don’t think it is so relevant to deserve a section. Why not inserting a line in the section devoted to the code? 
+
+Deze sectie is inderdaad wel redelijk uitgebreid. Zit er eigenlijk een woordenlimiet aan het paper?
+  
+6) Performance indicators, Design factors, Predictive performance  
+* You split the data in training set and test set, for each iteration. So, how do you account for the variability associated to the choice of the test set (as done for example in cross-validation)?   
+  
+  Dit doen we niet, denk ik? Maar: dit is ook niet haalbaar in een simulatie. Om bv. 10-fold cross-validation toe te passen duurt iedere replicatie zoveel langer gegeven de hele MCMC procedure. Maar ik denk dat dit niet uitmaakt omdat we enkel de methoden relatief t.o.v. elkaar willen vergelijken en we gebruiken overal slechts 1 test set. Als de reviewer dit echt een probleem vind, kunnen we altijd in een volgende ronde 1 conditie bekijken waarin we wel cross-validatie toepassen.
+  
+* I’m surprised by the large number fo linea devoted to the explanation of such a basic indicator like R2. In addition, it is well known to be optimistic, and thus the adjusted version I usually preferable. Why don’t you evaluate the method using other indicators, such as the adjusted r2, AIC, or BIC?  
+  
+Hier hetzelfde punt als hierboven: we willen enkel de methoden met elkaar vergelijken dus als we een optimistische maat overal gebruiken, lijkt me dat niet zo'n probleem. Eli en ik hebben ook even gekeken naar de formule voor de adjusted R2, die verschilt enkel van R2 door n en p, dus we zouden die nog post-hoc kunnen berekenen maar dan zou je geen andere resultaten verwachten. Alhoewel ik me nu wel een beetje afvraag of p dan het totale aantal predictoren is of na selectie, want in het laatste geval maakt het natuurlijk wel uit. Maar in dat geval lijkt de adjusted r-squared voor de Bayesiaanse methoden ook weer heel afhankelijk van de manier van selecteren wat een afzonderlijke 2e stap is en dus niet inherent aan de Bayesian lasso of horseshoe zelf.
+  
+* line 344: I suppose you mean the estimate of sensitivity and specificity.  
+* line 368: 100 datasets only? Probably, there is a typo, as 100 is the number of datasets included in the test set, if I’m not wrong. In any case, 100 is a very low number of replicates for a simulation study, I suggest to increase at least to the common value equal to 1,000.  
+  
+  Niet haalbaar met Bayesiaanse simulaties. Of nou ja: wel haalbaar, maar praktisch erg onhandig. Misschien hier het totaal aantal replicaties noemen met een indicatie over hoe lang het zou duren? Eventueel zouden we nog kunnen overwegen om 1 conditie met 1000 replicaties te doen om te zien of de resultaten robuust zijn.
+  
+* line 385: do you mean “Table” 1?  
+* line 405: “the” most negative?  
+  
+7) Ability to recover….  
+* lines 449-452 are not necessary as bias and variance are known concepts. However, in Tables I can see only bias, and not information about variance.  
+*lines 469-470: there is a white space  
+  
+8) Example  
+* Could you please avoid writing pema::bonapersona and use instead dataset titled bonapersona in the R pema package? This is not a list of lines code, but a text.  
+* you have 440 experiments in the dataset: do you mean 440 study included in the meta-regression? If so, the number is much. Larger than the scenarios evaluated in the simulations.  
+  
+  Het waren > 200 publicaties met daarin > 400 studies.
+  
+Finally, There are many typos and inconsistencies throughout the text (e.g., data set and dataset, random effect and randoms-effects, …).
+
+Laten we voor het herindienen allemaal het manuscript nog even uitgebreid checken. Caspar, als jij een timeline kunt geven dan plan ik hier alvast wat tijd voor in (ik ga een erg drukke periode in namelijk).
+
+Reviewer: 2  
+  
+Comments to the Author  
+The authors investigated selection of moderators for the meta-regression, which is especially useful to explain the sources of heterogeneity between trials. They proposed the use of regularizing priors for meta-regression within a Bayesian framework. They shared publicly available R package "pema" which relies on rstan, which helps practitioners to use the proposed methods. I think the contribution of the paper and R package is important. However, I have some comments.  
+  
+### Major points  
+  
+1) I think it is important to note some limitations of meta-regression. For example, the use of moderators might "break" the randomization, when the studies analyzed are randomized controlled trials. This is because it is not possible to randomize patients to one moderator, see Thompson and Higgins (2002) section 3 for further discussion of limitations of meta-regression of clinical trials.  
+   
+   Ik weet hier weinig vanaf, maar lijkt me goed om toe te voegen als dit inderdaad zo is.
+  
+2) Important references are missing, in which the use of regularization or penalization approaches for the meta-analysis were investigated, although not the same purpose as in the current paper. For example, in Chung et al (2013) regularizing prior was used for the heterogeneity parameter to avoid boundary estimates, and in Günhan et al (2020) regularizing priors were used for the heterogeneity parameter and treatment effect parameter to deal with data sparsity. Finally and most importantly, Röver et al (2021) reviewed different use of regularizing priors and provided some guidance. Note that in the mentioned references, the term of weakly informative priors are used instead of regularizing priors (also see an earlier reference by Gelman (2006) in a hierarchical model context). Mention of these publications and relationship to the present paper can help the reader.  
+
+Thank you for pointing out these relevant references. We have included the reference to Chung et al. (2013), Gelman (2006) and Rover et al. (2021) in the new section on the prior for $\tau$ (see the next comment). In addition we have added the following section on page ... to be more explicit about the terminology of different types of priors:
+
+Suggest to add this paragraph in the section on Bayesian estimation after "which reflects expectations about likely parameter values after having seen the data." Note: if included, this should be updated in the text from a previous comment to reviewer 1 as well. Also here it is relevant whether we use "regularizing" or "shrinkage" priors and should mention the definite choice explicitly.
+
+"As a result, the posterior distribution is a compromise between the likelihood of the data and the prior distribution. The influence of either the data or the prior is determined by the sample size as well as the informativeness of the prior distribution. The larger the sample size, the more influential the likelihood of the data will be. Similarly, as the prior distribution becomes more informative, i.e., more peaked, it will exert more influence on the results. Priors can thus be placed on a continuum from "non-informative" to "highly informative". Weakly informative or regularizing priors are often used in situations when there is some prior information available, for example regarding the boundaries of the parameter space or, as is the case here, regarding the existence of parameters equal to zero. Throughout this manuscript, we will use the term "shrinkage prior" to refer to the weakly informative or regularizing prior that holds the prior knowledge that some coefficients are equal to zero and should therefore be shrunken towards zero."
+  
+3) An important part of Bayesian random-effects meta-analysis is the specification of the prior for the heterogeneity parameter tau. Can you include more specifications on the prior choice for tau and influence of the choice to the results (if there is any).  
+
+The specification of the prior for the heterogeneity parameter tau is indeed important. Since this standard deviation is at the higher (study) level, there is less information available in the data to inform the posterior meaning that the prior will have a greater influence. It is well known that careless specification of this prior can influence the results unwarrantedly. We have included this important point on page ... as follows:
+
+Suggest to include the text below in the implementation section:
+
+"In addition to the prior on the regression coefficients, the Bayesian analysis requires the specification of a prior on the between study heterogeneity parameter $\tau$. `brma()` uses a half-student's t distribution with 3 degrees of freedom and a scale equal to 2.5 for $\tau$. This is the default prior used in the `brms` package and is considered a general, robust default prior for higher level variances (Gelman, 2006). Note, however, that other choices are possible. For example, Chung, Rabe-Hesketh & Choi (2013) recommend a gamma prior in combination with posterior mode estimation for $\tau$. Moreover, when prior information regarding possible values for $\tau$ is available, an informative prior can be specified as was done in Gronau et al. (2017). Given that the heterogeneity parameter $\tau$ is a higher-level parameter in the model, there is less information available in the data to inform its posterior meaning that the prior will generally be more influential for this parameter and thus requires careful specification. See Rover et al. (2021) for an overview and guidance on how to specify weakly informative priors for this parameter."
+
+Chung Y, Rabe-Hesketh S, Choi IH. Avoiding zero between-study variance estimates in random-effects meta-analysis. Stat Med. 2013;32(23):4071-4089.  
+
+Gelman A. Prior distributions for variance parameters in hierarchical models. Bayesian Anal. 2006;1(3):515-534. [https://doi.org/10.1214/06-BA117A](https://doi.org/10.1214/06-BA117A "https://doi.org/10.1214/06-BA117A").
+
+Gronau, Q. F., Van Erp, S., Heck, D. W., Cesario, J., Jonas, K. J., & Wagenmakers, E. J. (2017). A Bayesian model-averaged meta-analysis of the power pose effect with informed and default priors: The case of felt power. _Comprehensive Results in Social Psychology_, _2_(1), 123-138.
+
+Röver, C, Bender, R, Dias, S, et al. On weakly informative prior distributions for the heterogeneity parameter in Bayesian random-effects meta-analysis. Res Syn Meth. 2021; 12: 448– 474. [https://doi.org/10.1002/jrsm.1475](https://doi.org/10.1002/jrsm.1475 "https://doi.org/10.1002/jrsm.1475")  
+
+4) In the abstract and in the main text, it states "We present a simulation study to validate the performance of BRMA relative to state-of-the-art meta-regression (RMA)". What does RMA refer to here, is it "Random effect Meta-Analysis using REML"? If yes, I think the term random-effect meta-analysis (or meta-regression) using RMLE is more clear than state-of-the-art meta-analysis (or meta-regression).  
+  
+  
+### Minor points  
+ Line 385: "see 1": I think Table is missing  
+  
+# References  
+1) Thompson SG, Higgins JPT. How should meta-regression analyses be undertaken and interpreted?. Stat Med. 2002;21:1559-1573.  
+2) Chung Y, Rabe-Hesketh S, Choi IH. Avoiding zero between-study variance estimates in random-effects meta-analysis. Stat Med. 2013;32(23):4071-4089.  
+3) Günhan, BK, Röver, C, Friede, T. Random-effects meta-analysis of few studies involving rare events. Res Syn Meth. 2020; 11: 74– 90. [https://doi.org/10.1002/jrsm.1370](https://doi.org/10.1002/jrsm.1370 "https://doi.org/10.1002/jrsm.1370")  
+4) Röver, C, Bender, R, Dias, S, et al. On weakly informative prior distributions for the heterogeneity parameter in Bayesian random-effects meta-analysis. Res Syn Meth. 2021; 12: 448– 474. [https://doi.org/10.1002/jrsm.1475](https://doi.org/10.1002/jrsm.1475 "https://doi.org/10.1002/jrsm.1475")  
+5) Gelman A. Prior distributions for variance parameters in hierarchical models. Bayesian Anal. 2006;1(3):515-534. [https://doi.org/10.1214/06-BA117A](https://doi.org/10.1214/06-BA117A "https://doi.org/10.1214/06-BA117A").

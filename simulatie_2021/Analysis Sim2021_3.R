@@ -444,6 +444,58 @@ names(table_tau2)[2:4]<-c("HS", "LASSO", "RMA")
 saveRDS(table_tau2, "paper/table_tau2.RData")
 write.csv(table_tau2, file =  "paper/table_tau2.csv", row.names = FALSE)
 
+# Variance of tau2 --------------------------------------------------------
+
+tau_var <- tau2
+tau_var <- tau_var[ , lapply(.SD, var), by=conditions, .SDcols = measure.vars]
+
+yvars <- measure.vars
+anovas<-lapply(yvars, function(yvar){
+  form<-paste(yvar, '~', paste(conditions, collapse = " + "))
+  #form<-paste(yvar, '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2") #the ^2 signifies that we want all possible effects up until interactions
+  thisaov<-aov(as.formula(form), data=tau_var)
+  thisetasq<-EtaSq(thisaov)[ , 2]
+  list(thisaov, thisetasq)
+})
+
+
+# Anova for the difference ------------------------------------------------
+
+comps <- expand.grid(yvars, yvars)
+comps <- comps[!comps$Var1 == comps$Var2, ]
+comps <- t(apply(comps, 1, sort))
+comps <- comps[!duplicated(comps), ]
+diffanovas <- sapply(1:nrow(comps), function(i){
+  form<-as.formula(paste("tauhat", '~ algo * (', paste(conditions, collapse = "+"),")")) #the ^2 signifies that we want all possible effects up until interactions
+  tmp <- tau_var
+  tmp <- tmp[, .SD, .SDcols = c(conditions, comps[i, , drop = TRUE])]
+  names(tmp) <- gsub("^(.+?)_tau1", "tauhat_\\1", names(tmp))
+  tmp = melt(tmp, id.vars = names(tmp)[1:7],
+             measure.vars = names(tmp)[8:9],
+             variable.name = "algo",
+             value.name = "tauhat")
+  thisaov<-aov(form, data=tmp) #change data according to dataframe you are using
+  thisetasq<-EtaSq(thisaov)[ , 2]
+  thisetasq <- thisetasq[startsWith(names(thisetasq), "algo")]
+  thisetasq
+})
+colnames(diffanovas) <- paste0(gsub("_.+$", "", toupper(comps[,1])), " vs. ", gsub("_.+$", "", toupper(comps[,2])))
+diffanovas <- data.frame(condition = gsub("algo:", "", rownames(diffanovas), fixed = T), diffanovas)
+diffanovas$condition <- trimws(diffanovas$condition)
+
+#creates dataframe with effect sizes for all conditions for all algorithms
+etasqs<-data.frame(sapply(anovas, `[[`, 2))
+etasqs$condition <- trimws(rownames(etasqs))
+etasqs <- merge(etasqs, diffanovas, by = "condition", all.x = TRUE)
+
+table_tau<-copy(etasqs)
+table_tau$Factor <- renamefactors(table_tau$condition)
+names(table_tau)[2:4]<-c("HS", "LASSO", "RMA")
+
+saveRDS(table_tau, "paper/table_tau_var.RData")
+write.csv(table_tau, file =  "paper/Supplemental_table_S2_tau_variance.csv", row.names = FALSE)
+usethis::use_git_ignore("!paper/Supplemental_table_S2_tau_variance.csv")
+
 
 # Betas -------------------------------------------------------------------
 
@@ -503,5 +555,63 @@ names(table_beta)[2:4]<-c("HS", "LASSO", "RMA")
 
 saveRDS(table_beta, "paper/table_beta.RData")
 write.csv(table_beta, file =  "paper/table_beta.csv", row.names = FALSE)
+
+
+# Variance of beta --------------------------------------------------------
+
+beta_var <- beta
+beta_var <- beta_var[ , lapply(.SD, var), by=conditions, .SDcols = measure.vars]
+
+yvars <- measure.vars
+anovas<-lapply(yvars, function(yvar){
+  form<-paste(yvar, '~', paste(conditions, collapse = " + "))
+  #form<-paste(yvar, '~(', paste(unlist(conditions[-lc]), "+", collapse = ' '), conditions[lc], ") ^ 2") #the ^2 signifies that we want all possible effects up until interactions
+  thisaov<-aov(as.formula(form), data=beta_var)
+  thisetasq<-EtaSq(thisaov)[ , 2]
+  list(thisaov, thisetasq)
+})
+
+
+# Anova for the difference ------------------------------------------------
+
+comps <- expand.grid(yvars, yvars)
+comps <- comps[!comps$Var1 == comps$Var2, ]
+comps <- t(apply(comps, 1, sort))
+comps <- comps[!duplicated(comps), ]
+diffanovas <- sapply(1:nrow(comps), function(i){
+  form<-as.formula(paste("betahat", '~ algo * (', paste(conditions, collapse = "+"),")")) #the ^2 signifies that we want all possible effects up until interactions
+  tmp <- beta_var
+  tmp <- tmp[, .SD, .SDcols = c(conditions, comps[i, , drop = TRUE])]
+  names(tmp) <- gsub("^(.+?)_beta1", "betahat_\\1", names(tmp))
+  tmp = melt(tmp, id.vars = names(tmp)[1:7],
+             measure.vars = names(tmp)[8:9],
+             variable.name = "algo",
+             value.name = "betahat")
+  thisaov<-aov(form, data=tmp) #change data according to dataframe you are using
+  thisetasq<-EtaSq(thisaov)[ , 2]
+  thisetasq <- thisetasq[startsWith(names(thisetasq), "algo")]
+  thisetasq
+})
+colnames(diffanovas) <- paste0(gsub("_.+$", "", toupper(comps[,1])), " vs. ", gsub("_.+$", "", toupper(comps[,2])))
+diffanovas <- data.frame(condition = gsub("algo:", "", rownames(diffanovas), fixed = T), diffanovas)
+diffanovas$condition <- trimws(diffanovas$condition)
+
+#creates dataframe with effect sizes for all conditions for all algorithms
+etasqs<-data.frame(sapply(anovas, `[[`, 2))
+etasqs$condition <- trimws(rownames(etasqs))
+etasqs <- merge(etasqs, diffanovas, by = "condition", all.x = TRUE)
+
+table_beta<-copy(etasqs)
+table_beta$Factor <- renamefactors(table_beta$condition)
+names(table_beta)[2:4]<-c("HS", "LASSO", "RMA")
+
+saveRDS(table_beta, "paper/table_beta_var.RData")
+write.csv(table_beta, file =  "paper/Supplemental_table_S1_beta_variance.csv", row.names = FALSE)
+usethis::use_git_ignore("!paper/Supplemental_table_S1_beta_variance.csv")
+
+
+# Save all output ---------------------------------------------------------
+
+
 
 saveRDS(out, "paper/output.RData")

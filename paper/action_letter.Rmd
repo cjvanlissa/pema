@@ -6,7 +6,7 @@ editor      : "Pigott"
 manuscript  : "RSM-04-2022-0056"
 class       : "draft"
 bibliography      : ["r-references.bib", "references.bib",
-                     "sara-references.bib", "eli-references.bib"]
+                     "sara-references.bib", "eli-references.bib", "metaforest.bib"]
 output      : papaja::revision_letter_pdf
 ---
 
@@ -32,6 +32,8 @@ the authors
 
 \RC{The authors introduce their implementation of a regularisation approach for estimation and variable selection in meta-regression, which seems a timely contribution given the danger of overfitting. Some more detail or elaboration would be helpful in some places.}
 
+In addressing all comments below, we have added detail and elaboration in many places. We hope that this addresses this comment.
+
 \RC{please consider whether the title is appropriate, or whether (something like) "Selecting..." or "Selection of..." might be better.}
 
 We appreciate the suggestion and have changed the title to:
@@ -40,13 +42,16 @@ We appreciate the suggestion and have changed the title to:
 
 \RC{in abstract and Introduction, please consider being more concrete here: it might be good to mention here already that this is about penalisation/LASSO/horseshoe priors in order to give the reader a better idea.}
 
-We appreciate the suggestion and have made the requested change. The Abstract now reads:
+To address this comment and others,
+we have restructured the Introduction to be more to the point.
+We still provide the same background information in a more abbreviated form at a later point.
+With regard to the specific request to mention penalisation/LASSO/horseshoe priors in the Abstract and Introduction, we have made the following changes. The Abstract now reads:
 
 `r get_revision("lassoabstract")`
 
-In the Introduction, we now write:
+The Introduction now states:
 
-REF
+`r get_revision("lassointroduction")`
 
 \RC{on p.16 (Section "design factors"):
 what were the total numbers of variables (or "noise moderators")?}
@@ -59,7 +64,9 @@ To address this comment and avoid confusion, we have rewritten this paragraph as
 
 \RC{regarding the 3rd comment by Reviewer 1: in the context of variable selection, the so-called "penalized complexity priors" (here: exponential priors for the heterogeneity standard deviation) might play a role.}
 
-REF
+To address the 3d comment by Reviewer 2, we have included the following paragraph in the revision:
+
+`r get_revision("tauprior")`
 
 # Reviewer 1
 
@@ -72,48 +79,120 @@ We have tried to address them all in turn, as detailed below.
 
 \RC{The introduction is too long in terms of explanation of the meta-regression and selection of covariates problems, with many repetitions. For example, end of page 4 and beginning of page 5 include many repetitions about between-study heterogeneity. Other parts, instead, require a substantially deeper explanation.}
 
-
+To address this comment and others,
+we have restructured the Introduction to be more to the point.
+We still provide the same background information in a more abbreviated form at a later point.
+We have elaborated on all the points that were raised by the Reviewers (see our responses to the other comments).
 
 \RC{Which theories useful for variable selection do you refer to in page 5 ? The description is extremely vague.}
 
+We have attempted to clarify this section by invoking an additional reference and rewriting it as follows:
+
+`r get_revision("theory")`
+
 \RC{The topic of the study is variable selection from a Bayesian point of view: but the description is so short. Just a few lines about the novelty of the paper in page 6, with no clear description of the proposal and with the reference to pema package without even the explanation of the name of the package.}
+
+To address this comment, we have made the following changes:
+
+1) We have rewritten the opening paragraph to clearly state the problem addressed in this paper, and the proposed solution:
+
+`r get_revision("openingparagraph")`
+
+
+\WorkInProgress
 
 \RC{Statistical underpinnings: Again, I found a lot of repetitions in the text.}
 
+\WorkInProgress
+
 \RC{Probably, in (1) you mean $\theta$ and not $\Theta$? As you have $\theta$ int the text. Why do you use theta and not beta, as you do for the meta-regression model in (7)? The notation would be simplified and would be more consistent.}
+
+We have made the suggested change and now use the intercept $\beta_0$ in place of $\Theta$. We have also simplified the notation of the estimated population effect to $\hat{\beta_0}$.
 
 \RC{The sentence in lines 132-133 is not clear.}
 
+\WorkInProgress
+
 \RC{line 147: probably the explanation of the error term should be anticipated where the error term appears for the first time.}
+
+\WorkInProgress
 
 \RC{line 152: “to estimate this model “ has a preferable statistical sound than “to solve this model”}
 
+\WorkInProgress
+
 \RC{lines 163- 166 describe some features of regularization….but regularization is introduced later, from line 167.}
+
+\WorkInProgress
 
 \RC{Regularized regression + Bayesian estimation
 I found both the sections very short and lacking of many details.}
 
+\WorkInProgress
+
 \RC{what about the existing literature using lasso for meta-regression?}
+
+\WorkInProgress
 
 \RC{In addition, I expected some references about the theory of LASSO given the relevance of the instrument in the literature.}
 
+\WorkInProgress
+
 \RC{line 183-184: “other penalties exist”: ok, so discuss about, indicate advantages and disadvantages of the other solutions; why do you not focus on them in the study? If you do not, just explain why.}
+
+\WorkInProgress
 
 \RC{Bayesian estimation: I think that some additional methodological details and additional explanations about priors and their comparison to the classical LASSO would help the reader.}
 
+As requested, we have added this information. These sections now read:
+
+`r get_revision("morepriors")`
+
+<!-- Second, the frequentist LASSO shrinks some coefficients to be exactly zero, thereby performing automatic variable selection.  -->
+<!-- This is not the case for its Bayesian counterpart, which always provides a continuous posterior probability distribution. -->
+<!-- Variable selection is then performed by determining which parameters have a high probability density assigned to near-zero values. -->
+<!-- Third, classical penalized regression approaches rely on optimization while the Bayesian framework generally relies on Markov Chain Monte Carlo (MCMC) sampling to obtain the posterior distribution. As a result, Bayesian estimation tends to be slower compared to classical estimation. -->
+
 \RC{Why details relevant for the Bayesian estimation are included in the “Implementation” section? I mean lasso prior and horseshoe prior, that is, details useful to understand the methodology.}
+
+We agree with the Reviewer that this information would be better positioned in another section.
+To address this comment, we have restructured the paper; the information about priors is now incorporated into the *Bayesian estimation* section, and the *Implementation* section now exclusively relates to the `pema` R-package.
 
 \RC{Can you comment about the choice of the numerical values in the priors at the end of page 11?}
 
+\WorkInProgress
+
 \RC{line 221: “this extension”: which one?}
+
+We intended to explain that the regularizing horseshoe prior is an extension of the (normal) horseshoe prior. This was insufficiently clear.
+To address this comment, we have written the following section:
+
+`r get_revision("horseshoe")`
 
 \RC{line 225: “This is accomplished by..” Why?}
 
+We have rephrased this so that it is clearer that the formula explains how this is achieved. The section now reads:
+
+`r get_revision("expectedmods")`
+
 \RC{line 240: “values are reasonable in most applications” Why? Can you prove this?}
+
+We thank the Reviewer for pointing out that this statement raises more questions than it answers. To address this Reviewer comment, we have moved this statement to the Discussion and slightly rephrased it to clarify that it is supported by the results of the present study. It now reads:
+
+`r get_revision("sensitivityanalysis")`
 
 \RC{lines 244-251 seems to be pertinent to the methodology of the proposal not to implementation.}
 
-\RC{More in general, I do not like to see a mixture of methodology and R code. I think I would be more useful for  the reader to have sections describing the proposed approach and the underlying methodology (something that is not present at the emano) and then having an appendix about the code. }
+We agree with the Reviewer that the writing in this section was too methodological. To address this comment, we have made two changes: This paragraph has been moved to the section on Bayesian estimation, and we have rewritten it as follows:
+
+`r get_revision("intervals")`
+
+\RC{More in general, I do not like to see a mixture of methodology and R code. I think I would be more useful for  the reader to have sections describing the proposed approach and the underlying methodology (something that is not present at the emano) and then having an appendix about the code.}
+
+To address this comment, we have made a stricter separation between methodology and code. 
+All references to code are now relegated to the Implementation section.
+
+We do believe that there are advantages to having code in the paper and not in an appendix, as the intended readership for this paper consists of those who wish to conduct a Bayesian regularized meta-analysis. We hope that the current approach is an acceptable compromise.
 
 \RC{line 278: “x==0” could be substituted by “x is equal to 0” as this is a text, not a source code.}
 
@@ -122,37 +201,119 @@ We have made the suggested change.
 \RC{Intercept.
 I don’t think it is so relevant to deserve a section. Why not inserting a line in the section devoted to the code?}
 
+This section is important because omitting the intercept from the model has very different implications for penalized Bayesian meta-regression than for frequentist models (where the model is equivalent, regardless of whether the intercept is included or not).
+
+To clarify this, we have rewritten this section to focus on the implications of including or excluding the intercept.
+The line explaining *how* to include or exclude the intercept has been moved to the Implementation paragraph, consistent with the Reviewer's request to relegate code to a separate section:
+
+`get_revision("intercept")`
+
 \RC{Performance indicators, Design factors, Predictive performance
 * You split the data in training set and test set, for each iteration. So, how do you account for the variability associated to the choice of the test set (as done for example in cross-validation)?}
 
+We respectfully believe that this comment is based on a misunderstanding of the procedure.
+We do not split a finite sample into a training and testing set - 
+we simulate data for both sets from the same known data generating model.
+Each sample from this model is independent and identically distributed (IID).
+The distinction between training and testing is thus arbitrary.
+This is different from real data analyses, where the available dataset is finite, and training and testing data are drawn from that finite dataset - thus violating the assumption of IID.
+
+In a real dataset, if one case has very unusual values (i.e., an outlier),
+the model could be biased if this case ends up in the training data, and the performance metrics could be biased if this case ends up in the testing data.
+In our simulation study, outliers have exactly equal probabilities of appearing in the training or testing data - and as we are not sampling from a finite dataset, the probability of having an outlier in the training data is independent from having one in the testing data.
+
+Their effect on the estimated parameters is known as "Monte Carlo error" and averages out across replications of the simulation.
+
 \RC{I’m surprised by the large number fo linea devoted to the explanation of such a basic indicator like R2. In addition, it is well known to be optimistic, and thus the adjusted version I usually preferable. Why don’t you evaluate the method using other indicators, such as the adjusted r2, AIC, or BIC?}
+
+We respectfully feel that it is important to define how we operationalized each outcome metric, and why we use it.
+Unfortunately, we now realize that our explanation was not sufficiently clear. To address this comment, we have rewritten the explanation of our outcome metric, $R^2_{test}$. We hope that this revised explanation clarifies that this is **not** the basic indicator R2, but rather, a different type of R2 that is suitable for assessing overfitting:
+
+`r get_revision("rsquared")`
+
+Additionally,
+the reason we do not use AIC or BIC is because these are comparative fit indices, only suitable for comparing a set of models; we have only a single model and AIC or BIC do not speak to the absolute fit of a single model.
+
+The reason we do not use adjusted $R^2$ is because it is an approximation of $R^2_{test}$ but calculated on the training sample data.
+Since we simulate data from a known true model,
+we do not need to *estimate* $R^2_{test}$ - we can *calculate* it directly, based on a new sample.
 
 \RC{line 344: I suppose you mean the estimate of sensitivity and specificity.}
 
+We have rephrased this as suggested.
+
 \RC{line 368: 100 datasets only? Probably, there is a typo, as 100 is the number of datasets included in the test set, if I’m not wrong. In any case, 100 is a very low number of replicates for a simulation study, I suggest to increase at least to the common value equal to 1,000.}
+
+As these simulations are very computationally demanding,
+and increasing the number of replications adds only marginal accuracy gains, we did indeed use 100 replications.
+However, as per the Reviewer's request, we have increased this to 1000.
 
 \RC{line 385: do you mean “Table” 1?}
 
+Thank you for pointing out this omission; we have corrected it.
+
 \RC{line 405: “the” most negative?}
 
-\RC{lines 449-452 are not necessary as bias and variance are known concepts. However, in Tables I can see only bias, and not information about variance.}
+We corrected this, and slightly rephrased the sentence for clarity.
+
+\RC{lines 449-452 are not necessary as bias and variance are known concepts.}
+
+We respectfully feel that it is prudent to define how all outcome metrics are operationalized.
+Even though the general concepts of bias and variance may be known to most readers,
+we cannot assume that they will know exactly how these are calculated in the context of this simulation study - particularly for the broad readership of a journal like Research Synthesis Methods.
+See also our response to the comment about defining $R^2_{test}$
+
+\RC{However, in Tables I can see only bias, and not information about variance.}
+
+This is correct; we had not reported these statistics for two reasons:
+
+1. Unlike bias, they must be computed on aggregate across replications of each simulation condition. This results in a strange situation where each condition has only one outcome value. But it is probably fine to interpret these effect sizes as descriptive statistics.
+2. The differences between algorithms in variance of $\tau^2$ were negligible. We did not want to devote two tables to, essentially, a matrix of zeroes.
+
+To address this comment, we now describe the results in the text, and provide the requested tables as online Supplements.
 
 \RC{lines 469-470: there is a white space}
 
+We thank the Reviewer for pointing this out;
+a fragment of a sentance was cut here.
+We restored the original text.
+
 \RC{Could you please avoid writing pema::bonapersona and use instead dataset titled bonapersona in the R pema package? This is not a list of lines code, but a text.}
+
+We have done as requested.
 
 \RC{you have 440 experiments in the dataset: do you mean 440 study included in the meta-regression? If so, the number is much. Larger than the scenarios evaluated in the simulations.}
 
+This observation is correct, but this is not a problem. 
+The method is validated for up to 100 studies,
+so it should also be valid for >100 studies,
+as a larger sample size gives more power.
+
+The reason we used these data is because we were able to secure permission from the original author to include them in the R-package.
+This means we can make the examples reproducible, requiring only the `pema` package.
+We feel that it adds a lot to the paper to present a reproducible real-data example based on a novel dataset.
+To address this comment,
+we now acknowledge in the text that this sample is relatively large compared to the sample sizes of the simulation study:
+
+\WorkInProgress
+
+
 \RC{Finally, There are many typos and inconsistencies throughout the text (e.g., data set and dataset, random effect and randoms-effects, …).}
+
+\WorkInProgress
 
 # Reviewer 2
 
 \RC{Comments to the Author
 The authors investigated selection of moderators for the meta-regression, which is especially useful to explain the sources of heterogeneity between trials. They proposed the use of regularizing priors for meta-regression within a Bayesian framework. They shared publicly available R package "pema" which relies on rstan, which helps practitioners to use the proposed methods. I think the contribution of the paper and R package is important. However, I have some comments.}
 
+We thank the Reviewer for their encouraging words and thought-provoking comments, which we feel have helped improve the quality of the manuscript.
+
 ## Major points
 
 \RC{1) I think it is important to note some limitations of meta-regression. For example, the use of moderators might "break" the randomization, when the studies analyzed are randomized controlled trials. This is because it is not possible to randomize patients to one moderator, see Thompson and Higgins (2002) section 3 for further discussion of limitations of meta-regression of clinical trials.}
+
+\WorkInProgress
 
 \RC{2) Important references are missing, in which the use of regularization or penalization approaches for the meta-analysis were investigated, although not the same purpose as in the current paper. For example, in Chung et al (2013) regularizing prior was used for the heterogeneity parameter to avoid boundary estimates, and in Günhan et al (2020) regularizing priors were used for the heterogeneity parameter and treatment effect parameter to deal with data sparsity. Finally and most importantly, Röver et al (2021) reviewed different use of regularizing priors and provided some guidance. Note that in the mentioned references, the term of weakly informative priors are used instead of regularizing priors (also see an earlier reference by Gelman (2006) in a hierarchical model context). Mention of these publications and relationship to the present paper can help the reader.}
 
@@ -171,6 +332,7 @@ Suggest to add this paragraph in the section on Bayesian estimation after "which
 
 "As a result, the posterior distribution is a compromise between the likelihood of the data and the prior distribution. The influence of either the data or the prior is determined by the sample size as well as the informativeness of the prior distribution. The larger the sample size, the more influential the likelihood of the data will be. Similarly, as the prior distribution becomes more informative, i.e., more peaked, it will exert more influence on the results. Priors can thus be placed on a continuum from "non-informative" to "highly informative". Weakly informative or regularizing priors are often used in situations when there is some prior information available, for example regarding the boundaries of the parameter space or, as is the case here, regarding the existence of parameters equal to zero. Throughout this manuscript, we will use the term "shrinkage prior" to refer to the weakly informative or regularizing prior that holds the prior knowledge that some coefficients are equal to zero and should therefore be shrunken towards zero."
 
+\WorkInProgress
 
 \RC{3) An important part of Bayesian random-effects meta-analysis is the specification of the prior for the heterogeneity parameter tau. Can you include more specifications on the prior choice for tau and influence of the choice to the results (if there is any).}
 
