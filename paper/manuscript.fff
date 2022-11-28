@@ -18,3 +18,8 @@
 
 \includegraphics[width=20.67in]{specificity} \caption{Specificity by design factors for the HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) algorithms.}\label{fig:figspecificity}
 \end{figure*}
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+\includegraphics[width=4.13in]{plot_sensitivity} \caption{A rudimentary visual check for sensitivity to different priors.}\label{fig:figsens}
+\end{figure*}

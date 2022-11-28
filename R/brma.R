@@ -19,8 +19,8 @@
 #' a factor. This column will be removed from the data prior to analysis.
 #' See \code{Details} for more information about analyzing dependent data.
 #' @param method Character, indicating the type of regularizing prior to use.
-#' Supports one of \code{c("lasso", "hs")}, see Details. Defaults to
-#' \code{"lasso"}.
+#' Supports one of \code{c("hs", "lasso")}, see Details. Defaults to
+#' \code{"hs"}.
 #' @param standardize Either a logical argument or a list. If `standardize` is
 #' logical, it controls whether all predictors are standardized prior to
 #' analysis or not. Parameter estimates are restored to the predictors' original
@@ -159,7 +159,7 @@ brma.formula <-
            standardize = TRUE,
            prior = switch(method,
                           "lasso" = c(df = 1, scale = 1),
-                          "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = NULL)),
+                          "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 2, relevant_pars = NULL)),
            mute_stan = TRUE,
            #prior_only = FALSE,
            ...) {
@@ -223,7 +223,7 @@ brma.formula <-
       standardize <- standardize[c("center", "scale")]
     }
 
-    cl[names(cl) %in% c("formula", "data", "method")] <- NULL
+    cl[names(cl) %in% c("formula", "data")] <- NULL
     cl[[1L]] <- str2lang("pema::brma")
     cl[["x"]] <- X
     cl[["y"]] <- Y
@@ -251,9 +251,10 @@ brma.default <-
            y,
            vi,
            study = NULL,
+           method = "hs",
+           standardize,
            prior,
            mute_stan = TRUE,
-           standardize,
            intercept,
            #prior_only = FALSE,
            ...) {
@@ -271,24 +272,36 @@ brma.default <-
       foroutput <- NULL
     }
     # Check validity of prior
-    method <- "invalid"
     if(is.null(ncol(X))) stop("Object 'X' must be a matrix.")
     if(dim(X)[2] == 0) stop("The function 'brma()' performs moderator selection, but this model does not include any moderators.")
-    if(all(c("df", "df_global", "df_slab", "scale_slab") %in% names(prior))){
-      if("par_ratio" %in% names(prior)){
-        message("Prior element 'par_ratio' is deprecated and will be ignored. Use 'relevant_pars' instead.")
-      }
-      if("relevant_pars" %in% names(prior)){ # use prior information if available
+    # Check method
+    use_method <- switch(method,
+                         hs = "horseshoe_MA",
+                         lasso = "lasso_MA",
+                         "invalid")
+    if(use_method == "invalid") stop("Method '", method, "' is not valid.")
+
+    # Clean up prior
+    prior_template <- list(
+      lasso = c(df = 1, scale = 1),
+      hs = c(df = 1, df_global = 1,
+             df_slab = 4, scale_global = 1, scale_slab = 2, relevant_pars = NULL))[[method]]
+    legalnames <- names(prior_template)
+    is_legal <- names(prior) %in% legalnames
+    if(any(!is_legal)){
+      wrongnames <- names(prior)[!is_legal]
+      message("Unknown prior parameter(s): ", paste0(wrongnames, collapse = ", "))
+      prior <- prior[which(is_legal)]
+    }
+    if(isTRUE(length(prior) > 0)){
+      prior_template[names(prior)] <- prior
+      prior <- prior_template
+    }
+    if(isTRUE(sign(prior["relevant_pars"]) == 1)){ # use prior information if available
         prior["scale_global"] <- prior["relevant_pars"]/((ncol(X) - prior["relevant_pars"]) * sqrt(nrow(X))) # multiplication with sigma happens within stan model
-      }
-      prior <- prior[c("df", "df_global", "df_slab", "scale_global", "scale_slab")]
-      method <- "horseshoe_MA"
     }
-    if(all(c("df", "scale") %in% names(prior))){
-      prior <- prior[c("df", "scale")]
-      method <- "lasso_MA"
-    }
-    if(method == "invalid") stop("Argument 'prior' is not valid.")
+
+
     # Check if this is a three-level meta-analysis
     if(is.null(study)){
       threelevel <- FALSE
@@ -341,7 +354,7 @@ brma.default <-
       )
     cl <- do.call("call",
                   c(list(name = "sampling",
-                         object = stanmodels[[paste0(method,
+                         object = stanmodels[[paste0(use_method,
                                                      c("", "_ml")[threelevel+1],
                                                      c("_noint", "")[intercept+1]
                                                      )]],

@@ -34,7 +34,7 @@ model_accuracy <-
         }
       },
       rma.uni = {
-        if (is.null(newdata)) {
+        if (is.null(newdata) | nrow(models$b) == 1) {
           predicted	  <- predict(fit)$pred
           if (length(predicted) == 1) {
             predicted <- rep(predicted, length(observed))

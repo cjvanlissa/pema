@@ -26,9 +26,10 @@ brma(x, ...)
   y,
   vi,
   study = NULL,
+  method = "hs",
+  standardize,
   prior,
   mute_stan = TRUE,
-  standardize,
   intercept,
   ...
 )
@@ -58,8 +59,8 @@ a factor. This column will be removed from the data prior to analysis.
 See \code{Details} for more information about analyzing dependent data.}
 
 \item{method}{Character, indicating the type of regularizing prior to use.
-Supports one of \code{c("lasso", "hs")}, see Details. Defaults to
-\code{"lasso"}.}
+Supports one of \code{c("hs", "lasso")}, see Details. Defaults to
+\code{"hs"}.}
 
 \item{standardize}{Either a logical argument or a list. If \code{standardize} is
 logical, it controls whether all predictors are standardized prior to

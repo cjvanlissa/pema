@@ -18,7 +18,7 @@
 sample_prior <- function(method = c("hs", "lasso"),
                        prior = switch(method,
                                       "lasso" = c(df = 1, scale = 1),
-                                      "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 1, par_ratio = NULL)),
+                                      "hs" = c(df = 1, df_global = 1, df_slab = 4, scale_global = 1, scale_slab = 2, par_ratio = NULL)),
                        iter = 1000){
   out <- as.list(match.call()[-1])
   out[["samples"]] <- suppressWarnings(sampling(object = stanmodels[[c("lasso_prior", "hs_prior")[(method[1] == "hs")+1]]], data = as.list(prior), chains = 1, iter = iter, warmup = 0, show_messages = FALSE, verbose = FALSE, refresh = 0))
