@@ -8,7 +8,7 @@
 *.log
 *.tex
 *.docx
-simulatie_2021/Simulatie 2021_3.R
+!simulatie_2021/Simulatie 2021_3.R
 *.dll
 !curry.rda
 !bonapersona.rda
