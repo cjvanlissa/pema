@@ -279,7 +279,12 @@ and increasing the number of replications adds only marginal accuracy gains.
 In total, we thus simulated 194.400 cases.
 Many of the analyses marginalize over some design factors,
 thus we always have a very large sample size.
-We do not see an urgent need to increase the number of replications,
+
+We have calculated the runtime required to conduct 1,000 replications per condition,
+and this amounts to 8160 computer-hours, or 340 days on a single core.
+This is exceptionally expensive and environmentally unfriendly,
+and the marginal gains are minimal.
+We thus strongly prefer to keep the number of replications at 100,
 but we defer to the Editor in this matter.
 
 \RC{line 385: do you mean “Table” 1?}
