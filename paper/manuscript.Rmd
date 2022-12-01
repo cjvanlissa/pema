@@ -1,5 +1,5 @@
 ---
-title             : "Select relevant moderators using Bayesian regularized meta-regression"
+title             : "Selecting relevant moderators with Bayesian regularized meta-regression"
 shorttitle        : "BAYESIAN REGULARIZED META-REGRESSION"
 
 author:
@@ -180,7 +180,7 @@ This does not resolve the problem, however,
 as failing to consider a moderator does not mean that it is irrelevant.
 Instead, moderators ought to be selected based on their theoretical or empirical relevance for the studied effect.
 
-One approach to is to select variables on theoretical grounds.
+One approach is to select variables on theoretical grounds.
 An important caveat is that theories that describe phenomena at the level of individual units of analysis do not necessarily generalize to the study level.
 Using such theories for variable selection amounts to committing the ecological fallacy:
 generalizing inferences across levels of analysis [@jargowskyEcologicalFallacy2004].
@@ -257,7 +257,7 @@ In this model, the error term $\zeta_{i}$ represents between-studies heterogenei
 As in the fixed effect model,
 studies with smaller sampling errors are assigned more weight.
 <span id = "informationdistribution">In contrast to the fixed effect model, the random effects model assumes that all studies provide some information about the underlying distribution of true effect sizes.
-Fixed effect weights would discount the information smaller studies provide about the scale of this distribution, which is represented by it's variance $\tau^2$.
+Fixed effect weights would discount the information smaller studies provide about the scale of this distribution, which is represented by its variance $\tau^2$.
 To overcome this limitation, the weights are attenuated in proportion to the variance.
 The random effects weights are thus given by $w_{i} =  \frac{1}{v_i + \hat{\tau}^2}$.</span>
 Whereas sampling error is still treated as known,
@@ -485,7 +485,7 @@ The rma algorithm is part of the software-package `metafor` in `R`, which is dev
 
 ### Standardizing predictors
 
-As explained in Formula \@ref(eq:),
+As explained earlier,
 regularization penalizes all coefficients equally,
 without regard for their scale.
 If variables are on different scales,
@@ -717,7 +717,7 @@ but still return samples from the posterior.
 We were thus able to use all iterations of the BRMA algorithms,
 although some may have failed to converge, which would negatively impact BRMA's performance.
 When the RMA algorithm fails to converge, however,
-terminates with an error.
+it terminates with an error.
 <!-- To handle this contingency, we automated some of the steps recommended [on the `metafor` website](https://www.metafor-project.org/doku.php/tips:convergence_problems_rma). -->
 <!-- This means that, in case of convergence  -->
 The RMA algorithm failed to converge in `r out$missing` replications,
@@ -1070,7 +1070,7 @@ it is important to assess model convergence.
 If any indication of non-convergence is detected during estimation,
 a warning will be printed.
 The example returns the warning that there were 331 divergent transitions,
-and suggests increasing the number of iteractions (increasing the argument `iter` beyond its default value of 2000).
+and suggests increasing the number of iterctions (increasing the argument `iter` beyond its default value of 2000).
 Divergent transitions can result in biased estimates.
 If the number of divergences is small and there are no further indications of non-convergence, however,
 the posterior distribution is often good enough to safely interpret the results.
@@ -1332,7 +1332,7 @@ If data remains missing, users can use multiple imputation, which is a best prac
 Finally, effect sizes and their variances must be computed using suitable methods;
 many of which are available in the R package `metafor` [@viechtbauerConductingMetaanalysesMetafor2010].
 
-In the Introduction, researchers should substantiate the decision to explore heterogeneity
+In the Introduction, researchers should substantiate the decision to explore heterogeneity.
 One valid reason is prima facie heterogeneity of the body of research [@higginsReevaluationRandomeffectsMetaanalysis2009a].
 Another reason is the presence of theoretically relevant moderators [@thompsonHowShouldMetaregression2002].
 Less convincing is the practice of exploring heterogeneity only when $\tau^2$ is significant,
@@ -1374,7 +1374,7 @@ BRMA may not be the best solution for every situation.
 Several trade-offs must be considered to decide what method is most appropriate.
 Firstly, BRMA has higher predictive performance than RMA,
 which implies that it is more suitable when a researcher intends to generalize beyond the sample at hand.
-Conversely, RMA is be more suitable when the goal is to describe the sample at hand in an unbiased manner,
+Conversely, RMA is more suitable when the goal is to describe the sample at hand in an unbiased manner,
 with less concern for generalizability to future studies.
 Secondly, BRMA trades off higher specificity for lower sensitivity compared to RMA,
 which suggests that it is more suitable when a researcher seeks to eliminate irrelevant moderators, at the cost of an increased Type II error rate.
