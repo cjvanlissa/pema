@@ -1070,7 +1070,7 @@ it is important to assess model convergence.
 If any indication of non-convergence is detected during estimation,
 a warning will be printed.
 The example returns the warning that there were 331 divergent transitions,
-and suggests increasing the number of iterctions (increasing the argument `iter` beyond its default value of 2000).
+and suggests increasing the number of iterations (increasing the argument `iter` beyond its default value of 2000).
 Divergent transitions can result in biased estimates.
 If the number of divergences is small and there are no further indications of non-convergence, however,
 the posterior distribution is often good enough to safely interpret the results.
