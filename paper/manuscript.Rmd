@@ -320,7 +320,7 @@ all coefficients shrink towards zero, ultimately producing the null model.
 Cross-validation is often used to find the optimal value for the penalty parameter $\lambda$.
 The LASSO penalized residual sum of squares is given by:
 \begin{align}
-PRSS= RSS + \lambda \sum_{j=1}^{p}|\beta_{j}|
+PRSS= RSS + \lambda \sum_{j=1}^{p}|\beta_{j}| (\#eq:prss)
 \end{align}
 <span id = "whylasso">Note that many other regularizing penalties exist.
 This introduction focuses on the LASSO penalty because it is most ubiquitous, easy to understand,
@@ -485,7 +485,7 @@ The rma algorithm is part of the software-package `metafor` in `R`, which is dev
 
 ### Standardizing predictors
 
-As explained earlier,
+As explained in Formula \@ref(eq:prss),
 regularization penalizes all coefficients equally,
 without regard for their scale.
 If variables are on different scales,
