@@ -16,7 +16,7 @@ brma(x, ...)
   method = "hs",
   standardize = TRUE,
   prior = switch(method, lasso = c(df = 1, scale = 1), hs = c(df = 1, df_global = 1,
-    df_slab = 4, scale_global = 1, scale_slab = 1, relevant_pars = NULL)),
+    df_slab = 4, scale_global = 1, scale_slab = 2, relevant_pars = NULL)),
   mute_stan = TRUE,
   ...
 )
