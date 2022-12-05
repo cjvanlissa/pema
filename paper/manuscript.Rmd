@@ -658,7 +658,7 @@ Where $k$ is the number of studies in the testing data set, $\hat{y}_{i-test}$ i
 The $R^2_{test}$ differs from the familiar $R^2$ metric:
 $R^2$ describes the proportion of variance a model explains in the training data, and it always increases as the model becomes more complex.
 By contrast, $R^2_{test}$ reflects the explained variance in the testing data.
-Remember that BRMA was developed to reduce the risk of overfitting meta-regression models.
+Recall that BRMA was developed to reduce the risk of overfitting meta-regression models.
 The $R^2_{test}$ is a useful metric to detect overfitting,
 which causes it to decrease, or even become negative.
 </span>
@@ -1273,7 +1273,7 @@ Another possible solution is to resort to non-parametric methods like random for
 <span id = "sensitivityanalysis">All simulations were conducted with default settings for the model's prior distributions, based on prior research [@vanErpOberskiMulder2019; @PiironenVehtari2017b].
 Our results suggest that these defaults are suitable for a wide range of situations, including when model assumptions are violated.
 However, bear in mind that model parameters are influenced by the prior distribution.
-It is good practice to perform sensitivity analysis to determine how sensitive the model results and inferences are to different prior specifications. 
+It is good practice to perform a sensitivity analysis to determine how sensitive the model results and inferences are to different prior specifications. 
 Performing sensitivity analyses is particularly important when the sample is small,
 as in this case, the prior is more influential.</span>
 
