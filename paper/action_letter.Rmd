@@ -186,7 +186,7 @@ Note that the results of our simulation study again validate the fact that these
 \RC{line 221: “this extension”: which one?}
 
 We recognize that this choice of words was confusing.
-The regularizing horseshoe prior is an extension of the horseshoe prior.
+The regularized horseshoe prior is an extension of the horseshoe prior.
 To address this comment, we now explain this in the text:
 
 `r get_revision("horseshoe")`
@@ -320,7 +320,7 @@ And:
 \RC{lines 469-470: there is a white space}
 
 We thank the Reviewer for pointing this out;
-a fragment of a sentance was cut here.
+a fragment of a sentence was cut here.
 We restored the original text.
 
 \RC{Could you please avoid writing pema::bonapersona and use instead dataset titled bonapersona in the R pema package? This is not a list of lines code, but a text.}
