@@ -373,16 +373,16 @@ The BRMA method introduced here offers both LASSO and regularized horseshoe prio
 The LASSO prior is given by:
 \begin{align}
 \beta_{j} &\sim \text{DE}(0, \frac{s}{\lambda})\\ (\#eq:lasso)
-\lambda &\sim \chi^2(0, \nu_1)
+\frac{1}{lambda} &\sim \chi^2(0, \nu_1)
 \end{align}
 where DE denotes the double exponential distribution centered around zero,
 with a scale determined by a global scale parameter $s$ that is multiplied by the inverse of tuning parameter $\lambda$.
 Increasing the scale parameter extends the prior to cover more extreme values.
 The inverse tuning parameter is estimated from the data 
-by assigning it a $\chi^2$ prior distribution with mean zero and degrees of freedom $\nu_1$ [@vanErpOberskiMulder2019].
+by assigning it a $\chi^2$ prior distribution with mean zero and degrees of freedom $\nu_1$.
 Increasing the degrees of freedom assigns greater probability mass to extreme values, resulting in less regularization.
 The present study used default values for the prior parameters,
-$s = 1$, $\nu_1 = 1$, as suggested by @vanErpOberskiMulder2019.
+$s = 1$, $\nu_1 = 1$, which are the same defaults as used in `brms` [@R-brms_a].
 
 The regularized horseshoe prior combines global and local shrinkage of the regression coefficients with a finite slab that curtails the occurrence of very extreme values [@PiironenVehtari2017b].
 For regression coefficients $\beta_j$, for $j \in [1\ldots p]$ where $p$ is the total number of moderators,
