@@ -400,7 +400,7 @@ In these equations, $N$ denotes the normal distribution,
 student-$t^+$ denotes the positive half of a t distribution,
 and $\Gamma^{-1}$ denotes the inverse Gamma distribution. 
 In this formula, $\lambda$ controls the overall scale of the priors for all regression coefficients,
-where larger values for the global scale parameter $\lambda^2_0$ widen the rande of values covered by the priors.
+where larger values for the global scale parameter $\lambda^2_0$ widen the range of values covered by the priors.
 The global degrees of freedom $\nu_1$ control the overall thickness of the tails,
 with higher values resulting in thinner tails, which assigning less probability mass to extreme values.
 Lighter tails can aid model convergence when the model is weakly identified; for example, when there are more moderators than observations.
