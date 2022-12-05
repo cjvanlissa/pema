@@ -294,7 +294,7 @@ This approach, henceforth referred to as RMA, has low bias, which means that, ac
 Low bias comes at the cost of higher variance, however,
 which means that the estimated values of population parameters vary more from one hypothetical replication to the next.
 This phenomenon is known as the *bias-variance trade-off*.
-In general, an estimator with low bias and high variance produces results that generalize less well to new data than an estimator with high bias and low variance.
+In general, an estimator with low bias and high variance produces results that generalize worse to new data than an estimator with high bias and low variance.
 Regularized approaches to regression intentionally increase bias in order to reduce variance.
 This is a sensible approach in the context of small samples, which are common in meta-analyses,
 because small samples incur a high risk of overfitting,
@@ -308,7 +308,7 @@ In this equation, $n$ is the number of participants; $y_i$ is the outcome variab
 \begin{align}
 RSS=\sum_{i=1}^{n}(y_{i} - \beta_{0} - \sum_{j=1}^{p}\beta_{j}x_{ij})^2
 \end{align}
-The resulting parameter estimates perfectly describe linear relations in the present data set, but generalize less well to new data.
+The resulting parameter estimates perfectly describe linear relations in the present data set, but do not generalize well to new data.
 Regularized regression biases parameter estimates towards zero by adding a penalty term to the RSS.
 Most common is the LASSO penalty, which consists of the sum of the absolute regression coefficients, or the L1 norm [@hastieElementsStatisticalLearning2009].
 As the LASSO penalty is a function of the regression coefficients, it increases when they get bigger.
