@@ -576,7 +576,7 @@ For estimation, `brma()` depends on Stan, a probabilistic programming language t
 Stan is written in C++, and thus computationally efficient, but custom models must be compiled prior to estimation.
 Installing a toolchain to compile models requires some technical sophistication, which potentially restricts the user base.
 Moreover, model compilation adds unnecessary computational overhead for standard applications.
-To overcome these limitations, the `pema` package includes pre-compiled stock models with opinionated default options.
+To overcome these limitations, the `pema` package includes pre-compiled stock models with opinionated default options. These models have been created using the `brms` package [@R-brms_a].
 At the time of writing, these include random effects and three-level meta-regression with and without an intercept.
 R-users can refer to the package documentation to see what options are available at the time of reading by running `?pema::brma`.
 Researchers who wish to construct a model that is currently out of scope of `brma()` are referred to `rstan` instead [@rstan].
