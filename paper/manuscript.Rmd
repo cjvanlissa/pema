@@ -334,7 +334,7 @@ and selected moderators are then included in meta-regression analysis.
 This approach is fraught; firstly, because of known problems of inference after variable selection [@zhangInferenceVariableSelection1992].
 As the moderators included in the second step are based on an exploratory first step,
 their parameters are not valid for inference.
-Secondly, although the LASSO model in the first step accounts for potential multicollinearity by including all colinear variables but restricting the size of their coefficients,
+Secondly, although the LASSO model in the first step accounts for potential multicollinearity by including all collinear variables but restricting the size of their coefficients,
 the meta-regression in the second step no longer does so.
 A three-step extension of the two-step approach exists
 that uses principles from the causal inference literature to overcome these limitations [@belloniInferenceTreatmentEffects2014].
@@ -354,7 +354,7 @@ A regularizing prior distribution shrinks small coefficients towards zero by ass
 There are many different regularizing prior distributions,
 some of which are analogous to specific frequentist methods [@vanErpOberskiMulder2019].
 For example, a double exponential prior (hereafter: LASSO prior) results in posterior distributions whose modes are identical to the estimates from LASSO-penalized regression [@ParkCasella2008].
-Both the the frequentist LASSO penalty and the Bayesian LASSO prior have a tuning parameter $\lambda$ that controls the amount of regularization.
+Both the frequentist LASSO penalty and the Bayesian LASSO prior have a tuning parameter $\lambda$ that controls the amount of regularization.
 In frequentist LASSO, its value is usually chosen via cross-validation [@hastieElementsStatisticalLearning2009]. 
 In the Bayesian approach, by contrast,
 its value can be optimized during model estimation.
