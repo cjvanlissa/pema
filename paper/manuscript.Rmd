@@ -357,7 +357,7 @@ For example, a double exponential prior (hereafter: LASSO prior) results in post
 Both the frequentist LASSO penalty and the Bayesian LASSO prior have a tuning parameter $\lambda$ that controls the amount of regularization.
 In frequentist LASSO, its value is usually chosen via cross-validation [@hastieElementsStatisticalLearning2009]. 
 In the Bayesian approach, by contrast,
-its value can be optimized during model estimation.
+its value can be estimated during model estimation.
 
 <span id = "horseshoe">One limitation of the LASSO prior is that it biases all regression coefficients towards zero - for relevant as well as irrelevant moderators.
 To overcome this limitation, regularizing priors with better shrinkage properties have been developed.
@@ -366,8 +366,8 @@ but exert less bias on larger regression coefficients.
 One example is the horseshoe prior [@CarvalhoPolsonScott2010].
 It has heavier tails than the LASSO prior,
 which means that it does not shrink (and therefore bias) substantial coefficients as much.
-One limitation of the horseshoe prior is that it is difficult to specify a prior that ensures a sufficiently sparse solution.
-The regularized horseshoe was introduced to overcome this limitation [@PiironenVehtari2017b].</span></span>
+Two limitations of the horseshoe prior are 1) it lacks a formal way to include prior information regarding the degree of sparsity; and 2) it does not regularize coefficients far from zero. While the second problem is often considered a strength of the horseshoe prior, it can result in convergence issues when parameters are weakly identified.
+The regularized horseshoe was introduced to overcome these limitations [@PiironenVehtari2017b].</span></span>
 
 The BRMA method introduced here offers both LASSO and regularized horseshoe priors.
 The LASSO prior is given by:
