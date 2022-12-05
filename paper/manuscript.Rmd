@@ -636,7 +636,7 @@ and ability to recover population parameters.
 Our research questions are whether BRMA offers a performance advantage over RMA in terms of any of these indicators,
 and which prior (LASSO versus regularized horseshoe) is to be preferred.
 <span id = "defaultvalues">For both Bayesian priors, we used default values proposed in prior literature, see Table \@ref(tab:tabprior).
-Default values for the LASSO prior were based on @vanErpOberskiMulder2019,
+Default values for the LASSO prior were based on the defaults used in @R-brms_a,
 and default values for the regularized horseshoe prior were based on @PiironenVehtari2017a.</span>
 All analysis code is available in a version-controlled repository at <https://github.com/cjvanlissa/pema>.
 
