@@ -163,7 +163,7 @@ resulting in non-convergence [@akaikeNewLookStatistical1974].
 Accounting for between-studies heterogeneity thus poses a non-trivial challenge to classic meta-analytic methods.
 The risk of arriving at false-positive conclusions
 when there are many potential moderators is so ubiquitous that it was referred to as the "primary pitfall" in meta-regression [@thompsonHowShouldMetaregression2002].
-The present study introduces a novel method to overcome this pitfall by imposing Bayesian regularizing (LASSO and regularizing horseshoe) priors on the regression coefficients.
+The present study introduces a novel method to overcome this pitfall by imposing Bayesian regularizing (LASSO and regularized horseshoe) priors on the regression coefficients.
 These priors shrink the effect of irrelevant predictors towards zero while leaving important predictors relatively unaffected.
 The result is a sparse model with fewer non-zero parameters,
 which benefits model convergence, reduces overfitting, and helps identify relevant between-study differences.
@@ -216,7 +216,7 @@ an algorithm that uses Bayesian regularizing priors to perform variable selectio
 Regularizing priors assign a high probability density to near-zero values,
 which shrinks small regression coefficients towards zero, thus resulting in a sparse solution.
 This manuscript discusses two shrinkage priors,
-the LASSO and regularizing horseshoe prior.</span>
+the LASSO and regularized horseshoe prior.</span>
 
 ## Statistical underpinnings
 
@@ -367,9 +367,9 @@ One example is the horseshoe prior [@CarvalhoPolsonScott2010].
 It has heavier tails than the LASSO prior,
 which means that it does not shrink (and therefore bias) substantial coefficients as much.
 One limitation of the horseshoe prior is that it is difficult to specify a prior that ensures a sufficiently sparse solution.
-The regularizing horseshoe was introduced to overcome this limitation [@PiironenVehtari2017b].</span></span>
+The regularized horseshoe was introduced to overcome this limitation [@PiironenVehtari2017b].</span></span>
 
-The BRMA method introduced here offers both LASSO and regularizing horseshoe priors.
+The BRMA method introduced here offers both LASSO and regularized horseshoe priors.
 The LASSO prior is given by:
 \begin{align}
 \beta_{j} &\sim \text{DE}(0, \frac{s}{\lambda})\\ (\#eq:lasso)
@@ -384,9 +384,9 @@ Increasing the degrees of freedom assigns greater probability mass to extreme va
 The present study used default values for the prior parameters,
 $s = 1$, $\nu_1 = 1$, as suggested by @vanErpOberskiMulder2019.
 
-The regularizing horseshoe prior combines global and local shrinkage of the regression coefficients with a finite slab that curtails the occurrence of very extreme values [@PiironenVehtari2017b].
+The regularized horseshoe prior combines global and local shrinkage of the regression coefficients with a finite slab that curtails the occurrence of very extreme values [@PiironenVehtari2017b].
 For regression coefficients $\beta_j$, for $j \in [1\ldots p]$ where $p$ is the total number of moderators,
-the regularizing horseshoe prior is given by:
+the regularized horseshoe prior is given by:
 \begin{align}
 \beta_{j} &\sim N(0, \tilde{\tau}_j^2\lambda) \text{, with}\\ (\#eq:hs)
 \tilde{\tau}_j^2 &= \frac{c^2 \tau_j^2}{c^2 + \lambda^2 \tau_j^2}\\
@@ -594,11 +594,11 @@ Both of these arguments accept either the name of a column in `data`, or a numer
 
 As mentioned before, the R-implementation of BRMA has several options that can be customized.
 The most important option relates to the choice of priors for the regression coefficients.
-At the time of writing, `brma()` supports two priors for regression coefficients: the LASSO and the regularizing horseshoe.
+At the time of writing, `brma()` supports two priors for regression coefficients: the LASSO and the regularized horseshoe.
 A prior is selected using the `method` argument;
 the `prior` argument is used to specify custom values for the prior hyperparameters (see Statistical underpinnings).
 The parameters of the LASSO prior are explained in Equation \@ref(eq:lasso),
-and those of the regularizing horseshoe in Equation \@ref(eq:hs).
+and those of the regularized horseshoe in Equation \@ref(eq:hs).
 Table \@ref(tab:tabprior) provides an overview of the arguments that can be passed to `prior` to control these parameters,
 along with a rudimentary description of the effect of increasing the value of each parameter.
 <!-- The default values in this table correspond to the values used for the present simulation study, and are based on prior research [@vanErpOberskiMulder2019; @PiironenVehtari2017a]. -->
@@ -634,10 +634,10 @@ We evaluated the algorithms' predictive performance in new data,
 ability to perform variable selection,
 and ability to recover population parameters.
 Our research questions are whether BRMA offers a performance advantage over RMA in terms of any of these indicators,
-and which prior (LASSO versus regularizing horseshoe) is to be preferred.
+and which prior (LASSO versus regularized horseshoe) is to be preferred.
 <span id = "defaultvalues">For both Bayesian priors, we used default values proposed in prior literature, see Table \@ref(tab:tabprior).
 Default values for the LASSO prior were based on @vanErpOberskiMulder2019,
-and default values for the regularizing horseshoe prior were based on @PiironenVehtari2017a.</span>
+and default values for the regularized horseshoe prior were based on @PiironenVehtari2017a.</span>
 All analysis code is available in a version-controlled repository at <https://github.com/cjvanlissa/pema>.
 
 ## Performance indicators
@@ -1033,7 +1033,7 @@ ggplot(df, aes(x=draws)) +
 <!-- It is clear that the implied prior on the number of nonzero coefficients follows the prior information it has been given, with more mass on a small number of relevant moderators if that is expected a priori (p0 = 1) and more mass on a larger number of relevant moderators if that is expected a priori (p0 = 6). Interestingly, when no prior information is provided (p0 = NA), the default `global_scale` setting of 1 implies a relatively large number of nonzero coefficients, which is important to keep in mind when using this default setting. -->
 
 First, we estimate a model with all default settings.
-Based on the results of the present simulation study, the regularizing horseshoe is the default prior.
+Based on the results of the present simulation study, the regularized horseshoe is the default prior.
 To see all default values, open the function documentation using `?brma`.
 The use of a random seed makes this example reproducible:
 ```{r exmodel1, echo = TRUE, eval = FALSE}
@@ -1224,7 +1224,7 @@ ggplot(plotdat, aes(x=mean, y=par, group = Prior)) +
 # Discussion
 
 This study presented a novel algorithm to select relevant moderators that can explain heterogeneity in meta-analyses, using Bayesian shrinkage priors. 
-A simulation study validated the performance of two versions of the BRMA algorithm, with a regularizing horseshoe prior and LASSO prior, relative to state-of-the-art meta-regression with restricted maximum likelihood estimation (RMA).
+A simulation study validated the performance of two versions of the BRMA algorithm, with a regularized horseshoe prior and LASSO prior, relative to state-of-the-art meta-regression with restricted maximum likelihood estimation (RMA).
 Our analyses examined the algorithms' predictive performance, which is a measure of generalizability,
 their ability to perform variable selection,
 and ability to recover population parameters.
