@@ -3,12 +3,24 @@ library(metafor)
 library(glmnet)
 ntau <- 10
 
-
-df <- pema::simulate_smd(k_train = 1000, es = 2)
+sim_out <- matrix(FALSE, nrow = 200, ncol = 2)
+for(i in 1:200){
+set.seed(i)
+df <- pema::simulate_smd(k_train = 100, es = .5, tau2 = .5)
 
 df_train <- df$training
+y = df_train$yi
+vi = df_train$vi
+x = X = model.matrix(~., df_train[, -c(1:2)])
 
-pma <- function(x, y, vi, ntau = 10, ...){
+# df_train <- curry[, -c(1:2)]
+# df_train <- df_train[complete.cases(df_train), ]
+#
+# y = df_train$d
+# vi = df_train$vi
+# x = X = model.matrix(~., df_train[, -c(1:4)])
+
+#pma <- function(x, y, vi, ntau = 10, ...){
   mf_nomod <- rma(y, vi)
   tau2_max <- mf_nomod$tau2
   mf_allmod <- rma(yi = y, vi = vi, mods = x)
@@ -21,15 +33,24 @@ pma <- function(x, y, vi, ntau = 10, ...){
     wts <- 1/(df_train$vi + tau_seq[i])
     res[[i]] <- cv.glmnet(x = X, y = y, weights = wts, foldid = res[[1]]$foldid)
   }
-  err_min <- sapply(res, function(i){min(i$cvm)})
-  tau2_cv <- tau_seq[which.min(err_min)]
-  list(
-    rma = mf_nomod,
-    lasso = res[[which.min(err_min)]],
-    tau2_cv = tau2_cv
-  )
-}
+#   err_min <- sapply(res, function(i){min(i$cvm)})
+#   tau2_cv <- tau_seq[which.min(err_min)]
+#   list(
+#     rma = mf_nomod,
+#     lasso = res[[which.min(err_min)]],
+#     tau2_cv = tau2_cv
+#   )
+# }
+#tmp <- cv.glmnet(x = X, y = y, foldid = res[[1]]$foldid)
+err_min <- sapply(res, function(i){min(i$cvm)})
+sim_out[i, 1] <- all(sign(diff(err_min)) == 1)
+sim_out[i, 2] <- tau_seq[1] == 0
 
+}
+#}
+plot(1:ntau, err_min)
+min(tmp$cvm)
+which.min(err_min)
 m1 <- pma(x = as.matrix(df_train[, -c(1:2)]), y = df_train$yi, vi = df_train$vi)
 m1$rma
 m1$lasso

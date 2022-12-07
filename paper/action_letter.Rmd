@@ -320,7 +320,7 @@ And:
 \RC{lines 469-470: there is a white space}
 
 We thank the Reviewer for pointing this out;
-a fragment of a sentance was cut here.
+a fragment of a sentence was cut here.
 We restored the original text.
 
 \RC{Could you please avoid writing pema::bonapersona and use instead dataset titled bonapersona in the R pema package? This is not a list of lines code, but a text.}
@@ -359,19 +359,19 @@ We thank the Reviewer for their encouraging words and thought-provoking comments
 
 We agree with the Reviewer that there are important limitations to meta-regression, and Thompson & Higgins provide an excellent analysis thereof.
 <!-- Limitations -->
-<!-- i) multicolinearity -->
+<!-- i) multicollinearity -->
 <!-- ii) ecological fallacy -->
 <!-- iii) restriction of range -->
-<!-- iv) multicolinearity -->
+<!-- iv) multicollinearity -->
 <!-- v) something specific to clinical trials?? -->
 <!-- vi) data availability -->
 <!-- vii) small sample size, limited generalizability -->
 <!-- PITFALLS -->
-<!-- i) curse of dimensionality: small sample size, multicolinearity -->
+<!-- i) curse of dimensionality: small sample size, multicollinearity -->
 <!-- ii) overfitting -->
 <!-- iii) variable selection -->
 <!-- iv) variable selection -->
-Most of the limitations and pitfalls they discuss come down to two fundamental points which are already addressed throughout our paper: 1) the curse of dimensionality and its implications for multicolinearity (limitations i, iv, vii and pitfalls i, ii, iii, and iv), and 2) the ecological fallacy (limitation ii and iv).
+Most of the limitations and pitfalls they discuss come down to two fundamental points which are already addressed throughout our paper: 1) the curse of dimensionality and its implications for multicollinearity (limitations i, iv, vii and pitfalls i, ii, iii, and iv), and 2) the ecological fallacy (limitation ii and iv).
 They further address three singular points which cannot be attributed to the two fundamental points:
 Limitation iii relates to the problem of restriction of range in moderators (which we do not address),
 Limitation vi relates to limited data availability (which we address in our discussion of missing data),
