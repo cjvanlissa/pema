@@ -87,6 +87,7 @@ draft             : no
 
 documentclass     : "apa6"
 classoption       : "man"
+csl               : american-medical-association.csl
 knit: worcs::cite_essential
 output            : papaja::apa6_pdf
 header-includes:
@@ -94,6 +95,8 @@ header-includes:
 ---
 
 ```{r setup, include = FALSE}
+# Change the variable `run_everything` to TRUE to reproduce all analyses,
+# including computer-intensive ones
 run_everything <- FALSE
 library("papaja")
 library(tidySEM)
@@ -639,7 +642,7 @@ and which prior (LASSO versus regularized horseshoe) is to be preferred.
 <span id = "defaultvalues">For both Bayesian priors, we used default values proposed in prior literature, see Table \@ref(tab:tabprior).
 Default values for the LASSO prior were based on @ParkCasella2008,
 and default values for the regularized horseshoe prior were based on @PiironenVehtari2017a.</span>
-All analysis code is available in a version-controlled repository at <https://github.com/cjvanlissa/pema>.
+The simulation code is available in a version-controlled repository at <https://github.com/cjvanlissa/pema>, in the directory `pema/simulatie_2021`.
 
 ## Performance indicators
 
@@ -1439,6 +1442,12 @@ Adoption of this new method is facilitated by the availability of user-friendly 
 * The algorithm is available via the R-package `pema` on CRAN, and via a user-friendly graphical interface in JASP.
 * Readers across fields can use this method to account for between-studies heterogeneity in meta-analysis, without concern that models may be underfit or underpowered. 
 
+# Data Availability Statement
+
+All analysis code is available in a version-controlled repository at <https://github.com/cjvanlissa/pema>.
+The directory `paper` contains the source code of this manuscript, 
+and the directory `simulatie_2021` contains the simulation source code.
+
 \newpage
 
 # References
@@ -1449,6 +1458,7 @@ Adoption of this new method is facilitated by the availability of user-friendly 
 
 <div id="refs" custom-style="Bibliography"></div>
 \endgroup
+
 
 
 
