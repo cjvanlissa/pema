@@ -1,0 +1,9 @@
+﻿Prior,Parameter,Argument,Default,Effect
+lasso,$\lambda$,`df`,1,More probability of extreme values
+lasso,$s$,`scale`,1,Increases scale of prior
+hs,$\lambda^2_0$,`df\_global`,1,Increases scale of prior
+hs,$\nu_1$,`global\_df`,1,Less probability of extreme values
+hs,$\nu_2$,`df`,1,Less probability of extreme values
+hs,$\nu_3$,`df\_slab`,4,Less probability of extreme values
+hs,$s$,`scale\_slab`,2,Increases scale of finite slab
+hs,,`relevant\_pars`,NULL,Increases \texttt{scale\_global}

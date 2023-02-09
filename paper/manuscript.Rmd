@@ -154,7 +154,7 @@ sampling from different populations,
 and using different study designs, instruments, and methods.
 Any of those between-studies differences can introduce *systematic heterogeneity* in observed effect sizes.
 Suspected causes of systematic heterogeneity can either be used as exclusion criteria,
-or controlled for using *meta-regression* [see @lopez-lopezEstimationPredictivePower2014].
+or controlled for using *meta-regression* [@lopez-lopezEstimationPredictivePower2014].
 The latter approach provides an opportunity to learn which factors impact the effect size
 found.
 However, a limitation of meta-regression is that it requires a relatively high number of cases (studies) per parameter to obtain sufficient statistical power.
@@ -303,9 +303,9 @@ This is a sensible approach in the context of small samples, which are common in
 because small samples incur a high risk of overfitting,
 and typically have relatively high levels of multicollinearity,
 due to the higher probability that extreme values on one moderator coincide with extreme values on another.
-In such cases, regularized regression reduces the risk of overfitting and increase generalizability of the results [see @hastieElementsStatisticalLearning2009].
+In such cases, regularized regression reduces the risk of overfitting and increase generalizability of the results [@hastieElementsStatisticalLearning2009].
 
-<span id = "reftibshirani">To understand how regularized regression introduces bias, consider a comparison between ordinary least squares regression and LASSO regression [for a more elaborate introduction, see @tibshiraniRegressionShrinkageSelection2011].</span>
+<span id = "reftibshirani">To understand how regularized regression introduces bias, consider a comparison between ordinary least squares regression and LASSO regression; for a more elaborate introduction, see [@tibshiraniRegressionShrinkageSelection2011].</span>
 Ordinary least squares regression (OLS) estimates model parameters by minimizing the Residual Sum of Squares (RSS) of the outcome variable, given by the formula below.
 In this equation, $n$ is the number of participants; $y_i$ is the outcome variable, and $x$ is one of $p$ predictor variables.
 \begin{align}
@@ -632,7 +632,7 @@ this leaves the coefficient in question unaffected.
 # Simulation study
 
 We performed a simulation study to validate the BRMA algorithm.
-As a benchmark for comparison, we used random effects meta-regression with restricted maximum likelihood estimation [RMA, @viechtbauerConductingMetaanalysesMetafor2010],
+As a benchmark for comparison, we used random effects meta-regression with restricted maximum likelihood estimation (RMA) [@viechtbauerConductingMetaanalysesMetafor2010],
 which is the current state-of-the-art in the field.
 We evaluated the algorithms' predictive performance in new data, 
 ability to perform variable selection,
@@ -1317,7 +1317,7 @@ One future direction of research is thus to develop a frequentist estimator for 
 ## Recommendations for applied research
 
 <span id = "metareglimits">Before conducting meta-regression,
-researchers should be aware of its limitations [see @thompsonHowShouldMetaregression2002].
+researchers should be aware of its limitations [@thompsonHowShouldMetaregression2002].
 These can be subdivided into four categories: 1) the curse of dimensionality and its corrolary implications for multicollinearity; 2) the ecological fallacy; 3) limited information on moderator variables, including missing data and restrictions of range.
 BRMA seeks to address the first of these limitations,
 because the problems that arise from meta-analyzing small and heterogeneous bodies of literature are so ubiquitous that they have been referred to as the primary pitfall in meta-regression [@thompsonHowShouldMetaregression2002].
@@ -1325,7 +1325,7 @@ Nonetheless, all applicable limitations should be acknowledged in the resulting 
 
 With regard to the planning and design of a BRMA meta-analysis, consider explicitly mentioning the intended use of BRMA in a preregistered analysis protocol - either as primary analysis technique, or as a contingency in the case of model non-convergence or multicollinearity.
 Note that BRMA is suitable for both confirmatory hypothesis tests and for exploratory analyses to ensure that no important effects were missed.
-Both approaches can be included in a preregistration [see @vanlissaComplementingPreregisteredConfirmatory2022].
+Both approaches can be included in a preregistration [@vanlissaComplementingPreregisteredConfirmatory2022].
 With regard to data extraction,
 it is important to strike a balance between inclusiveness and selectivity when coding moderators [@thompsonHowShouldMetaregression2002].
 Moderators may include theoretically relevant factors and methodological ones, such as sample demographics, methods, instruments, study quality, and publication type.
@@ -1361,7 +1361,7 @@ By default, `brma()` reports credible intervals - but HDPI intervals might be pr
 
 With regard to publication, we highly recommend making the data and code for the meta-analysis publicly available.
 One way to do this is by creating a reproducible research repository,
-for example, using the Workflow for Reproducible Code in Science [WORCS, @vanlissaWORCSWorkflowOpen2021].
+for example, using the Workflow for Reproducible Code in Science (WORCS) [@vanlissaWORCSWorkflowOpen2021].
 Transparency allows readers and reviewers to verify that methods were correctly applied,
 which bolsters confidence in the results.
 Others can easily perform sensitivity analyses by changing the analysis code.
@@ -1458,6 +1458,9 @@ and the directory `simulatie_2021` contains the simulation source code.
 
 <div id="refs" custom-style="Bibliography"></div>
 \endgroup
+
+
+
 
 
 

@@ -27,3 +27,13 @@ paper/45941056_File000003_1125688347.pdf
 /Meta/
 !paper/Supplemental_table_S1_beta_variance.csv
 !paper/Supplemental_table_S2_tau_variance.csv
+!output.RData
+!prior_table.csv
+!r2.csv
+!anova.RData
+!selected.RData
+!notselected.RData
+!table_beta.RData
+!table_tau2.RData
+!df_imputed.RData
+!fit.RData
