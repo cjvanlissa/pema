@@ -6,20 +6,21 @@
 \begin{figure*}[hbt]
 \ifnextchar[{\eatarg}{}
 
-\includegraphics[width=20.67in]{r2} \caption{Predictive R2 for BRMA with horseshoe (HS) and LASSO prior, and RMA. Plots are sorted by largest performance difference between BRMA and RMA.}\label{fig:figr2}
+\centering
+\includegraphics{r2.pdf}
+\caption{\label{fig:figr2}Predictive R2 for BRMA with horseshoe (HS) and LASSO prior, and RMA. Plots are sorted by largest performance difference between BRMA and RMA.}
 \end{figure*}
 \begin{figure*}[hbt]
 \ifnextchar[{\eatarg}{}
 
-\includegraphics[width=20.67in]{sensitivity} \caption{Sensitivity by design factors for the HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) algorithms.}\label{fig:figsensitivity}
+\centering
+\includegraphics{sensitivity.pdf}
+\caption{\label{fig:figsensitivity}Sensitivity by design factors for the HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) algorithms.}
 \end{figure*}
 \begin{figure*}[hbt]
 \ifnextchar[{\eatarg}{}
 
-\includegraphics[width=20.67in]{specificity} \caption{Specificity by design factors for the HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) algorithms.}\label{fig:figspecificity}
-\end{figure*}
-\begin{figure*}[hbt]
-\ifnextchar[{\eatarg}{}
-
-\includegraphics[width=4.13in]{plot_sensitivity} \caption{A rudimentary visual check for sensitivity to different priors.}\label{fig:figsens}
+\centering
+\includegraphics{specificity.pdf}
+\caption{\label{fig:figspecificity}Specificity by design factors for the HS (circle, solid line), LASSO(triangle, dotted line) and RMA (square, dashed line) algorithms.}
 \end{figure*}

@@ -158,7 +158,7 @@ table_anova$Factor<-table.names
 
 saveRDS(table_anova, "paper/anova.RData")
 write.csv(table_anova, file =  "paper/anova.csv", row.names = FALSE)
-
+usethis::use_git_ignore("!anova.csv")
 # plotthese <- table_anova$condition[table_anova$Interpretation == "crossover"]
 # p <- lapply(1:length(plotthese), function(i){
 #   x = plotthese[i]
@@ -190,6 +190,8 @@ p[[1]] <- p[[1]] + theme(legend.position = c(.7, .22), legend.title = element_bl
 plot_other <- do.call(plot_grid, c(p, list(labels = NULL, ncol = 2))) # "auto"
 #ggsave("paper/other_effects.png", plot = plot_other, device = "png", height = 210, width =  297, units = "mm", scale = 2.5)
 ggsave("paper/r2.png", plot = plot_other, device = "png", width = 210, height =  297, units = "mm", scale = 2.5)
+
+ggsave("paper/r2.pdf", plot = plot_other, device = "pdf", width = 210, height =  297, units = "mm", scale = 2.5)
 
 # How often each highest?
 df_hi <- dat
@@ -224,7 +226,7 @@ colnames(cis) <- paste("CI ", c("HS", "LASSO", "RMA"))
 tab <- cbind(r2mean, cis, r2sd)
 tab <- data.frame(ES = c("Overall", "ES = 0", "ES != 0"), tab, check.names = F)
 write.csv(tab, "paper/r2.csv", row.names = F)
-
+usethis::use_git_ignore("!r2.csv")
 
 #---End R2---------------------------------------------------------------------------
 
@@ -304,9 +306,10 @@ tab_select2$Interpretation <- int_main
 
 saveRDS(tab_select, "paper/selected.RData")
 write.csv(tab_select, file =  "paper/selected.csv", row.names = FALSE)
+usethis::use_git_ignore("selected.csv")
 saveRDS(tab_select2, "paper/notselected.RData")
 write.csv(tab_select2, file =  "paper/notselected.csv", row.names = FALSE)
-
+usethis::use_git_ignore("notselected.csv")
 
 p <- lapply(1:length(conditions), function(i){
   x = plotthese[i]
@@ -332,6 +335,8 @@ p[[1]] <- p[[1]] + theme(legend.position = c(.7, .22), legend.title = element_bl
 plot_other <- do.call(plot_grid, c(p, list(labels = NULL, ncol = 2))) # "auto"
 #ggsave("paper/other_effects.png", plot = plot_other, device = "png", height = 210, width =  297, units = "mm", scale = 2.5)
 ggsave("paper/sensitivity.png", plot = plot_other, device = "png", width = 210, height =  297, units = "mm", scale = 2.5)
+ggsave("paper/sensitivity.pdf", plot = plot_other, device = "pdf", width = 210, height =  297, units = "mm", scale = 2.5)
+
 
 p <- lapply(1:length(conditions), function(i){
   x = plotthese[i]
@@ -357,6 +362,7 @@ p[[1]] <- p[[1]] + theme(legend.position = c(.7, .22), legend.title = element_bl
 plot_other <- do.call(plot_grid, c(p, list(labels = NULL, ncol = 2))) # "auto"
 #ggsave("paper/other_effects.png", plot = plot_other, device = "png", height = 210, width =  297, units = "mm", scale = 2.5)
 ggsave("paper/specificity.png", plot = plot_other, device = "png", width = 210, height =  297, units = "mm", scale = 2.5)
+ggsave("paper/specificity.pdf", plot = plot_other, device = "pdf", width = 210, height =  297, units = "mm", scale = 2.5)
 
 
 
@@ -443,6 +449,7 @@ names(table_tau2)[2:4]<-c("HS", "LASSO", "RMA")
 
 saveRDS(table_tau2, "paper/table_tau2.RData")
 write.csv(table_tau2, file =  "paper/table_tau2.csv", row.names = FALSE)
+usethis::use_git_ignore("!table_tau2.csv")
 
 # Variance of tau2 --------------------------------------------------------
 
@@ -493,6 +500,7 @@ table_tau$Factor <- renamefactors(table_tau$condition)
 names(table_tau)[2:4]<-c("HS", "LASSO", "RMA")
 
 saveRDS(table_tau, "paper/table_tau_var.RData")
+usethis::use_git_ignore("!table_tau_var.RData")
 write.csv(table_tau, file =  "paper/Supplemental_table_S2_tau_variance.csv", row.names = FALSE)
 usethis::use_git_ignore("!paper/Supplemental_table_S2_tau_variance.csv")
 
@@ -555,7 +563,8 @@ names(table_beta)[2:4]<-c("HS", "LASSO", "RMA")
 
 saveRDS(table_beta, "paper/table_beta.RData")
 write.csv(table_beta, file =  "paper/table_beta.csv", row.names = FALSE)
-
+usethis::use_git_ignore("!table_beta.RData")
+usethis::use_git_ignore("!table_beta.csv")
 
 # Variance of beta --------------------------------------------------------
 
@@ -606,6 +615,8 @@ table_beta$Factor <- renamefactors(table_beta$condition)
 names(table_beta)[2:4]<-c("HS", "LASSO", "RMA")
 
 saveRDS(table_beta, "paper/table_beta_var.RData")
+usethis::use_git_ignore("!paper/table_beta_var.RData")
+
 write.csv(table_beta, file =  "paper/Supplemental_table_S1_beta_variance.csv", row.names = FALSE)
 usethis::use_git_ignore("!paper/Supplemental_table_S1_beta_variance.csv")
 
@@ -615,3 +626,4 @@ usethis::use_git_ignore("!paper/Supplemental_table_S1_beta_variance.csv")
 
 
 saveRDS(out, "paper/output.RData")
+usethis::use_git_ignore("output.RData")

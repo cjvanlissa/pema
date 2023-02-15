@@ -37,3 +37,13 @@ paper/45941056_File000003_1125688347.pdf
 !table_tau2.RData
 !df_imputed.RData
 !fit.RData
+!anova.csv
+r2.csv
+selected.csv
+notselected.csv
+table_tau2.csv
+!table_tau_var.RData
+!table_tau2.csv
+!table_beta.csv
+!paper/table_beta_var.RData
+output.RData
