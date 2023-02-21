@@ -2,10 +2,10 @@ citHeader("To cite pema in publications use:")
 
 citEntry(
   entry    = "Article",
-  title    = "Select relevant moderators using Bayesian regularized meta-regression",
-  author   = "Van Lissa, C. J. & Van Erp, S.",
-  journal  = "PsyArxiv",
-  year     = "2021",
-  url      = "https://doi.org/10.31234/osf.io/6phs5",
-  textVersion = "Van Lissa, C. J., & van Erp, S. (2021, December 9). Select relevant moderators using Bayesian regularized meta-regression. Retrieved from psyarxiv.com/6phs5"
+  title    = "Selecting relevant moderators using Bayesian regularized meta-regression",
+  author   = "Van Lissa, C. J., Van Erp, S., & Clapper, E. B.",
+  journal  = "Research Synthesis Methods",
+  year     = "2023",
+  url      = "https://doi.org/10.1002/jrsm.1628",
+  textVersion = "Van Lissa, C. J., van Erp, S., & Clapper, E. B. (2023). Selecting relevant moderators with Bayesian regularized meta-regression. Research Synthesis Methods. https://doi.org/10.1002/jrsm.1628"
 )

@@ -99,9 +99,9 @@
 #'   coefficients to avoid any sampling problems.}
 #' }
 #' @references
-#' Van Lissa, C. J., & van Erp, S. (2021, December 9). Select relevant
+#' Van Lissa, C. J., Van Erp, S., & Clapper, E. B. (2023). Selecting relevant
 #' moderators using Bayesian regularized meta-regression.
-#' \doi{10.31234/osf.io/6phs5}
+#' \doi{10.1002/jrsm.1628}
 
 #' Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American
 #' Statistical Association, 103(482), 681–686. \doi{10.1198/016214508000000337}
