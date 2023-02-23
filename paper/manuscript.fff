@@ -1,7 +1,9 @@
 \begin{figure*}[hbt]
 \ifnextchar[{\eatarg}{}
 
-\includegraphics[width=4.17in]{jasp} \caption{Using BRMA via the JASP software package.}\label{fig:figjasp}
+\centering
+\includegraphics{jasp.png}
+\caption{\label{fig:figjasp}Using BRMA via the JASP software package.}
 \end{figure*}
 \begin{figure*}[hbt]
 \ifnextchar[{\eatarg}{}

@@ -38,7 +38,7 @@ affiliation:
     institution   : "Utrecht University, dept. Methodology & Statistics"
 
 authornote: |
-  This is a preprint paper, generated from Git Commit # `r substr(gert::git_commit_id(),1,7)`. This work was funded by a NWO Veni Grant (NWO Grant Number VI.Veni.191G.090), awarded to the lead author.
+  This is the peer reviewed version of the following article: [Van Lissa, C. J., van Erp, S., & Clapper, E. B. (2023). Selecting relevant moderators with Bayesian regularized meta‐regression. Research Synthesis Methods. DOI:10.1002/jrsm.1628]. This paper was generated from Git Commit # `r substr(gert::git_commit_id(),1,7)`. This work was funded by a NWO Veni Grant (NWO Grant Number VI.Veni.191G.090), awarded to the lead author.
 
 abstract: |
   When meta-analyzing heterogeneous bodies of literature,
@@ -1457,6 +1457,8 @@ and the directory `simulatie_2021` contains the simulation source code.
 
 <div id="refs" custom-style="Bibliography"></div>
 \endgroup
+
+
 
 
 
