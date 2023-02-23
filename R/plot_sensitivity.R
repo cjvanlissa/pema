@@ -21,7 +21,6 @@
 #' parameters = "b")
 #' @export
 #' @importFrom ggplot2 ggplot
-#' @importFrom ggridges geom_density_ridges
 plot_sensitivity <- function(..., parameters = NULL, model_names = NULL){
   models <- list(...)
   UseMethod("plot_sensitivity", models[[1]])
@@ -68,13 +67,27 @@ plot_sensitivity.brma <- function(..., parameters = NULL, model_names = NULL){
 #' @export
 plot_sensitivity.default <- function(..., parameters = NULL, model_names = NULL){
   dots <- list(...)
-  df_plot <- do.call(rbind, dots[["samples"]])
+  plotlist <- lapply(dots[["samples"]], function(i){
+    par_exists <- parameters %in% i$Parameter
+    if(!any(par_exists)) return(NULL)
+    do.call(rbind, lapply(parameters[par_exists], function(p){
+      densdat <- density(i$Value[i$Parameter == p])
+      data.frame(x = densdat$x, y = densdat$y, Parameter = p, Model = i$Model[1])
+    }))
+  })
+  df_plot <- do.call(rbind, plotlist)
   par_exists <- parameters %in% df_plot$Parameter
   if(!any(par_exists)) stop("Requested 'parameters' do not exist in any of the models provided.")
   parameters <- parameters[par_exists]
   df_plot <- df_plot[df_plot$Parameter %in% parameters, , drop = FALSE]
-  ggplot2::ggplot(df_plot, aes(x = .data[["Value"]], y = .data[["Parameter"]], colour = .data[["Model"]])) +
-    ggridges::geom_density_ridges(scale = 1, alpha = 0) +
+  df_plot$Parameter <- factor(df_plot$Parameter)
+  divby <- tapply(df_plot$y, df_plot$Parameter, max, na.rm = TRUE)
+  df_plot$y <- df_plot$y/ divby[df_plot$Parameter]
+  df_plot$y <- df_plot$y + as.integer(df_plot$Parameter)
+  df_plot$grp <- paste0(df_plot$Parameter, df_plot$Model)
+  ggplot2::ggplot(df_plot, aes(x = .data[["x"]], y = .data[["y"]], colour = .data[["Model"]], group = .data[["grp"]])) +
+    ggplot2::geom_path() +
     theme_bw() +
-    theme(axis.title = element_blank())
+    scale_y_continuous(breaks = seq_along(levels(df_plot$Parameter)), labels = levels(df_plot$Parameter)) +
+    theme(axis.title = element_blank(), panel.grid.minor.y = element_blank())
 }
