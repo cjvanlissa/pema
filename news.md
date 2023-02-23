@@ -1,3 +1,7 @@
+# pema 0.1.3
+
+* Updated reference to published validation paper
+
 # pema 0.1.2
 
 * Updated maintainer email address

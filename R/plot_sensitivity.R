@@ -73,7 +73,7 @@ plot_sensitivity.default <- function(..., parameters = NULL, model_names = NULL)
   if(!any(par_exists)) stop("Requested 'parameters' do not exist in any of the models provided.")
   parameters <- parameters[par_exists]
   df_plot <- df_plot[df_plot$Parameter %in% parameters, , drop = FALSE]
-  ggplot2::ggplot(df_plot, aes(x = Value, y = Parameter, colour = Model)) +
+  ggplot2::ggplot(df_plot, aes(x = .data[["Value"]], y = .data[["Parameter"]], colour = .data[["Model"]])) +
     ggridges::geom_density_ridges(scale = 1, alpha = 0) +
     theme_bw() +
     theme(axis.title = element_blank())

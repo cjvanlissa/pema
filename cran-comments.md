@@ -1,12 +1,9 @@
-# pema 0.1.2
+# pema 0.1.3
 
-* Updated maintainer email address
-* Use str2lang("pema::function") instead of quote(function) so pema functions
-  work without attaching package namespace
-* Coerce mean and sd to array so stan accepts cases with 1 moderator
-* Throw informative error in cases with 0 moderators
+* Updated reference to published validation paper
 
 ## Test environments
+* local Windows 11, R 4.2.2
 * local x86_64-pc-linux-gnu, R 4.1.2
 * GitHub actions, windows-latest (release)
 * GitHub actions, macOS-latest (release)
@@ -19,6 +16,3 @@
 ## R CMD check results
 
 0 errors | 0 warnings | 1 notes
-
-* New maintainer
-  + I updated my email address to reflect my new affiliation
