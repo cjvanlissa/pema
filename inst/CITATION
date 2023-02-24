@@ -1,11 +1,12 @@
 citHeader("To cite pema in publications use:")
 
-citEntry(
-  entry    = "Article",
-  title    = "Selecting relevant moderators using Bayesian regularized meta-regression",
-  author   = "Van Lissa, C. J., Van Erp, S., & Clapper, E. B.",
-  journal  = "Research Synthesis Methods",
-  year     = "2023",
-  url      = "https://doi.org/10.1002/jrsm.1628",
-  textVersion = "Van Lissa, C. J., van Erp, S., & Clapper, E. B. (2023). Selecting relevant moderators with Bayesian regularized meta-regression. Research Synthesis Methods. https://doi.org/10.1002/jrsm.1628"
+bibentry(
+  key = "pema",
+  bibtype  = "Article",
+  doi = "10.1002/jrsm.1628",
+  url = "https://doi.org/10.1002/jrsm.1628",
+  author = c(person("Van Lissa", "C. J."), person("Van Erp", "S."), person("Clapper", "E. B.")),
+  title = "Selecting relevant moderators using Bayesian regularized meta-regression",
+  journal = "Research Synthesis Methods",
+  year = "2023"
 )
