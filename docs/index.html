@@ -5,8 +5,8 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Conduct penalized meta-analysis, see Van Lissa &amp; Van Erp (2021).
-    &lt;doi:10.31234/osf.io/6phs5&gt;. In meta-analysis, there are
+<meta name="description" content="Conduct penalized meta-analysis, see Van Lissa, Van Erp, &amp; Clapper
+    (2023) &lt;doi:10.31234/osf.io/6phs5&gt;. In meta-analysis, there are
     often between-study differences. These can be coded as moderator variables,
     and controlled for using meta-regression. However, if the number of
     moderators is large relative to the number of studies, such an analysis may
@@ -14,12 +14,12 @@
     it shrinks the regression slopes of irrelevant moderators towards zero.">
 <title>Penalized Meta-Analysis • pema</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Penalized Meta-Analysis">
-<meta property="og:description" content="Conduct penalized meta-analysis, see Van Lissa &amp; Van Erp (2021).
-    &lt;doi:10.31234/osf.io/6phs5&gt;. In meta-analysis, there are
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Penalized Meta-Analysis">
+<meta property="og:description" content="Conduct penalized meta-analysis, see Van Lissa, Van Erp, &amp; Clapper
+    (2023) &lt;doi:10.31234/osf.io/6phs5&gt;. In meta-analysis, there are
     often between-study differences. These can be coded as moderator variables,
     and controlled for using meta-regression. However, if the number of
     moderators is large relative to the number of studies, such an analysis may
@@ -38,14 +38,14 @@
     
     <a class="navbar-brand me-2" href="index.html">pema</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
@@ -79,78 +79,53 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="pema-penalized-meta-analysis-">pema: Penalized Meta-Analysis
-<!--a href='https://osf.io/zcvbs/'><img src='https://github.com/cjvanlissa/pema/raw/master/docs/pema_icon.png' align="right" height="139" /></a-->
+<div class="page-header"><h1 id="pema-penalized-meta-analysis-">pema: Penalized Meta-Analysis <!--a href='https://doi.org/10.1002/jrsm.1628'><img src='https://github.com/cjvanlissa/pema/raw/master/docs/pema_icon.png' align="right" height="139" /></a-->
 <a class="anchor" aria-label="anchor" href="#pema-penalized-meta-analysis-"></a>
 </h1></div>
-
-<p>Conduct <em>pe</em>nalized <em>m</em>eta-<em>a</em>nalysis
-(<em>“pema”</em>) In meta-analysis, there are often between-study
-differences. These can be coded as moderator variables, and controlled
-for using meta-regression. However, if the number of moderators is large
-relative to the number of studies, such an analysis may be overfitted.
-Penalized meta-regression is useful in these cases, because it shrinks
-the regression slopes of irrelevant moderators towards zero.</p>
-<!-- ## Where do I start? -->
-<!-- For most users, the recommended starting point is to [read the paper](https://osf.io/zcvbs/), currently in press in [Data Science](https://content.iospress.com/journals/data-science/Pre-press/Pre-press), -->
-<!-- which introduces the pema workflow, explains the underlying tools, and illustrates how the `pema` package can be used to create a new project that follows the workflow. -->
+<p><a href="https://CRAN.R-project.org/package=pema" class="external-link"><img src="https://www.r-pkg.org/badges/version/pema" alt="CRAN status"></a> <a href="https://cran.rstudio.com/web/packages/pema/index.html" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/pema?color=blue" alt="CRAN RStudio mirror downloads"></a> <a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a> <a href="https://github.com/cjvanlissa/pema/actions" class="external-link"><img src="https://github.com/cjvanlissa/pema/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a> <!-- [![R-CMD-check](https://github.com/cjvanlissa/pema/workflows/R-CMD-check/badge.svg)](https://github.com/cjvanlissa/pema/actions) --> <!-- [![codecov](https://codecov.io/gh/cjvanlissa/pema/branch/master/graph/badge.svg?token=7S9XKDRT4M)](https://codecov.io/gh/cjvanlissa/pema) --> <a href="https://www.contributor-covenant.org/version/2/0/code_of_conduct.html" class="external-link"><img src="https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg" alt="Contributor Covenant"></a> <!-- [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/3969/badge)](https://bestpractices.coreinfrastructure.org/projects/3969) --></p>
+<p>Conduct <em>pe</em>nalized <em>m</em>eta-<em>a</em>nalysis (<em>“pema”</em>) In meta-analysis, there are often between-study differences. These can be coded as moderator variables, and controlled for using meta-regression. However, if the number of moderators is large relative to the number of studies, such an analysis may be overfitted. Penalized meta-regression is useful in these cases, because it shrinks the regression slopes of irrelevant moderators towards zero.</p>
+<div class="section level2">
+<h2 id="where-do-i-start">Where do I start?<a class="anchor" aria-label="anchor" href="#where-do-i-start"></a>
+</h2>
+<p>For most users, the recommended starting point is to <a href="https://doi.org/10.1002/jrsm.1628" class="external-link">read the paper</a> published in <strong>Research Synthesis Methods</strong>, which introduces the method, validates it, and provides a tutorial example.</p>
+</div>
 <div class="section level2">
 <h2 id="installing-the-package">Installing the package<a class="anchor" aria-label="anchor" href="#installing-the-package"></a>
 </h2>
-<p>Use <a href="https://CRAN.R-project.org/package=pema" class="external-link">CRAN</a> to
-install the latest release of <code>pema</code>:</p>
+<p>Use <a href="https://CRAN.R-project.org/package=pema" class="external-link">CRAN</a> to install the latest release of <code>pema</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"pema"</span>)</span></code></pre></div>
-<p>Alternatively, use <a href="https://cjvanlissa.r-universe.dev" class="external-link">R-universe</a> to install the
-development version of <code>pema</code> by running the following
-code:</p>
+<p>Alternatively, use <a href="https://cjvanlissa.r-universe.dev" class="external-link">R-universe</a> to install the development version of <code>pema</code> by running the following code:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
-    cjvanlissa <span class="op">=</span> <span class="st">'https://cjvanlissa.r-universe.dev'</span>,
-    CRAN <span class="op">=</span> <span class="st">'https://cloud.r-project.org'</span><span class="op">)</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'pema'</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    cjvanlissa <span class="op">=</span> <span class="st">'https://cjvanlissa.r-universe.dev'</span>,</span>
+<span>    CRAN <span class="op">=</span> <span class="st">'https://cloud.r-project.org'</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'pema'</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="citing-pema">Citing pema<a class="anchor" aria-label="anchor" href="#citing-pema"></a>
 </h2>
-<p>The <code>pema</code> validation paper is currently in preprint
-stage. The code and results of the validation study are publicly
-available. You can cite <code>pema</code> using the following citation
-(please use the same citation for either the package, or the paper);
-consider updating that citation once the preprint is published:</p>
+<p>You can cite <code>pema</code> using the following citation (please use the same citation for either the package, or the paper):</p>
 <blockquote>
-<p>Van Lissa, C. J., &amp; van Erp, S. (2021, December 9). Select
-relevant moderators using Bayesian regularized meta-regression.
-Retrieved from psyarxiv.com/6phs5</p>
+<p>Van Lissa, C. J., van Erp, S., &amp; Clapper, E. B. (2023). Selecting relevant moderators with Bayesian regularized meta-regression. <em>Research Synthesis Methods</em>. <a href="https://doi.org/10.1002/jrsm.1628" class="external-link uri">https://doi.org/10.1002/jrsm.1628</a></p>
 </blockquote>
 </div>
 <div class="section level2">
 <h2 id="about-this-repository">About this repository<a class="anchor" aria-label="anchor" href="#about-this-repository"></a>
 </h2>
-<p>This repository contains the source code for the R-package called
-<code>pema</code>.</p>
+<p>This repository contains the source code for the R-package called <code>pema</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="contributing-and-contact-information">Contributing and Contact Information<a class="anchor" aria-label="anchor" href="#contributing-and-contact-information"></a>
 </h2>
-<p>We are always eager to receive user feedback and contributions to
-help us improve both the workflow and the software. Major contributions
-warrant coauthorship to the package. Please contact the lead author at
-<a href="mailto:c.j.vanlissa@uu.nl" class="email">c.j.vanlissa@uu.nl</a>, or:</p>
+<p>We are always eager to receive user feedback and contributions to help us improve both the workflow and the software. Major contributions warrant coauthorship to the package. Please contact the lead author at <a href="mailto:c.j.vanlissa@uu.nl" class="email">c.j.vanlissa@uu.nl</a>, or:</p>
 <ul>
 <li>
-<a href="https://github.com/cjvanlissa/pema" class="external-link">File a GitHub issue</a>
-for feedback, bug reports or feature requests</li>
+<a href="https://github.com/cjvanlissa/pema" class="external-link">File a GitHub issue</a> for feedback, bug reports or feature requests</li>
 <li>
-<a href="https://github.com/cjvanlissa/pema/pulls" class="external-link">Make a pull
-request</a> to contribute your code or prose</li>
+<a href="https://github.com/cjvanlissa/pema/pulls" class="external-link">Make a pull request</a> to contribute your code or prose</li>
 </ul>
-<p>By participating in this project, you agree to abide by the <a href="https://www.contributor-covenant.org/" class="external-link">Contributor Code of Conduct
-v2.0</a>. Contributions to the package must adhere to the <a href="https://style.tidyverse.org/" class="external-link">tidyverse style guide</a>. When
-contributing code, please add tests for that contribution to the
-<code>tests/testthat</code> folder, and ensure that these tests pass in
-the <a href="https://github.com/cjvanlissa/pema/actions/workflows/R-CMD-check" class="external-link">GitHub
-Actions panel</a>.</p>
+<p>By participating in this project, you agree to abide by the <a href="https://www.contributor-covenant.org/" class="external-link">Contributor Code of Conduct v2.0</a>. Contributions to the package must adhere to the <a href="https://style.tidyverse.org/" class="external-link">tidyverse style guide</a>. When contributing code, please add tests for that contribution to the <code>tests/testthat</code> folder, and ensure that these tests pass in the <a href="https://github.com/cjvanlissa/pema/actions/workflows/R-CMD-check" class="external-link">GitHub Actions panel</a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -184,16 +159,7 @@ Actions panel</a>.</p>
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://CRAN.R-project.org/package=pema" class="external-link"><img src="https://www.r-pkg.org/badges/version/pema" alt="CRAN status"></a></li>
-<li><a href="https://r-pkg.org/pkg/pema" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/pema?color=blue" alt="CRAN RStudio mirror downloads"></a></li>
-<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
-<li><a href="https://github.com/cjvanlissa/pema/actions" class="external-link"><img src="https://github.com/cjvanlissa/pema/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://www.contributor-covenant.org/version/2/0/code_of_conduct.html" class="external-link"><img src="https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg" alt="Contributor Covenant"></a></li>
-</ul>
-</div>
+
 
   </aside>
 </div>
@@ -206,8 +172,7 @@ Actions panel</a>.</p>
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
     </footer>

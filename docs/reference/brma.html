@@ -3,7 +3,7 @@
 Erp, 2021). It uses the stan function
 rstan::sampling to fit the model. A lasso or horseshoe prior is used to
 shrink the regression coefficients of irrelevant moderators towards zero.
-See Details."><title>Conduct Bayesian Regularized Meta-Analysis — brma • pema</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Conduct Bayesian Regularized Meta-Analysis — brma"><meta property="og:description" content="This function conducts Bayesian regularized meta-regression (Van Lissa &amp;amp; Van
+See Details."><title>Conduct Bayesian Regularized Meta-Analysis — brma • pema</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Conduct Bayesian Regularized Meta-Analysis — brma"><meta property="og:description" content="This function conducts Bayesian regularized meta-regression (Van Lissa &amp;amp; Van
 Erp, 2021). It uses the stan function
 rstan::sampling to fit the model. A lasso or horseshoe prior is used to
 shrink the regression coefficients of irrelevant moderators towards zero.
@@ -18,14 +18,14 @@ See Details."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
     
     <a class="navbar-brand me-2" href="../index.html">pema</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
@@ -69,34 +69,35 @@ See Details.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">brma</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for formula</span>
-<span class="fu">brma</span><span class="op">(</span>
-  <span class="va">formula</span>,
-  <span class="va">data</span>,
-  vi <span class="op">=</span> <span class="st">"vi"</span>,
-  study <span class="op">=</span> <span class="cn">NULL</span>,
-  method <span class="op">=</span> <span class="st">"hs"</span>,
-  standardize <span class="op">=</span> <span class="cn">TRUE</span>,
-  prior <span class="op">=</span> <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span><span class="va">method</span>, lasso <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>df <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, hs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>df <span class="op">=</span> <span class="fl">1</span>, df_global <span class="op">=</span> <span class="fl">1</span>,
-    df_slab <span class="op">=</span> <span class="fl">4</span>, scale_global <span class="op">=</span> <span class="fl">1</span>, scale_slab <span class="op">=</span> <span class="fl">1</span>, relevant_pars <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">)</span>,
-  mute_stan <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="co"># S3 method for default</span>
-<span class="fu">brma</span><span class="op">(</span>
-  <span class="va">x</span>,
-  <span class="va">y</span>,
-  <span class="va">vi</span>,
-  study <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">prior</span>,
-  mute_stan <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">standardize</span>,
-  <span class="va">intercept</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">brma</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for formula</span></span>
+<span><span class="fu">brma</span><span class="op">(</span></span>
+<span>  <span class="va">formula</span>,</span>
+<span>  <span class="va">data</span>,</span>
+<span>  vi <span class="op">=</span> <span class="st">"vi"</span>,</span>
+<span>  study <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"hs"</span>,</span>
+<span>  standardize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  prior <span class="op">=</span> <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span><span class="va">method</span>, lasso <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>df <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, hs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>df <span class="op">=</span> <span class="fl">1</span>, df_global <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    df_slab <span class="op">=</span> <span class="fl">4</span>, scale_global <span class="op">=</span> <span class="fl">1</span>, scale_slab <span class="op">=</span> <span class="fl">2</span>, relevant_pars <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  mute_stan <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for default</span></span>
+<span><span class="fu">brma</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">y</span>,</span>
+<span>  <span class="va">vi</span>,</span>
+<span>  study <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"hs"</span>,</span>
+<span>  <span class="va">standardize</span>,</span>
+<span>  <span class="va">prior</span>,</span>
+<span>  mute_stan <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">intercept</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -104,30 +105,44 @@ See Details.</p>
     <dl><dt>x</dt>
 <dd><p>An k x m numeric matrix, where k is the number of effect sizes and m
 is the number of moderators.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments passed on to <code><a href="https://mc-stan.org/rstan/reference/stanmodel-method-sampling.html" class="external-link">rstan::sampling()</a></code>.
 Use this, e.g., to override default arguments of that function.</p></dd>
+
+
 <dt>formula</dt>
 <dd><p>An object of class <code>formula</code> (or one that can be coerced to
 that class), see <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></code>.</p></dd>
+
+
 <dt>data</dt>
 <dd><p>Either a <code>data.frame</code> containing the variables in the model,
 see <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></code>, or a <code>list</code> of multiple imputed <code>data.frame</code>s,
 or an object returned by <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice</a></code>.</p></dd>
+
+
 <dt>vi</dt>
 <dd><p>Character. Name of the column in the <code>data</code> that
 contains the variances of the effect sizes. This column will be removed from
 the data prior to analysis. Defaults to <code>"vi"</code>.</p></dd>
+
+
 <dt>study</dt>
 <dd><p>Character. Name of the column in the
 <code>data</code> that contains the study id. Use this when the data includes
 multiple effect sizes per study. This column can be a vector of integers, or
 a factor. This column will be removed from the data prior to analysis.
 See <code>Details</code> for more information about analyzing dependent data.</p></dd>
+
+
 <dt>method</dt>
 <dd><p>Character, indicating the type of regularizing prior to use.
-Supports one of <code>c("lasso", "hs")</code>, see Details. Defaults to
-<code>"lasso"</code>.</p></dd>
+Supports one of <code>c("hs", "lasso")</code>, see Details. Defaults to
+<code>"hs"</code>.</p></dd>
+
+
 <dt>standardize</dt>
 <dd><p>Either a logical argument or a list. If <code>standardize</code> is
 logical, it controls whether all predictors are standardized prior to
@@ -140,37 +155,52 @@ only to restore parameter estimates to the original scale of the predictors.
 This is useful, e.g., to standardize continuous and dichotomous variables
 separately. Defaults to <code>TRUE</code>, which is recommended so that shrinking
 affects all parameters similarly.</p></dd>
+
+
 <dt>prior</dt>
 <dd><p>Numeric vector, specifying the prior to use. Note that the
 different <code>method</code>s require this vector to contain specific named
 elements.</p></dd>
+
+
 <dt>mute_stan</dt>
 <dd><p>Logical, indicating whether mute all 'Stan' output or not.</p></dd>
+
+
 <dt>y</dt>
 <dd><p>A numeric vector of k effect sizes.</p></dd>
+
+
 <dt>intercept</dt>
 <dd><p>Logical, indicating whether or not an intercept should be included
 in the model.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>list</code> object of class <code>brma</code>, with the following structure:</p><div class="sourceCode"><pre><code>list(
-  fit          # An object of class stanfit, for compatibility with rstan
-  coefficients # A numeric matrix with parameter estimates; these are
-               # interpreted as regression coefficients, except tau2 and tau,
-               # which are interpreted as the residual variance and standard
-               # deviation, respectively.
-  formula      # The formula used to estimate the model
-  terms        # The predictor terms in the formula
-  X            # Numeric matrix of moderator variables
-  Y            # Numeric vector with effect sizes
-  vi           # Numeric vector with effect size variances
-  tau2         # Numeric, estimated tau2
-  R2           # Numeric, estimated heterogeneity explained by the moderators
-  k            # Numeric, number of effect sizes
-  study        # Numeric vector with study id numbers
-)
-</code></pre></div>
+    
+
+<p>A <code>list</code> object of class <code>brma</code>, with the following structure:</p>
+
+
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  fit          <span class="co"># An object of class stanfit, for compatibility with rstan</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  coefficients <span class="co"># A numeric matrix with parameter estimates; these are</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>               <span class="co"># interpreted as regression coefficients, except tau2 and tau,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>               <span class="co"># which are interpreted as the residual variance and standard</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>               <span class="co"># deviation, respectively.</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  formula      <span class="co"># The formula used to estimate the model</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  terms        <span class="co"># The predictor terms in the formula</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  X            <span class="co"># Numeric matrix of moderator variables</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  Y            <span class="co"># Numeric vector with effect sizes</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  vi           <span class="co"># Numeric vector with effect size variances</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  tau2         <span class="co"># Numeric, estimated tau2</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  R2           <span class="co"># Numeric, estimated heterogeneity explained by the moderators</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  k            <span class="co"># Numeric, number of effect sizes</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  study        <span class="co"># Numeric vector with study id numbers</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>)</span></code></pre><p></p></div>
+
+
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -231,15 +261,14 @@ coefficients to avoid any sampling problems.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Van Lissa, C. J., &amp; van Erp, S. (2021, December 9). Select relevant
-moderators using Bayesian regularized meta-regression.
-doi: <a href="https://doi.org/10.31234/osf.io/6phs5" class="external-link">10.31234/osf.io/6phs5</a>
-
-Park, T., &amp; Casella, G. (2008). The Bayesian Lasso. Journal of the American
-Statistical Association, 103(482), 681–686. doi: <a href="https://doi.org/10.1198/016214508000000337" class="external-link">10.1198/016214508000000337</a></p>
+    <p>Van Lissa, C. J., van Erp, S., &amp; Clapper, E. B. (2023). Selecting relevant
+moderators with Bayesian regularized meta-regression. Research Synthesis
+Methods. <a href="https://doi.org/10.31234/osf.io/6phs5" class="external-link">doi:10.31234/osf.io/6phs5</a></p>
+<p>Park, T., &amp; Casella, G. (2008). The Bayesian Lasso. Journal of the American
+Statistical Association, 103(482), 681–686. <a href="https://doi.org/10.1198/016214508000000337" class="external-link">doi:10.1198/016214508000000337</a></p>
 <p>Carvalho, C. M., Polson, N. G., &amp; Scott, J. G. (2010). The horseshoe
 estimator for sparse signals. Biometrika, 97(2), 465–480.
-doi: <a href="https://doi.org/10.1093/biomet/asq017" class="external-link">10.1093/biomet/asq017</a></p>
+<a href="https://doi.org/10.1093/biomet/asq017" class="external-link">doi:10.1093/biomet/asq017</a></p>
 <p>Piironen, J., &amp; Vehtari, A. (2017). Sparsity information and regularization
 in the horseshoe and other shrinkage priors. Electronic Journal of
 Statistics, 11(2). <a href="https://projecteuclid.org/journals/electronic-journal-of-statistics/volume-11/issue-2/Sparsity-information-and-regularization-in-the-horseshoe-and-other-shrinkage/10.1214/17-EJS1337SI.pdf" class="external-link">https://projecteuclid.org/journals/electronic-journal-of-statistics/volume-11/issue-2/Sparsity-information-and-regularization-in-the-horseshoe-and-other-shrinkage/10.1214/17-EJS1337SI.pdf</a></p>
@@ -247,9 +276,9 @@ Statistics, 11(2). <a href="https://projecteuclid.org/journals/electronic-journa
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"curry"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">curry</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">50</span><span class="op">:</span><span class="fl">55</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"d"</span>, <span class="st">"vi"</span>, <span class="st">"sex"</span>, <span class="st">"age"</span>, <span class="st">"donorcode"</span><span class="op">)</span><span class="op">]</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="op">{</span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">brma</span><span class="op">(</span><span class="va">d</span><span class="op">~</span><span class="va">.</span>, data <span class="op">=</span> <span class="va">df</span>, iter <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"curry"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">curry</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">50</span><span class="op">:</span><span class="fl">55</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"d"</span>, <span class="st">"vi"</span>, <span class="st">"sex"</span>, <span class="st">"age"</span>, <span class="st">"donorcode"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="op">{</span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">brma</span><span class="op">(</span><span class="va">d</span><span class="op">~</span><span class="va">.</span>, data <span class="op">=</span> <span class="va">df</span>, iter <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -261,8 +290,7 @@ Statistics, 11(2). <a href="https://projecteuclid.org/journals/electronic-journa
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
     </footer></div>

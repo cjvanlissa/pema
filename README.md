@@ -4,7 +4,7 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/pema)](https://CRAN.R-project.org/package=pema)
 [![CRAN RStudio mirror
-downloads](https://cranlogs.r-pkg.org/badges/grand-total/pema?color=blue)](https://r-pkg.org/pkg/pema)
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/pema?color=blue)](https://cran.rstudio.com/web/packages/pema/index.html)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![R-CMD-check](https://github.com/cjvanlissa/pema/workflows/R-CMD-check/badge.svg)](https://github.com/cjvanlissa/pema/actions)

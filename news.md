@@ -1,6 +1,7 @@
 # pema 0.1.3
 
 * Updated reference to published validation paper
+* Fixed bug in as.stan()
 
 # pema 0.1.2
 

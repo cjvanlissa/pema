@@ -1,6 +1,7 @@
 # pema 0.1.3
 
 * Updated reference to published validation paper
+* Fixed bug in as.stan()
 
 ## Test environments
 * local Windows 11, R 4.2.2
@@ -12,7 +13,11 @@
 * devtools::check_win_devel()
 * devtools::check_win_release()
 * devtools::check_win_oldrelease()
+* rhub::check_for_cran()
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 notes
+0 errors | 0 warnings | 2 notes
+
+* GNU make is a SystemRequirements.
+* Some C++ header files contain CR or CRLF line endings.
