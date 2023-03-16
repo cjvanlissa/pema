@@ -103,6 +103,18 @@ to label the models in <code>...</code>, Default: <code>NULL</code></p></dd>
 <span class="r-in"><span>Value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, mean <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>Model <span class="op">=</span> <span class="st">"M2"</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>parameters <span class="op">=</span> <span class="st">"b"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Called from: plot_sensitivity.default(samples = list(data.frame(Parameter = "b", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Value = rnorm(10), Model = "M1"), data.frame(Parameter = "b", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Value = rnorm(10, mean = 2), Model = "M2")), parameters = "b")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> debug at C:/git_repositories/pema/R/plot_sensitivity.R#85: divby &lt;- tapply(df_plot$y, df_plot$Parameter, max, na.rm = TRUE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> debug at C:/git_repositories/pema/R/plot_sensitivity.R#86: df_plot$y &lt;- df_plot$y + (as.integer(df_plot$Parameter) * max(df_plot$y))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> debug at C:/git_repositories/pema/R/plot_sensitivity.R#87: df_plot$y &lt;- df_plot$y + (as.integer(df_plot$Parameter) * max(df_plot$y))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> debug at C:/git_repositories/pema/R/plot_sensitivity.R#88: df_plot$grp &lt;- paste0(df_plot$Parameter, df_plot$Model)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> debug at C:/git_repositories/pema/R/plot_sensitivity.R#89: ggplot2::ggplot(df_plot, aes(x = .data[["x"]], y = .data[["y"]], </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     colour = .data[["Model"]], group = .data[["grp"]])) + ggplot2::geom_path() + </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     theme_bw() + scale_y_continuous(breaks = seq_along(levels(df_plot$Parameter)), </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     labels = levels(df_plot$Parameter)) + theme(axis.title = element_blank(), </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     panel.grid.minor.y = element_blank())</span>
 <span class="r-plt img"><img src="plot_sensitivity-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

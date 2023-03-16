@@ -1,10 +1,10 @@
 
-# pema: Penalized Meta-Analysis <!--a href='https://doi.org/10.1002/jrsm.1628'><img src='https://github.com/cjvanlissa/pema/raw/master/docs/pema_icon.png' align="right" height="139" /></a-->
+# pema: Penalized Meta-Analysis <!--a href='https://doi.org/10.31234/osf.io/6phs5'><img src='https://github.com/cjvanlissa/pema/raw/master/docs/pema_icon.png' align="right" height="139" /></a-->
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/pema)](https://CRAN.R-project.org/package=pema)
 [![CRAN RStudio mirror
-downloads](https://cranlogs.r-pkg.org/badges/grand-total/pema?color=blue)](https://cran.rstudio.com/web/packages/pema/index.html)
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/pema?color=blue)](https://cran.r-project.org/package=pema)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![R-CMD-check](https://github.com/cjvanlissa/pema/workflows/R-CMD-check/badge.svg)](https://github.com/cjvanlissa/pema/actions)
@@ -25,7 +25,7 @@ towards zero.
 ## Where do I start?
 
 For most users, the recommended starting point is to [read the
-paper](https://doi.org/10.1002/jrsm.1628) published in **Research
+paper](https://doi.org/10.31234/osf.io/6phs5) published in **Research
 Synthesis Methods**, which introduces the method, validates it, and
 provides a tutorial example.
 
@@ -54,7 +54,7 @@ citation for either the package, or the paper):
 
 > Van Lissa, C. J., van Erp, S., & Clapper, E. B. (2023). Selecting
 > relevant moderators with Bayesian regularized meta-regression.
-> *Research Synthesis Methods*. <https://doi.org/10.1002/jrsm.1628>
+> *Research Synthesis Methods*. <https://doi.org/10.31234/osf.io/6phs5>
 
 ## About this repository
 
