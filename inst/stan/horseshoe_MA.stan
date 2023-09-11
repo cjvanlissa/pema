@@ -32,7 +32,7 @@ data {
   // data for group-level effects of ID 1
   int<lower=1> N_1;  // number of grouping levels
   int<lower=1> M_1;  // number of coefficients per level
-  int<lower=1> J_1[N];  // grouping indicator per observation
+  array[N] int<lower=1> J_1;  // grouping indicator per observation
   // group-level predictor values
   vector[N] Z_1_1;
   int prior_only;  // should the likelihood be ignored?
@@ -48,7 +48,7 @@ parameters {
   real<lower=0> hs_global;  // global shrinkage parameters
   real<lower=0> hs_slab;  // slab regularization parameter
   vector<lower=0>[M_1] sd_1;  // group-level standard deviations
-  vector[N_1] z_1[M_1];  // standardized group-level effects
+  array[M_1] vector[N_1] z_1;  // standardized group-level effects
 }
 transformed parameters {
   vector[K] b;  // population-level effects
