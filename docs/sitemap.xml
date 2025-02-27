@@ -1,63 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/using-brma.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/news.html</loc>
-  </url>
-  <url>
-    <loc>/reference/as.stan.html</loc>
-  </url>
-  <url>
-    <loc>/reference/bonapersona.html</loc>
-  </url>
-  <url>
-    <loc>/reference/brma.html</loc>
-  </url>
-  <url>
-    <loc>/reference/curry.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fukkink_lont.html</loc>
-  </url>
-  <url>
-    <loc>/reference/I2.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/maxap.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pema-package.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_sensitivity.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sample_prior.html</loc>
-  </url>
-  <url>
-    <loc>/reference/shiny_prior.html</loc>
-  </url>
-  <url>
-    <loc>/reference/simulate_smd.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/articles/meta-analysis_tutorial.html</loc></url>
+<url><loc>/articles/using-brma.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/news.html</loc></url>
+<url><loc>/reference/as.stan.html</loc></url>
+<url><loc>/reference/bonapersona.html</loc></url>
+<url><loc>/reference/brma.html</loc></url>
+<url><loc>/reference/curry.html</loc></url>
+<url><loc>/reference/fukkink_lont.html</loc></url>
+<url><loc>/reference/I2.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/maxap.html</loc></url>
+<url><loc>/reference/pema-package.html</loc></url>
+<url><loc>/reference/plot_sensitivity.html</loc></url>
+<url><loc>/reference/sample_prior.html</loc></url>
+<url><loc>/reference/shiny_prior.html</loc></url>
+<url><loc>/reference/simulate_smd.html</loc></url>
 </urlset>
+
