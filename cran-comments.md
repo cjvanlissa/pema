@@ -1,7 +1,8 @@
-# pema 0.1.3
+# pema 0.1.4
 
-* Updated reference to published validation paper
-* Fixed bug in as.stan()
+* Make Suggested packages truly optional, add test without Suggests
+* Add vignette
+* Maintain compatibility with rstan
 
 ## Test environments
 * local Windows 11, R 4.2.2

@@ -1,5 +1,6 @@
-url: ~
+url: https://cjvanlissa.github.io/pema/
 template:
   bootstrap: 5
   include:
     after_body: <script scr="extra.js"></script>
+

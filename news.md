@@ -1,3 +1,9 @@
+# pema 0.1.4
+
+* Make Suggested packages truly optional, add test without Suggests
+* Add vignette
+* Maintain compatibility with rstan
+
 # pema 0.1.3
 
 * Updated reference to published validation paper

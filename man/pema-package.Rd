@@ -18,3 +18,20 @@ meta-regression. Research Synthesis Methods.
 Stan Development Team (NA). RStan: the R interface to Stan. R package version
 2.26.2. \url{https://mc-stan.org}
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/cjvanlissa/pema}
+  \item \url{https://cjvanlissa.github.io/pema/}
+}
+
+}
+\author{
+\strong{Maintainer}: Caspar J van Lissa \email{c.j.vanlissa@tilburguniversity.edu} (\href{https://orcid.org/0000-0002-0808-5024}{ORCID})
+
+Authors:
+\itemize{
+  \item Sara J van Erp
+}
+
+}

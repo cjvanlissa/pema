@@ -166,6 +166,10 @@ brma.formula <-
     cl <- match.call()
     # Check if data is multiply imputed
     if(inherits(data, "mids")){
+      if(!requireNamespace("mice", quietly = TRUE)){
+        message("The `mice` package must be installed when providing multiply imputed data to the `data` argument of brma().")
+        return(NULL)
+      }
       data <- mice::complete(data, action = "all")
     }
     if(inherits(data, "list") & !inherits(data, "data.frame")){

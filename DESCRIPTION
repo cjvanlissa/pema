@@ -19,9 +19,9 @@ Description: Conduct penalized meta-analysis, see Van Lissa, Van Erp, & Clapper
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-URL: https://github.com/cjvanlissa/pema
+URL: https://github.com/cjvanlissa/pema, https://cjvanlissa.github.io/pema/
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Biarch: true
 Depends: 
     R (>= 3.4.0)

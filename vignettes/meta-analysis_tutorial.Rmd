@@ -1,6 +1,6 @@
 ---
 title: "Tutorial: Machine Learning-Informed Meta-Analysis"
-output: rmarkdown::html_vignette
+output: pema:::webex_vignette
 bibliography: tutorial.bib
 vignette: >
   %\VignetteIndexEntry{meta-analysis_tutorial}
@@ -11,6 +11,7 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  eval = (require(mice) & require(theorytools) & require(metaforest) & knitr::is_html_output()),
   comment = "#>"
 )
 ```
@@ -50,10 +51,7 @@ library(metaforest)
 ```
 
 ```{r, echo=FALSE,warning=FALSE,message=FALSE, include=FALSE}
-library(tidyverse)
 library(knitr)
-library(webexercises)
-source("check_function.R")
 ```
 
 ### Using Your Own Data
@@ -69,8 +67,64 @@ source("https://raw.githubusercontent.com/cjvanlissa/meta_workshop/refs/heads/ma
 
 Then, apply the function to your data object by running `check_data(your_data_object)`. It will give helpful suggestions to make it easier to follow the tutorial with your own data:
 
+```{r echo = FALSE}
+check_data <- function(df){
+  any_errors <- FALSE
+  # Check df
+  # deps <- c("methods", "rstan", "Rcpp", "RcppParallel", "rstantools", "sn", 
+  #           "shiny", "gtable", "grid", "ggplot2", "metafor", "ranger", "data.table")
+  # has_dep <- sapply(deps, requireNamespace, quietly = FALSE)
+  # 
+  # if(any(!has_dep)){
+  #   usethis::ui_oops(paste0("You are missing essential packages. Please run the following code:\n\n", paste0("lapply(c(",
+  #                                                                                                          paste0(shQuote(names(has_dep)[!has_dep], type="sh"), collapse=", "),
+  #                                                                                                          "), install.packages)")))
+  #   any_errors <- TRUE
+  # }
+  
+  if(!inherits(df, what = "data.frame")){
+    df <- try(as.data.frame(df))
+    if(inherits(df, what = "try-error")){
+      usethis::ui_oops("Your data are not an object of type 'data.frame', please convert them to a 'data.frame'.")
+    } else {
+      usethis::ui_todo("Your data are not an object of type 'data.frame', please convert them to a 'data.frame'.")
+    }
+    any_errors <- TRUE
+  }
+  if(!"yi" %in% names(df)){
+    usethis::ui_todo("There is no column named 'yi' in your data. If you have an effect size column, it will be easier to do the tutorial if you rename it, using syntax like this:\n\nnames(df)[which(names(df) == 'youreffectsize')] <- 'yi'\n\nIf you do not yet have an effect size column, you may need to compute it first. Run ?metafor::escalc to see the help for this function.")
+    any_errors <- TRUE
+  }
+  if(!"vi" %in% names(df)){
+    usethis::ui_todo("There is no column named 'vi' in your data. If you have a column with the variance of the effect size, it will be easier to do the tutorial if you rename it, using syntax like this:\n\nnames(df)[which(names(df) == 'yourvariance')] <- 'vi'\n\nIf you do not yet have a column with the variance of the effect size, you may need to compute it first. Run ?metafor::escalc to see the help for this function.")
+    any_errors <- TRUE
+  }
+  # Check measurement levels
+  numvars <- sapply(df, inherits, what = c("numeric", "integer"))
+  catvars <- sapply(df, inherits, what = c("factor"))
+  charvars <- sapply(df, inherits, what = c("character"))
+  othervars <- !(numvars | catvars | charvars)
+  
+  if(any(othervars)){
+    usethis::ui_oops(paste0("You have variables with an unusual type. Consider manually recoding these to either numeric of factor type variables, whichever is most appropriate: ", paste0(names(df)[othervars], collapse = ", ")))
+    any_errors <- TRUE
+  }
+  
+  if(any(charvars)){
+    usethis::ui_todo(paste0("You have character-type variables. Consider converting these to factor-type variables using syntax like this:\ndf[c(", paste0(paste0("'", names(df)[charvars], "'"), collapse = ", "), ")] <- lapply(df[c(", paste0(paste0("'", names(df)[charvars], "'"), collapse = ", "), ")], factor)"))
+    any_errors <- TRUE
+  }
+  if(!any_errors){
+    usethis::ui_done("Looks like you're all set to do the workshop!")
+  }
+    
+}
 
-```{r,echo= TRUE}
+check_data(metaforest::fukkink_lont)
+```
+
+
+```{r echo= TRUE}
 df <- curry
 check_data(df)
 ```
@@ -142,8 +196,8 @@ We now see a summary of the results of our Meta-Analysis, including
 * The **overall effect**, its confidence interval and p-value
 * The *Q*-test of heterogeneity
 
-```{r eval=knitr::is_html_output(), results='asis', echo=FALSE}
-theorytools:::quizz(
+```{r results='asis', echo=FALSE}
+pema:::quizz(
   "How big is the overall effect?" = c(0.206, .01),
   "True or false: A significant proportion of the variability in effect sizes is attributable to heterogeneity, rather than sampling error." = TRUE,
   "What can you say about the heterogeneity of the population effect?" = c(answer = "It is assumed to be zero", "It is large, I2 = 64.95%", "It is significant, Q(55) = 156,91, p < .0001", "Can't say anything based on this output"),
@@ -191,8 +245,8 @@ m_re <- rma(yi = df$yi,     # The yi-column of the df, which contains Cohen's d
 m_re
 ```
 
-```{r eval=knitr::is_html_output(), results='asis', echo=FALSE}
-theorytools:::quizz(
+```{r results='asis', echo=FALSE}
+pema:::quizz(
   "How big is the overall effect?" = c(0.24, .01),
   "What is the estimated heterogeneity?" = c(0.06, .01),
   "What can you say about the the expected value of the population effect in the random-effects model, compared to the previous fixed-effect model?" = c(answer = "It is larger", "It is smaller", "It is about the same", "Can't say anything based on this output"),
@@ -257,8 +311,8 @@ The syntax above created a binary indicator variable (a dummy variable) for peop
 It then estimated the model intercept - which is the population effect size in the `Anxious` category, which serves as reference category here,
 and the effect of the `donorcodeTypical` dummy, which tells us the difference between the two groups' population effects.
 
-```{r eval=knitr::is_html_output(), results='asis', echo=FALSE}
-theorytools:::quizz(
+```{r results='asis', echo=FALSE}
+pema:::quizz(
 "What is the expected population effect size in the Typical group?" = c(0.17, .01),
 "What is the expected population effect size in the Anxious group?" = c(0.255888, .01),
 "True or false: There is a significant difference between the two groups." = FALSE, title = "Formative Assessment")
@@ -285,8 +339,8 @@ m_reg
 ```
 
 
-```{r eval=knitr::is_html_output(), results='asis', echo=FALSE}
-theorytools:::quizz(
+```{r results='asis', echo=FALSE}
+pema:::quizz(
 "True or false: There is a significant effect of sex." = FALSE,
 "How to interpret the effect of sex?" = c(answer = "1% increase in male participants is associated with .005 increase of the effect size", "The difference between men and women is .005", "There is no effect of sex", "Can't say based on this output"), title = "Formative Assessment")
 ```
@@ -317,8 +371,8 @@ res_multi2 <- rma(as.formula(paste("yi ~", paste(mods, collapse = "+"))), vi = v
 res_multi2
 ```
 
-```{r eval=knitr::is_html_output(), results='asis', echo=FALSE}
-theorytools:::quizz(
+```{r results='asis', echo=FALSE}
+pema:::quizz(
 "What is the number of studies included in the second multiple meta-regression (with all predictors)?" = 56L,
 "What is the number of parameters of the second multiple meta-regression (with all predictors)?" = 30L,
 "The $R^2$ of the second multiple meta-regression model is 93.30%. How can we interpret this?" = c(answer = "With caution; the model is likely overfit.", "As a large effect; the moderators explain most of the heterogeneity.", "As a large effect; there must be several significant moderators.", "Can't say based on this output"), title = "Formative Assessment")
@@ -332,9 +386,10 @@ Skip this section if you are pressed for time.
 
 When performing the analysis above, we saw a warning message:
 
-<font color = "red">
-Warning: Redundant predictors dropped from the model.
-</font>
+
+```{r, echo = FALSE, eval = TRUE}
+warning("Redundant predictors dropped from the model.")
+```
 
 This warning tells us that some of the moderators conveyed exactly the same information,
 and therefore, it's not possible to include both in the same model.
@@ -357,7 +412,11 @@ If we add a dummy for this variable - that dummy uniquely identifies that one st
 
 To better understand the risks of (multiple) meta-regression models, we have to understand the concept of **overfitting**. Overfitting occurs when we build a statistical model which fits the data **too closely**. In essence, this means that we build a statistical model which can predict the data at hand very well, but performs bad at predicting future data it has never seen before. This happens if our model assumes that some variation in our data **stems from a true "signal" in our data, when in fact we only model random noise** [@hastieElementsStatisticalLearning2009]. As a result, our statistical model produces **false positive results**: it sees relationships where there are none.
 
-![Illustration of an overfitted model vs. model with a good fit](./include/overfitting.png)
+```{r out.width="70%", fig.cap="Illustration of an overfitted model vs. model with a good fit"}
+knitr::include_graphics("./include/overfitting.png")
+```
+
+
 
 Regression methods, which usually utilize minimization or maximization procedures such as Ordinary Least Squares or Maximum Likelihood estimatation, can be prone to overfitting [@hastieElementsStatisticalLearning2009]. Unfortunately, the risk of building a **non-robust model, which produces false-positive results**, is **even higher** once we go from conventional regression to **meta-regression** [@higginsControllingRiskSpurious2004]. There are several reasons for this:
 
@@ -456,8 +515,8 @@ If we are satisfied with the convergence, we can continue looking at the posteri
 
 Also note the summary statistics for `tau2`, the (unexplained) residual between-studies heterogeneity.
 
-```{r eval=knitr::is_html_output(), results='asis', echo=FALSE}
-theorytools:::quizz(
+```{r results='asis', echo=FALSE}
+pema:::quizz(
 "How many significant moderator effects are there?" = TRUE,
 "True or false: There is significant residual heterogeneity." = TRUE,
 "What can we say about the coefficients of this BRMA analysis, compared to the previous `rma()` multiple regression?" = c(answer = "All absolute BRMA coefficients are smaller than RMA coefficients.", "The BRMA coefficients are more variable than RMA coefficients.", "It is easier for coefficients to be significant in BRMA than in RMA.", "The answer depends on the specific analysis."), title = "Formative Assessment")
@@ -522,7 +581,7 @@ num.trees = 10000)
 # Plot convergence trajectory
 plot(check_conv)
 ```
-```{r eval = TRUE, echo = FALSE}
+```{r echo = FALSE}
 # saveRDS(check_conv, "check_conv.RData")
 check_conv <- readRDS("check_conv.RData")
 # Plot convergence trajectory
@@ -573,7 +632,7 @@ mf_cv$results[which.min(mf_cv$results$RMSE), ]
 
 ```
 
-```{r eval = TRUE, echo = FALSE}
+```{r echo = FALSE}
 # saveRDS(mf_cv, "mf_cv.RData")
 mf_cv <- readRDS("mf_cv.RData")
 mf_cv$results[which.min(mf_cv$results$RMSE), ]
@@ -621,7 +680,7 @@ rawdata = TRUE, pi = .95)
 
 
 ```{r eval=knitr::is_html_output(), results='asis', echo=FALSE}
-theorytools:::quizz(
+pema:::quizz(
 "What does the negative permutation importance for `donorcode` indicate?" = c(answer = "Acts of Kindness", "Other", "Prosocial Spending"),
 "Which intervention has the lowest associated effect size?" = c(answer = "Randomly permuting this variable improves model fit", "Randomly permuting this variable diminishes model fit", "This variable has a negative effect on the outcome (effect size)", "This variable has a positive effect on the outcome (effect size)"), 
 "Which variable has apparent outlier(s)?" = c(answer = "age", "donorcode", "outcomecode"),
@@ -691,14 +750,14 @@ Additional argument `ni` is used to construct the prior for the approximate Baye
 Importantly, the `hypothesis` argument determines which informative hypotheses are tested.
 
 
-```{r echo = TRUE, eval = TRUE}
+```{r echo = TRUE}
 set.seed(1)
 res_pbf <- pbf(yi = df$yi,
                vi = df$vi,
                ni = sum(df$n1i+df$n2c),
                hypothesis = "y > 0")
 ```
-```{r echo = FALSE, eval = TRUE}
+```{r echo = FALSE}
 
 knitr::kable(res_pbf[, 1:4])
 ```
@@ -710,7 +769,7 @@ The PBF in favor of our hypothesis is very high (a 7.45 with 69 zeroes),
 so the body of evidence provides consistent support for the notion that helping increases happiness.
 
 ```{r eval=knitr::is_html_output(), results='asis', echo=FALSE}
-theorytools:::quizz(
+pema:::quizz(
 "What does a negative Bayes factor indicate, for a Bayes factor comparing an informative hypothesis Hi against its complement Hc?" = c(answer = "Negative Bayes factors don't exist", "The evidence for Hc outweighs the evidence for Hi", "The evidence for Hi outweighs the evidence for Hc, but the effect is negative", "The evidence for Hi outweighs the evidence for Hc"),
 "True or false: All Bayes factors must exceed one (BF > 1) to obtain a PBF that also exceeds one (PBF > 1)" = FALSE,
 "True or false: A large Bayes factor means that the hypothesized effect likely exists in the population" = FALSE,
