@@ -45,7 +45,8 @@ Suggests:
     rmarkdown,
     knitr,
     mice,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    webexercises
 SystemRequirements: GNU make
 Config/testthat/edition: 3
 VignetteBuilder: knitr
