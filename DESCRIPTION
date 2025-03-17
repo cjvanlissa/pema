@@ -46,7 +46,8 @@ Suggests:
     knitr,
     mice,
     testthat (>= 3.0.0),
-    webexercises
+    webexercises,
+    bain
 SystemRequirements: GNU make
 Config/testthat/edition: 3
 VignetteBuilder: knitr

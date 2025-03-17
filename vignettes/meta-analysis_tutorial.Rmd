@@ -11,7 +11,7 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  eval = (require(mice) & require(theorytools) & require(metaforest) & knitr::is_html_output()),
+  eval = (require(mice) & require(theorytools) & require(metaforest) & require(bain) & knitr::is_html_output()),
   comment = "#>"
 )
 ```
@@ -451,7 +451,7 @@ library(tidySEM)
 library(ggplot2)
 options(mc.cores = 4)
 ```
-```{r, eval = TRUE, echo = FALSE}
+```{r, echo = FALSE}
 library(pema)
 library(ggplot2)
 options(mc.cores = 4)
@@ -502,7 +502,7 @@ We can request the results using the `summary` function. Before we interpret the
 sum <- summary(fit_lasso)
 sum$coefficients[, c("mean", "sd", "2.5%", "97.5%", "n_eff", "Rhat")]
 ```
-```{r, eval = TRUE, echo = FALSE}
+```{r, echo = FALSE}
 sums <- data.frame(sums, check.names = FALSE)
 sums$Sig <- c("*", "")[as.integer(apply(sums[, c("2.5%", 
     "97.5%")], 1, function(x) {
@@ -679,7 +679,7 @@ rawdata = TRUE, pi = .95)
 ```
 
 
-```{r eval=knitr::is_html_output(), results='asis', echo=FALSE}
+```{r results='asis', echo=FALSE}
 pema:::quizz(
 "What does the negative permutation importance for `donorcode` indicate?" = c(answer = "Acts of Kindness", "Other", "Prosocial Spending"),
 "Which intervention has the lowest associated effect size?" = c(answer = "Randomly permuting this variable improves model fit", "Randomly permuting this variable diminishes model fit", "This variable has a negative effect on the outcome (effect size)", "This variable has a positive effect on the outcome (effect size)"), 
@@ -713,7 +713,7 @@ Now, we will perform a PBF analysis using the `pbf()` function in the `bain` pac
 
 First, we will load the required packages.
 
-```{r echo = TRUE, eval = TRUE, results='hide'}
+```{r echo = TRUE, results='hide'}
 library(bain)
 ```
 
@@ -768,7 +768,7 @@ study-specific Bayes factors (remaining columns, trimmed here to keep the docume
 The PBF in favor of our hypothesis is very high (a 7.45 with 69 zeroes),
 so the body of evidence provides consistent support for the notion that helping increases happiness.
 
-```{r eval=knitr::is_html_output(), results='asis', echo=FALSE}
+```{r results='asis', echo=FALSE}
 pema:::quizz(
 "What does a negative Bayes factor indicate, for a Bayes factor comparing an informative hypothesis Hi against its complement Hc?" = c(answer = "Negative Bayes factors don't exist", "The evidence for Hc outweighs the evidence for Hi", "The evidence for Hi outweighs the evidence for Hc, but the effect is negative", "The evidence for Hi outweighs the evidence for Hc"),
 "True or false: All Bayes factors must exceed one (BF > 1) to obtain a PBF that also exceeds one (PBF > 1)" = FALSE,
