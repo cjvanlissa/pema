@@ -14,4 +14,3 @@ paper/
 ^CRAN-SUBMISSION$
 ^doc$
 ^Meta$
-vignettes/meta-analysis_tutorial.Rmd

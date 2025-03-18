@@ -11,7 +11,7 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  eval = (require(mice) & require(theorytools) & require(metaforest) & require(bain) & knitr::is_html_output()),
+  eval = (require(mice) & require(metaforest) & require(bain) & knitr::is_html_output()),
   comment = "#>"
 )
 ```
