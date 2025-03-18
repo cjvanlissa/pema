@@ -72,10 +72,18 @@ message("✔ Looks like you're all set to do the workshop!")
 ```
 
 
-```{r echo= TRUE}
+```{r eval = FALSE, echo= TRUE}
 df <- curry
 check_data(df)
 ```
+```{r eval = TRUE, echo= FALSE}
+message("There is no column named 'yi' in your data. If you have an effect size column, it will be easier to do the tutorial if you rename it, using syntax like this:
+  
+  names(df)[which(names(df) == 'youreffectsize')] <- 'yi'
+  
+  If you do not yet have an effect size column, you may need to compute it first. Run ?metafor::escalc to see the help for this function.")
+```
+
 
 Note that the message suggests that we rename the effect size column, which is called `d` in the `curry` dataset, to `yi`. Let's do that:
 
