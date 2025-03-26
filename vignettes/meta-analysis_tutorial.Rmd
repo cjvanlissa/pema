@@ -11,7 +11,7 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  eval = (require(mice) & require(metaforest) & require(bain) & knitr::is_html_output()),
+  eval = (requireNamespace("mice", quietly = TRUE) & requireNamespace("metaforest", quietly = TRUE) & requireNamespace("bain", quietly = TRUE) & requireNamespace("metafor", quietly = TRUE) & knitr::is_html_output()),
   comment = "#>"
 )
 ```
@@ -46,7 +46,7 @@ However, notice that we load a different package, `metaforest`.
 The reason is that it contains the example data for this tutorial,
 and it loads the `metafor` package in turn.
 
-```{r, warning=FALSE,message=FALSE}
+```{r, eval = FALSE, warning=FALSE,message=FALSE}
 library(metaforest)
 ```
 
@@ -77,7 +77,135 @@ df <- curry
 check_data(df)
 ```
 ```{r eval = TRUE, echo= FALSE}
-df <- curry
+df <- structure(list(study_id = structure(c(1L, 1L, 2L, 3L, 4L, 5L, 
+5L, 6L, 7L, 7L, 7L, 7L, 8L, 8L, 9L, 9L, 10L, 10L, 10L, 10L, 11L, 
+11L, 12L, 13L, 14L, 15L, 16L, 16L, 16L, 17L, 17L, 18L, 19L, 19L, 
+19L, 20L, 20L, 21L, 21L, 22L, 22L, 22L, 22L, 23L, 23L, 23L, 23L, 
+23L, 23L, 24L, 24L, 25L, 25L, 26L, 26L, 27L), levels = c("Aknin, Barrington-Leigh, et al. (2013) Study 3", 
+"Aknin, Broesch, et al. (2015) Study 1", "Aknin, Broesch, et al. (2015) Study 2", 
+"Aknin, Dunn, et al. (2013) Study 3", "Aknin, Fleerackers, et al. (2014) ", 
+"Aknin, Hamlin, et al. (2012) ", "Alden, & Trew (2013) ", "Anik, Aknin, et al. (2013) Study 1", 
+"Buchanan, & Bardi (2010) ", "Chancellor, Margolis, et al. (2017)  ", 
+"Donnelly, Grant, et al. (2017)  Study 1", "Donnelly, Grant, et al. (2017) Study 2b", 
+"Dunn, Aknin, et al. (2008) Study 3", "Geenen, Hoheluchter, et al. (2014) ", 
+"Hanniball & Aknin (2016, unpublished) ", "Layous, Kurtz, J, et al. (under review) Study 1", 
+"Layous, Kurtz, J, et al. (under review) Study 2", "Layous, Lee, et al. (2013) ", 
+"Layous, Nelson, et al. (2012) ", "Martela, & Ryan (2016) ", 
+"Mongrain, Chin, et al. (2011) ", "Nelson, Della Porta, et al. (2015) ", 
+"Nelson, Layous, et al. (2016) ", "O'Connell, O'Shea, et al. (2016) ", 
+"Ouweneel, Le Blanc, et al. (2014) Study 2", "Trew, & Alden (2015) ", 
+"Whillans, Dunn, et al. (2016) Study 2"), class = "factor"), 
+    effect_id = 1:56, d = c(0.46, 0.13, 0.93, 0.3, 0.24, 0.38, 
+    0.44, 0.46, 0.59, 0.16, 0.54, -0.42, -0.15, 0.49, 0.41, 0.62, 
+    0, 0, 0, 0, 0.77, 0.85, 1.25, 0.67, 0.7, -0.46, 0.08, 0.2, 
+    0.26, 0.3, 0.12, 0.18, -0.05, -0.12, 0.07, 0.55, 0.42, 0.08, 
+    0.15, 0.23, 0.27, 0.09, 0.06, 0.3, 0.36, 0.15, 0.2, 0.16, 
+    0.19, 0.02, 0.12, 0.27, 0.27, -0.05, -0.33, 0.19), vi = c(0.020529, 
+    0.02004225, 0.170478846153846, 0.101125, 0.080576, 0.0342225418981152, 
+    0.0344292645871908, 0.102645, 0.0503528019052956, 0.0484100308209583, 
+    0.048206976744186, 0.0475372093023256, 0.0453499817301544, 
+    0.0448654973649539, 0.0729294642857143, 0.0748607142857143, 
+    0.0919117647058824, 0.0919117647058824, 0.0928030303030303, 
+    0.0928030303030303, 0.0373841214864723, 0.0369597457627119, 
+    0.0222387745820152, 0.0918358695652174, 0.0624264705882353, 
+    0.0384537710411267, 0.0288014894916365, 0.028922352800989, 
+    0.0290216333765286, 0.0181374017141807, 0.0179914557682348, 
+    0.0143613243970822, 0.00961838942307692, 0.00963269230769231, 
+    0.00962127403846154, 0.0552114200943535, 0.0543818148311956, 
+    0.00844556962025316, 0.00846255274261603, 0.0369399082568807, 
+    0.0370316513761468, 0.0364004545454545, 0.03638, 0.0129494889715091, 
+    0.0130054211748989, 0.0128541499884583, 0.0128788675025826, 
+    0.0128585285195317, 0.0128733590280063, 0.119052619047619, 
+    0.0680943841287198, 0.0824105442176871, 0.0824105442176871, 
+    0.0507218561609334, 0.0528751645373597, 0.0550520650787774
+    ), n1i = c(100, 100, 13, 20, 25, 60, 60, 20, 43, 43, 43, 
+    43, 41, 44, 28, 28, 16, 16, 16, 16, 59, 59, 107, 23, 34, 
+    51, 70, 70, 70, 178, 178, 213, 208, 208, 208, 34, 34, 237, 
+    237, 54.5, 54.5, 55, 55, 238, 238, 238, 238, 238, 238, 28, 
+    28, 25, 25, 38, 36, 36), n2c = c(100, 100, 13, 20, 25, 59, 
+    59, 20, 40, 40, 43, 43, 48, 48, 28, 28, 34, 34, 33, 33, 56, 
+    59, 108, 23, 34, 56, 69, 69, 69, 81, 81, 104, 208, 208, 208, 
+    42, 42, 237, 237, 54.5, 54.5, 55, 55, 116, 116, 116, 116, 
+    116, 116, 12, 31, 24, 24, 41, 41, 37), sex = c(38L, 38L, 
+    42L, 70L, 34L, 41L, 41L, 55L, 28L, 28L, 28L, 28L, 41L, 41L, 
+    26L, 26L, 27L, 27L, 27L, 27L, 52L, 52L, 50L, 26L, 21L, 43L, 
+    16L, 16L, 16L, 19L, 19L, 38L, 38L, 38L, 38L, 36L, 36L, 16L, 
+    16L, 53L, 53L, 53L, 53L, 40L, 40L, 40L, 40L, 40L, 40L, 43L, 
+    43L, 16L, 16L, 26L, 26L, 50L), age = c(21, 21, 45, 3, 21, 
+    19.9, 19.9, 1.9, 19.56, 19.56, 19.56, 19.56, 37.28, 37.28, 
+    38, 38, 35.6, 35.6, 35.6, 35.6, 22.57, 22.57, 37.77, 20, 
+    20, 19.37, 18.55, 18.55, 18.55, 18.93, 18.93, 20, 10.6, 10.6, 
+    10.6, 20.4, 20.4, 33.63, 33.63, 19.98, 19.98, 19.98, 19.98, 
+    29.95, 29.95, 29.95, 29.95, 29.95, 29.95, 34.17, 34.17, 20.88, 
+    20.88, 20.47, 20.47, 72.02), location = structure(c(3L, 3L, 
+    10L, 10L, 2L, 8L, 8L, 2L, 2L, 2L, 2L, 2L, 1L, 1L, 7L, 7L, 
+    6L, 6L, 6L, 6L, 8L, 8L, 8L, 2L, 4L, 2L, 8L, 8L, 8L, 8L, 8L, 
+    9L, 2L, 2L, 2L, 8L, 8L, 2L, 2L, 9L, 9L, 9L, 9L, 8L, 8L, 8L, 
+    8L, 8L, 8L, 8L, 8L, 5L, 5L, 2L, 2L, 8L), levels = c("Australia", 
+    "Canada", "Canada / South Africa", "Germany", "Netherlands", 
+    "Spain", "UK?", "USA", "USA/Korea", "Vanuatu"), class = "factor"), 
+    donor = structure(c(3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 2L, 2L, 
+    2L, 2L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 
+    3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 
+    3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 2L, 2L, 
+    1L), levels = c("Hypertense", "Socially Anxious", "Typical"
+    ), class = "factor"), donorcode = structure(c(2L, 2L, 2L, 
+    2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 
+    2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+    2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+    2L, 2L, 2L, 2L, 2L, 1L, 1L, 2L), levels = c("Anxious", "Typical"
+    ), class = "factor"), interventioniv = structure(c(5L, 5L, 
+    5L, 3L, 5L, 5L, 5L, 3L, 1L, 1L, 1L, 1L, 6L, 7L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 8L, 8L, 8L, 5L, 5L, 4L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 5L), levels = c("AK", "Benevolence", 
+    "Donate own sweets", "Helping behavior: mapping out course schedule", 
+    "Prosocial Purchase", "Prosocial Purchase ($25)", "Prosocial Purchase ($50)", 
+    "Social recycling"), class = "factor"), interventioncode = structure(c(3L, 
+    3L, 3L, 2L, 3L, 3L, 3L, 2L, 1L, 1L, 1L, 1L, 3L, 3L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 2L, 2L, 2L, 3L, 3L, 2L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 3L), levels = c("Acts of Kindness", 
+    "Other", "Prosocial Spending"), class = "factor"), control = structure(c(12L, 
+    12L, 12L, 2L, 12L, 12L, 12L, 2L, 1L, 1L, 4L, 4L, 11L, 11L, 
+    9L, 10L, 13L, 13L, 11L, 11L, 22L, 17L, 21L, 12L, 12L, 3L, 
+    20L, 20L, 20L, 6L, 6L, 18L, 23L, 23L, 23L, 8L, 8L, 7L, 7L, 
+    24L, 24L, 24L, 24L, 19L, 19L, 19L, 14L, 15L, 14L, 5L, 14L, 
+    8L, 8L, 16L, 5L, 12L), levels = c("BE", "Donate other sweets", 
+    "Helping self", "LD", "List activities", "Make self happier", 
+    "Memory", "Neutral Activity", "New Acts", "No Acts", "None", 
+    "Personal Purchase", "Receiver", "Self", "Self ", "Social Exposure", 
+    "Take item", "Track Locations", "Track activities", "Track daily activity", 
+    "Trash", "Trash/Recycling", "Whereabouts", "Work Activity"
+    ), class = "factor"), controlcode = structure(c(3L, 3L, 3L, 
+    1L, 3L, 3L, 3L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 1L, 2L, 3L, 3L, 
+    2L, 2L, 1L, 3L, 1L, 3L, 3L, 3L, 1L, 1L, 1L, 3L, 3L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 3L, 3L, 
+    3L, 1L, 3L, 1L, 1L, 1L, 1L, 3L), levels = c("Neutral Activity", 
+    "Nothing", "Self Help"), class = "factor"), recipients = structure(c(1L, 
+    1L, 7L, 11L, 13L, 1L, 1L, 11L, 2L, 2L, 2L, 2L, 4L, 4L, 2L, 
+    2L, 5L, 5L, 5L, 5L, 15L, 15L, 15L, 3L, 8L, 6L, 14L, 14L, 
+    14L, 9L, 9L, 2L, 2L, 2L, 2L, 4L, 4L, 2L, 2L, 2L, 2L, 2L, 
+    2L, 10L, 10L, 10L, 10L, 10L, 10L, 12L, 12L, 2L, 2L, 2L, 2L, 
+    2L), levels = c("Anonymous Sick Children", "Anyone", "Anyone / Charity", 
+    "Charity", "Co-Worker", "Colleague", "Family / Friends", 
+    "Friends", "Other/One", "Other/World", "Puppet", "Social Network", 
+    "Someone", "Someone known", "Unknown lab workers"), class = "factor"), 
+    outcomedv = structure(c(6L, 14L, 6L, 16L, 17L, 7L, 5L, 16L, 
+    6L, NA, 6L, NA, 7L, 7L, 14L, 14L, 12L, 14L, 12L, 14L, 3L, 
+    3L, 6L, 3L, 7L, 7L, 12L, 17L, 2L, 12L, 17L, 17L, 13L, 8L, 
+    15L, 6L, NA, 11L, 1L, 12L, 14L, 9L, 4L, 9L, 4L, 10L, 9L, 
+    4L, 10L, 12L, 12L, 9L, 4L, 6L, 6L, 17L), levels = c("CES-D", 
+    "EWB", "H", "NE", "ORH", "PA", "PANAS", "PAc", "PE", "PF", 
+    "SHI", "SHS", "SHSc", "SWLS", "SWLSc", "Smiling", "WB"), class = "factor"), 
+    outcomecode = structure(c(4L, 2L, 4L, 3L, 3L, 4L, 3L, 3L, 
+    4L, 4L, 4L, 4L, 4L, 4L, 2L, 2L, 1L, 2L, 1L, 2L, 1L, 1L, 4L, 
+    1L, 4L, 4L, 1L, 3L, 3L, 1L, 3L, 3L, 1L, 4L, 2L, 4L, 4L, 1L, 
+    3L, 1L, 2L, 4L, 4L, 4L, 4L, 3L, 4L, 4L, 3L, 1L, 1L, 4L, 4L, 
+    4L, 4L, 3L), levels = c("Happiness", "Life Satisfaction", 
+    "Other", "PN Affect"), class = "factor")), class = "data.frame", row.names = c(NA, 
+-56L))
+
 message("There is no column named 'yi' in your data. If you have an effect size column, it will be easier to do the tutorial if you rename it, using syntax like this:
   
   names(df)[which(names(df) == 'youreffectsize')] <- 'yi'
@@ -140,12 +268,22 @@ kable(ms)
 
 Let's conduct our first fixed-effects-model Meta-Analysis. We we will give the results of this analysis the simple name `m`.
 
-```{r}
+```{r, eval = FALSE}
 m <- rma(yi = df$yi,     # The yi-column of the df, which contains Cohen's d
          vi = df$vi,    # The vi-column of the df, which contains the variances
          method = "FE") # Run a fixed-effect model
 m
 ```
+```{r eval = TRUE, echo = FALSE}
+cat(c("Fixed-Effects Model (k = 56)", "", "I^2 (total heterogeneity / total variability):   64.95%", 
+"H^2 (total variability / sampling variability):  2.85", "", 
+"Test for Heterogeneity:", "Q(df = 55) = 156.9109, p-val < .0001", 
+"", "Model Results:", "", "estimate      se    zval    pval   ci.lb   ci.ub      ", 
+"  0.2059  0.0219  9.4135  <.0001  0.1630  0.2487  *** ", "", 
+"---", "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
+), sep = "\n")
+```
+
 
 We now see a summary of the results of our Meta-Analysis, including
 
@@ -177,11 +315,8 @@ $$\hat\theta_k = \theta_F + \epsilon_k$$
 
 While the random-effects-model assumes that, in addition, there is **a second source of error** $\zeta_k$.This second source of error is introduced by the fact that even the true effect size $\theta_k$ of our study $k$ is also only part of an over-arching distribution of true effect sizes with the mean $\mu$ [@borensteinIntroductionMetaAnalysis2009]. 
 
-```{r, echo=FALSE, fig.width=6,fig.height=4,fig.align='center', fig.cap="An illustration of  parameters of the random-effects-model", fig.alt="An illustration of  parameters of the random-effects-model"}
-library(png)
-library(grid)
-img <- readPNG("./include/density.png")
-grid.raster(img)
+```{r, echo=FALSE, out.width="70%",fig.align='center', fig.cap="An illustration of  parameters of the random-effects-model", fig.alt="An illustration of  parameters of the random-effects-model"}
+knitr::include_graphics("./include/density.png")
 ```
 
 
@@ -196,10 +331,23 @@ When calculating a random-effects-model meta-analysis, where therefore also have
 
 We can re-use our code from the fixed-effects-model and simply remove the `method = "FE"` argument to conduct a random-effects analysis with the default REML estimator for $\tau^2$:
 
-```{r}
+```{r eval = FALSE}
 m_re <- rma(yi = df$yi,     # The yi-column of the df, which contains Cohen's d
             vi = df$vi)    # The vi-column of the df, which contains the variances
 m_re
+```
+
+```{r eval = TRUE, echo = FALSE}
+cat(c("", "Random-Effects Model (k = 56; tau^2 estimator: REML)", 
+"", "tau^2 (estimated amount of total heterogeneity): 0.0570 (SE = 0.0176)", 
+"tau (square root of estimated tau^2 value):      0.2388", "I^2 (total heterogeneity / total variability):   67.77%", 
+"H^2 (total variability / sampling variability):  3.10", "", 
+"Test for Heterogeneity:", "Q(df = 55) = 156.9109, p-val < .0001", 
+"", "Model Results:", "", "estimate      se    zval    pval   ci.lb   ci.ub      ", 
+"  0.2393  0.0414  5.7805  <.0001  0.1581  0.3204  *** ", "", 
+"---", "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
+)
+, sep = "\n")
 ```
 
 ```{r results='asis', echo=FALSE}
@@ -258,9 +406,24 @@ we may not actually see the $R^2$ increasing with more predictors - but because 
 
 Meta-regressions can be conducted in R using the `rma` function in `metafor`. First, let's conduct a regression with a single categorical predictor, `donorcode`, which has two levels: `Anxious` and `Typical`:
 
-```{r}
+```{r eval = FALSE}
 m_cat <- rma(yi ~ donorcode, vi = vi, data = df)
 m_cat
+```
+```{r eval = TRUE, echo = FALSE}
+cat(c("", "Mixed-Effects Model (k = 56; tau^2 estimator: REML)", 
+"", "tau^2 (estimated amount of residual heterogeneity):     0.0567 (SE = 0.0177)", 
+"tau (square root of estimated tau^2 value):             0.2382", 
+"I^2 (residual heterogeneity / unaccounted variability): 67.81%", 
+"H^2 (unaccounted variability / sampling variability):   3.11", 
+"R^2 (amount of heterogeneity accounted for):            0.49%", 
+"", "Test for Residual Heterogeneity:", "QE(df = 54) = 155.0054, p-val < .0001", 
+"", "Test of Moderators (coefficient 2):", "QM(df = 1) = 1.5257, p-val = 0.2168", 
+"", "Model Results:", "", "                  estimate      se    zval    pval    ci.lb   ci.ub    ", 
+"intrcpt             0.0829  0.1332  0.6222  0.5338  -0.1781  0.3439    ", 
+"donorcodeTypical    0.1730  0.1401  1.2352  0.2168  -0.1015  0.4476    ", 
+"", "---", "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
+), sep = "\n")
 ```
 
 By default, `metafor::rma()` will recode `factor` variables to make one group the reference category and create dummies for all other groups.
@@ -288,12 +451,28 @@ Imagine you want to check if the **proportion of male participants** is associat
 # m.pubyear<-metagen(TE,seTE,studlab = paste(Author),comb.fixed = FALSE,data=madata)
 ```
 
-```{r}
+```{r eval = FALSE}
 m_reg <- rma(yi ~sex,
              vi = vi,
              data = df)
 m_reg
 ```
+```{r eval = TRUE, echo = FALSE}
+cat(c("", "Mixed-Effects Model (k = 56; tau^2 estimator: REML)", 
+"", "tau^2 (estimated amount of residual heterogeneity):     0.0544 (SE = 0.0173)", 
+"tau (square root of estimated tau^2 value):             0.2333", 
+"I^2 (residual heterogeneity / unaccounted variability): 66.50%", 
+"H^2 (unaccounted variability / sampling variability):   2.98", 
+"R^2 (amount of heterogeneity accounted for):            4.53%", 
+"", "Test for Residual Heterogeneity:", "QE(df = 54) = 149.5878, p-val < .0001", 
+"", "Test of Moderators (coefficient 2):", "QM(df = 1) = 2.1607, p-val = 0.1416", 
+"", "Model Results:", "", "         estimate      se    zval    pval    ci.lb   ci.ub    ", 
+"intrcpt    0.0648  0.1253  0.5168  0.6053  -0.1808  0.3104    ", 
+"sex        0.0050  0.0034  1.4699  0.1416  -0.0017  0.0116    ", 
+"", "---", "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
+), sep = "\n")
+```
+
 
 
 ```{r results='asis', echo=FALSE}
@@ -310,22 +489,52 @@ When we add more than one predictor, we're using **multiple meta-regression**. I
 
 We could include both predictors from the previous exercises in a mutliple meta-regression as follows:
 
-```{r}
+```{r eval = FALSE}
 m_multi <- rma(yi ~ sex + donorcode,
                vi = vi,
                data = df)
 m_multi
 ```
 
+```{r eval = TRUE, echo = FALSE}
+cat(c("", "Mixed-Effects Model (k = 56; tau^2 estimator: REML)", 
+"", "tau^2 (estimated amount of residual heterogeneity):     0.0551 (SE = 0.0175)", 
+"tau (square root of estimated tau^2 value):             0.2347", 
+"I^2 (residual heterogeneity / unaccounted variability): 66.89%", 
+"H^2 (unaccounted variability / sampling variability):   3.02", 
+"R^2 (amount of heterogeneity accounted for):            3.42%", 
+"", "Test for Residual Heterogeneity:", "QE(df = 53) = 148.6166, p-val < .0001", 
+"", "Test of Moderators (coefficients 2:3):", "QM(df = 2) = 3.0602, p-val = 0.2165", 
+"", "Model Results:", "", "                  estimate      se     zval    pval    ci.lb   ci.ub    ", 
+"intrcpt            -0.0337  0.1626  -0.2074  0.8357  -0.3523  0.2849    ", 
+"sex                 0.0043  0.0035   1.2310  0.2183  -0.0025  0.0111    ", 
+"donorcodeTypical    0.1361  0.1421   0.9579  0.3381  -0.1424  0.4146    ", 
+"", "---", "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
+), sep = "\n")
+```
 
 Now, let's create a model that includes *all* potential moderators of the effect size:
 
-```{r}
+```{r eval = FALSE}
 mods <- c("sex", "age", "location", "donorcode", "interventioncode", "controlcode", "recipients", "outcomecode")
 
 res_multi2 <- rma(as.formula(paste("yi ~", paste(mods, collapse = "+"))), vi = vi, data = df)
 
 res_multi2
+```
+
+```{r eval = TRUE, echo = FALSE}
+mods <- c("sex", "age", "location", "donorcode", "interventioncode", "controlcode", "recipients", "outcomecode")
+cat(c("", "Mixed-Effects Model (k = 56; tau^2 estimator: REML)", 
+"", "tau^2 (estimated amount of residual heterogeneity):     0.0038 (SE = 0.0076)", 
+"tau (square root of estimated tau^2 value):             0.0618", 
+"I^2 (residual heterogeneity / unaccounted variability): 12.55%", 
+"H^2 (unaccounted variability / sampling variability):   1.14", 
+"R^2 (amount of heterogeneity accounted for):            93.30%", 
+"", "Test for Residual Heterogeneity:", "QE(df = 26) = 34.1905, p-val = 0.1303", 
+"", "Test of Moderators (coefficients 2:30):", "QM(df = 29) = 105.3506, p-val < .0001", 
+"", "Model Results:", "", "", "---", "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
+), sep = "\n")
 ```
 
 ```{r results='asis', echo=FALSE}
@@ -432,7 +641,7 @@ We start with running a penalized meta-analysis using the lasso prior. Compared 
 For the lasso prior, we need to specify the degrees of freedom `df` and the `scale`. Both default to 1. The degrees of freedom determines the chi-square prior that is specified for the inverse-tuning parameter. Increasing the degrees of freedom will allow larger values for the inverse-tuning parameter, leading to less shrinkage. Increasing the scale parameter will also result in less shrinkage. The influence of these hyperparameters can be visualized through the implemented shiny app, which can be called via `shiny_prior()`,
 and by calling `plot(sample_prior())`.
 
-```{r, echo = TRUE, eval = F}
+```{r, echo = TRUE, eval = FALSE}
 set.seed(1)
 fit_lasso <- brma(yi ~ .,
                   data = df_brma,
@@ -455,7 +664,7 @@ sums <- readRDS("sum.RData")
 
 We can request the results using the `summary` function. Before we interpret the results, we need to ensure that the MCMC chains have converged to the posterior distribution. Two helpful diagnostics provided in the summary are the number of effective posterior samples `n_eff` and the potential scale reduction factor `Rhat`. `n_eff` is an estimate of the number of independent samples from the posterior. Ideally, the ratio `n_eff` to total samples is as close to 1 as possible. `Rhat` compares the between- and within-chain estimates and is ideally close to 1 (indicating the chains have mixed well). Should any values for `n_eff` or `Rhat` be far from these ideal values, you can try increasing the number of iterations through the `iter` argument. By default, the `brma` function runs four MCMC chains with 2000 iterations each, half of which is discarded as burn-in. As a result, a total of 4000 iterations is available on which posterior summaries are based. If this does not help, non-convergence might indicate a problem with the model specification.
 
-```{r, eval = F}
+```{r, eval = FALSE}
 sum <- summary(fit_lasso)
 sum$coefficients[, c("mean", "sd", "2.5%", "97.5%", "n_eff", "Rhat")]
 ```
@@ -622,7 +831,7 @@ For an important variable, the model performance drops after permutation.
 Partial dependence plots show the model's predicted values at different levels of one variable, averaging over the values of all other variables.
 Thus, you can think of this as the bivariate marginal association.
 
-```{r}
+```{r eval = FALSE}
 # Plot variable importance
 VarImpPlot(final)
 
@@ -680,7 +889,7 @@ Let's repeat our previous random effects meta-analysis, and examing a funnel plo
 
 ```{r}
 res_rma <- rma(yi = yi, vi = vi, data = df)
-metafor::funnel(res_rma)
+funnel(res_rma)
 ```
 
 An effect size over 0 means that helping others increased happiness,

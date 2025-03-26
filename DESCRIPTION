@@ -48,7 +48,8 @@ Suggests:
     testthat (>= 3.0.0),
     webexercises,
     bain,
-    metaforest
+    metaforest,
+    metafor
 SystemRequirements: GNU make
 Config/testthat/edition: 3
 VignetteBuilder: knitr
