@@ -245,7 +245,7 @@ $$
 \end{equation}
 $$
 
-These examples assume you already have a dataset with the **calucated effects and SE** for each study. The `curry` data set, inside the `metaforest` package, will do.
+These examples assume you already have a dataset with the **calculated effects and SE** for each study. The `curry` data set, inside the `metaforest` package, will do.
 This dataset already contains the effect sizes and their variances, so we can directly use the `rma` function. 
 
 
@@ -487,7 +487,7 @@ pema:::quizz(
 Previously, we only considered the scenario in which we use **one predictor** $\beta_1x_1$ in our meta-regression.
 When we add more than one predictor, we're using **multiple meta-regression**. In multiple meta-regression we use several moderators (variables) to predict the outcome (effect sizes). When we look back at the **general meta-regression** formula we defined before, we actually see that the formula already provides us with this feature through the $\beta_nx_{pk}$ part. Here, the parameter $p$ denotes that we can include $p$ more predictors/variables into our meta-regression, making it a multiple meta-regression.
 
-We could include both predictors from the previous exercises in a mutliple meta-regression as follows:
+We could include both predictors from the previous exercises in a multiple meta-regression as follows:
 
 ```{r eval = FALSE}
 m_multi <- rma(yi ~ sex + donorcode,
@@ -584,7 +584,7 @@ knitr::include_graphics("./include/overfitting.png")
 
 
 
-Regression methods, which usually utilize minimization or maximization procedures such as Ordinary Least Squares or Maximum Likelihood estimatation, can be prone to overfitting [@hastieElementsStatisticalLearning2009]. Unfortunately, the risk of building a **non-robust model, which produces false-positive results**, is **even higher** once we go from conventional regression to **meta-regression** [@higginsControllingRiskSpurious2004]. There are several reasons for this:
+Regression methods, which usually utilize minimization or maximization procedures such as Ordinary Least Squares or Maximum Likelihood estimation, can be prone to overfitting [@hastieElementsStatisticalLearning2009]. Unfortunately, the risk of building a **non-robust model, which produces false-positive results**, is **even higher** once we go from conventional regression to **meta-regression** [@higginsControllingRiskSpurious2004]. There are several reasons for this:
 
 1.  In Meta-Regression, our **sample is often small**, as we can only use the synthesized data of all analyzed studies $k$.
 2.  As our meta-analysis aims to be a **comprehensive overview of all evidence**, we have no **additional data** on which we can "test" how well our regression model can predict high or low effect sizes.
@@ -885,7 +885,7 @@ library(bain)
 
 ### Repeating the RMA
 
-Let's repeat our previous random effects meta-analysis, and examing a funnel plot of the distribution of effect sizes:
+Let's repeat our previous random effects meta-analysis, and examine a funnel plot of the distribution of effect sizes:
 
 ```{r}
 res_rma <- rma(yi = yi, vi = vi, data = df)
