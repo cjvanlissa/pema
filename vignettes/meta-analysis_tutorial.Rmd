@@ -859,7 +859,7 @@ title = "Formative Assessment")
 
 **Reference:** @vanlissaSmallSampleMetaanalyses2020
 
-For a more elaborate tutorial, see [this open access book chapter on MetaForest](https://www.taylorfrancis.com/chapters/oa-edit/10.4324/9780429273872-16/small-sample-meta-analyses-caspar-van-lissa).
+For a more elaborate tutorial, see [this open access book chapter on MetaForest](https://doi.org/10.4324/9780429273872-16).
 
 
 # Bayesian Evidence Synthesis

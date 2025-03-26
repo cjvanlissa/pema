@@ -1,8 +1,8 @@
 # pema 0.1.4
 
+* Incorporate necessary changes to maintain compatibility with rstan
 * Make Suggested packages truly optional, add test without Suggests
-* Add vignette
-* Maintain compatibility with rstan
+* Add tutorial vignette
 
 # pema 0.1.3
 
