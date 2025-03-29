@@ -103,7 +103,6 @@ if(run_everything){
                     prior = c(df = 1, scale = 1),
                     mute_stan = FALSE)
   saveRDS(fit_lasso, "fitlasso.RData")
-  fit_lasso <- readRDS("fitlasso.RData")
   sum <- summary(fit_lasso)
   saveRDS(sum$coefficients[, c("mean", "sd", "2.5%", "97.5%", "n_eff", "Rhat")], "sum.RData")
   saveRDS(I2(fit_lasso), "i2.RData")
