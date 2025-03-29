@@ -755,8 +755,6 @@ model random noise</strong> <span class="citation">(Hastie, Tibshirani,
 and Friedman 2009)</span>. As a result, our statistical model produces
 <strong>false positive results</strong>: it sees relationships where
 there are none.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/include_graphics.html" class="external-link">include_graphics</a></span><span class="op">(</span><span class="st">"./include/overfitting.png"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="include%2Foverfitting.png" alt="Illustration of an overfitted model vs. model with a good fit" width="70%"><p class="caption">
 Illustration of an overfitted model vs. model with a good fit
@@ -764,7 +762,7 @@ Illustration of an overfitted model vs. model with a good fit
 </div>
 <p>Regression methods, which usually utilize minimization or
 maximization procedures such as Ordinary Least Squares or Maximum
-Likelihood estimatation, can be prone to overfitting <span class="citation">(Hastie, Tibshirani, and Friedman 2009)</span>.
+Likelihood estimation, can be prone to overfitting <span class="citation">(Hastie, Tibshirani, and Friedman 2009)</span>.
 Unfortunately, the risk of building a <strong>non-robust model, which
 produces false-positive results</strong>, is <strong>even
 higher</strong> once we go from conventional regression to
@@ -841,7 +839,7 @@ locally on a multi-core machine, you can set
 <code>options(mc.cores = 4)</code>. This runs 4 MCMC chains in parallel,
 giving you multiple independent sampling chains while keeping estimation
 time relatively short.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/cjvanlissa/pema" class="external-link">pema</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://cjvanlissa.github.io/tidySEM/" class="external-link">tidySEM</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
@@ -851,7 +849,7 @@ time relatively short.</p>
 </h3>
 <p>First, for simplicity, we run a two-level BRMA model, ignoring the
 fact that certain effect sizes come from the same study.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_brma</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yi"</span>, <span class="st">"vi"</span>, <span class="va">mods</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="two-level-model-with-the-lasso-prior">Two-level model with the lasso prior<a class="anchor" aria-label="anchor" href="#two-level-model-with-the-lasso-prior"></a>
@@ -872,7 +870,7 @@ shrinkage. The influence of these hyperparameters can be visualized
 through the implemented shiny app, which can be called via
 <code><a href="../reference/shiny_prior.html">shiny_prior()</a></code>, and by calling
 <code>plot(sample_prior())</code>.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">fit_lasso</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brma.html">brma</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">.</span>,</span>
 <span>                  data <span class="op">=</span> <span class="va">df_brma</span>,</span>
@@ -901,7 +899,7 @@ is discarded as burn-in. As a result, a total of 4000 iterations is
 available on which posterior summaries are based. If this does not help,
 non-convergence might indicate a problem with the model
 specification.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sum</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_lasso</span><span class="op">)</span></span>
 <span><span class="va">sum</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"sd"</span>, <span class="st">"2.5%"</span>, <span class="st">"97.5%"</span>, <span class="st">"n_eff"</span>, <span class="st">"Rhat"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <table class="table">
@@ -1268,7 +1266,7 @@ analysis.</option></select><p></p></span>
 because it performed best in simulation studies. Moreover, we can take
 into account the fact that some effect sizes might come from the same
 study by fitting a three-level model as follows:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_brma_threelevel</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yi"</span>, <span class="st">"vi"</span>, <span class="st">"study_id"</span>, <span class="va">mods</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span>
 <span><span class="va">fit_hs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brma.html">brma</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">.</span>,</span>
@@ -1295,7 +1293,7 @@ to moderator selection is to use tree-based methods. In this section, we
 use MetaForest - a random forest-based approach - to analyze the same
 data and select relevant moderators <span class="citation">(Van Lissa
 2020)</span>.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load the metaforest package</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">metaforest</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: metafor</span></span>
@@ -1320,7 +1318,7 @@ speed up computationally heavy steps, such as replication and model
 tuning. We re-examine convergence for the final model. Note that we can
 account for multiple effect sizes per study in <code>MetaForest</code>
 as well:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Run model with many trees to check convergence</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">74</span><span class="op">)</span></span>
 <span><span class="va">check_conv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaforest/man/MetaForest.html" class="external-link">MetaForest</a></span><span class="op">(</span><span class="va">yi</span><span class="op">~</span><span class="va">.</span>,</span>
@@ -1330,7 +1328,7 @@ as well:</p>
 <span>num.trees <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span></span>
 <span><span class="co"># Plot convergence trajectory</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">check_conv</span><span class="op">)</span></span></code></pre></div>
-<p><img src="meta-analysis_tutorial_files/figure-html/unnamed-chunk-44-1.png" width="700"></p>
+<p><img src="check_conv.png" width="70%"></p>
 <p>This model converges at around 2500 trees.</p>
 </div>
 <div class="section level4">
@@ -1350,7 +1348,7 @@ cannot exceed the number of clusters in the data. Moreover, if the
 number of clusters is very small, one might have to resort to specifying
 the same number of folds as clusters. Model tuning is computationally
 intensive and might take a long time.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load caret</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
 <span><span class="co"># Set up 5-fold clustered CV</span></span>
@@ -1387,7 +1385,7 @@ split, and a minimum of three cases per terminal node.</p>
 </h4>
 <p>The object returned by train already contains the final model,
 estimated with the best combination of tuning parameters.</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract final model</span></span>
 <span><span class="va">final</span> <span class="op">&lt;-</span> <span class="va">mf_cv</span><span class="op">$</span><span class="va">finalModel</span></span>
 <span><span class="co"># Extract R^2_oob from the final model</span></span>
@@ -1404,7 +1402,7 @@ after permutation. Partial dependence plots show the model’s predicted
 values at different levels of one variable, averaging over the values of
 all other variables. Thus, you can think of this as the bivariate
 marginal association.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot variable importance</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/metaforest/man/VarImpPlot.html" class="external-link">VarImpPlot</a></span><span class="op">(</span><span class="va">final</span><span class="op">)</span></span>
 <span></span>
@@ -1425,11 +1423,11 @@ marginal association.</p>
 <p>What does the negative permutation importance for
 <code>donorcode</code> indicate?
 <select class="webex-select"><option value="blank"></option>
+<option value="">Prosocial
+Spending</option>
 <option value="">Other</option>
 <option value="answer">Acts
-of Kindness</option>
-<option value="">Prosocial
-Spending</option></select></p>
+of Kindness</option></select></p>
 <p>Which intervention has the lowest associated effect size?
 <select class="webex-select"><option value="blank"></option>
 <option value="answer">Randomly
@@ -1443,9 +1441,9 @@ diminishes model fit</option>
 negative effect on the outcome (effect size)</option></select></p>
 Which variable has apparent outlier(s)?
 <select class="webex-select"><option value="blank"></option>
+<option value="">donorcode</option>
 <option value="">outcomecode</option>
-<option value="answer">age</option>
-<option value="">donorcode</option></select><p></p></span>
+<option value="answer">age</option></select><p></p></span>
 </div>
 </div>
 <div class="section level4">
@@ -1480,23 +1478,23 @@ meta-analyses using the function <code><a href="https://wviechtb.github.io/metaf
 <code><a href="https://rdrr.io/pkg/bain/man/pbf.html" class="external-link">pbf()</a></code> function in the <code>bain</code> package, which
 accepts the same arguments.</p>
 <p>First, we will load the required packages.</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://informative-hypotheses.sites.uu.nl/software/bain/" class="external-link">bain</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="repeating-the-rma">Repeating the RMA<a class="anchor" aria-label="anchor" href="#repeating-the-rma"></a>
 </h4>
-<p>Let’s repeat our previous random effects meta-analysis, and examing a
+<p>Let’s repeat our previous random effects meta-analysis, and examine a
 funnel plot of the distribution of effect sizes:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_rma</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html" class="external-link">rma</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">yi</span>, vi <span class="op">=</span> <span class="va">vi</span>, data <span class="op">=</span> <span class="va">df</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/funnel.html" class="external-link">funnel</a></span><span class="op">(</span><span class="va">res_rma</span><span class="op">)</span></span></code></pre></div>
-<p><img src="meta-analysis_tutorial_files/figure-html/unnamed-chunk-51-1.png" width="700"></p>
+<p><img src="meta-analysis_tutorial_files/figure-html/unnamed-chunk-50-1.png" width="700"></p>
 <p>An effect size over 0 means that helping others increased happiness,
 even a little bit.</p>
 <p>With a Bayes Factor, we could test the informative hypothesis (just a
 directional null hypothesis) that helping increases happiness in one
 particular study, for example the first row of the dataset:</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/bain/man/bain.html" class="external-link">bain</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yi"</span> <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">yi</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, <span class="co"># Select the first effect size</span></span>
 <span>     Sigma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">vi</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="co"># Make covariance matrix</span></span>
@@ -1530,7 +1528,7 @@ applications where PBF is applied to meta-analytic datasets. The
 construct the prior for the approximate Bayes factors <span class="citation">(Hoijtink et al. 2019)</span>. Importantly, the
 <code>hypothesis</code> argument determines which informative hypotheses
 are tested.</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">res_pbf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/bain/man/pbf.html" class="external-link">pbf</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">yi</span>,</span>
 <span>               vi <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">vi</span>,</span>
