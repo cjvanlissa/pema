@@ -80,14 +80,17 @@
 Now, run the setup script for this workshop.<br>
 In the window labeled “Console”, paste this code and press [Enter]:</li>
 </ol>
-<pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"https://raw.githubusercontent.com/cjvanlissa/meta_workshop/refs/heads/master/check_function.R"</span><span class="op">)</span></span></code></pre>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/cjvanlissa/pema" class="external-link">pema</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/check_workshop_data.html">check_workshop_data</a></span><span class="op">(</span>df <span class="op">=</span> <span class="va">curry</span><span class="op">)</span></span></code></pre></div>
 <ol start="3" style="list-style-type: decimal">
 <li>If you have your own data: after running the <code><a href="https://rdrr.io/r/base/source.html" class="external-link">source()</a></code>
-command above, you can use the function <code>check_data()</code>.
+command above, you can use the function
+<code><a href="../reference/check_workshop_data.html">check_workshop_data()</a></code>.
 <ul>
 <li>Load your own data into R as usual, and check if you can use it for
 the workshop exercises by running:</li>
-<li><code>check_data(your_data_object)</code></li>
+<li><code>check_workshop_data(your_data_object)</code></li>
 </ul>
 </li>
 </ol>
@@ -112,7 +115,7 @@ we load a different package, <code>metaforest</code>. The reason is that
 it contains the example data for this tutorial, and it loads the
 <code>metafor</code> package in turn.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">metaforest</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://cjvanlissa.github.io/metaforest/" class="external-link">metaforest</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="using-your-own-data">Using Your Own Data<a class="anchor" aria-label="anchor" href="#using-your-own-data"></a>
 </h4>
@@ -120,18 +123,15 @@ it contains the example data for this tutorial, and it loads the
 Note that the interactive questions won’t work in this case (the correct
 answers are based on the <code>curry</code> data).</p>
 <p>If you want to use your own data, you can use the function
-<code>check_data()</code> to help make sure that your data are suitable
-for the tutorial examples. Install the function by running:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"https://raw.githubusercontent.com/cjvanlissa/meta_workshop/refs/heads/master/check_function.R"</span><span class="op">)</span></span></code></pre></div>
+<code><a href="../reference/check_workshop_data.html">check_workshop_data()</a></code> to help make sure that your data are
+suitable for the tutorial examples.</p>
 <p>Then, apply the function to your data object by running
-<code>check_data(your_data_object)</code>. It will give helpful
+<code>check_workshop_data(your_data_object)</code>. It will give helpful
 suggestions to make it easier to follow the tutorial with your own
 data:</p>
-<pre><code><span><span class="co">#&gt; ✔ Looks like you're all set to do the workshop!</span></span></code></pre>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">curry</span></span>
-<span><span class="fu">check_data</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/check_workshop_data.html">check_workshop_data</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; There is no column named 'yi' in your data. If you have an effect size column, it will be easier to do the tutorial if you rename it, using syntax like this:</span></span>
 <span><span class="co">#&gt;   </span></span>
 <span><span class="co">#&gt;   names(df)[which(names(df) == 'youreffectsize')] &lt;- 'yi'</span></span>
@@ -140,7 +140,7 @@ data:</p>
 <p>Note that the message suggests that we rename the effect size column,
 which is called <code>d</code> in the <code>curry</code> dataset, to
 <code>yi</code>. Let’s do that:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">==</span> <span class="st">'d'</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'yi'</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -149,7 +149,7 @@ which is called <code>d</code> in the <code>curry</code> dataset, to
 <p>If you do not have your own data but are up for a challenge, you can
 use a different demo dataset to complete the tutorial. Two suggestions
 are:</p>
-<pre><code><span><span class="fu">metaforest</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/metaforest/man/fukkink_lont.html" class="external-link">fukkink_lont</a></span></span>
+<pre><code><span><span class="fu">metaforest</span><span class="fu">::</span><span class="va"><a href="https://cjvanlissa.github.io/metaforest/reference/fukkink_lont.html" class="external-link">fukkink_lont</a></span></span>
 <span><span class="fu">pema</span><span class="fu">::</span><span class="va"><a href="../reference/bonapersona.html">bonapersona</a></span></span></code></pre>
 </div>
 </div>
@@ -217,8 +217,15 @@ meta-analysis to run. FE runs a fixed-effect model</td>
 </table>
 <p>Let’s conduct our first fixed-effects-model Meta-Analysis. We we will
 give the results of this analysis the simple name <code>m</code>.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html" class="external-link">rma</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">yi</span>,     <span class="co"># The yi-column of the df, which contains Cohen's d</span></span>
+<pre><code><span><span class="co">#&gt; Loading required package: Matrix</span></span>
+<span><span class="co">#&gt; Loading required package: metadat</span></span>
+<span><span class="co">#&gt; Loading required package: numDeriv</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Loading the 'metafor' package (version 4.8-0). For an</span></span>
+<span><span class="co">#&gt; introduction to the package please type: help(metafor)</span></span></code></pre>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.metafor-project.org" class="external-link">metafor</a></span><span class="op">)</span></span>
+<span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html" class="external-link">rma</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">yi</span>,     <span class="co"># The yi-column of the df, which contains Cohen's d</span></span>
 <span>         vi <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">vi</span>,    <span class="co"># The vi-column of the df, which contains the variances</span></span>
 <span>         method <span class="op">=</span> <span class="st">"FE"</span><span class="op">)</span> <span class="co"># Run a fixed-effect model</span></span>
 <span><span class="va">m</span></span></code></pre></div>
@@ -332,7 +339,7 @@ all of which are implemented in <code>metafor</code>.</p>
 the <code>method = "FE"</code> argument to conduct a random-effects
 analysis with the default REML estimator for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>τ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\tau^2</annotation></semantics></math>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_re</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html" class="external-link">rma</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">yi</span>,     <span class="co"># The yi-column of the df, which contains Cohen's d</span></span>
 <span>            vi <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">vi</span><span class="op">)</span>    <span class="co"># The vi-column of the df, which contains the variances</span></span>
 <span><span class="va">m_re</span></span></code></pre></div>
@@ -487,7 +494,7 @@ small, be very mindful of overfitting nonetheless.</p>
 function in <code>metafor</code>. First, let’s conduct a regression with
 a single categorical predictor, <code>donorcode</code>, which has two
 levels: <code>Anxious</code> and <code>Typical</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html" class="external-link">rma</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">donorcode</span>, vi <span class="op">=</span> <span class="va">vi</span>, data <span class="op">=</span> <span class="va">df</span><span class="op">)</span></span>
 <span><span class="va">m_cat</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; </span></span>
@@ -545,7 +552,7 @@ True or false: There is a significant difference between the two groups.
 participants</strong> is associated with effect size. The variable
 <code>sex</code> contains this information. You can use this predictor
 in a meta-regression:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html" class="external-link">rma</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span><span class="va">sex</span>,</span>
 <span>             vi <span class="op">=</span> <span class="va">vi</span>,</span>
 <span>             data <span class="op">=</span> <span class="va">df</span><span class="op">)</span></span>
@@ -618,7 +625,7 @@ more predictors/variables into our meta-regression, making it a multiple
 meta-regression.</p>
 <p>We could include both predictors from the previous exercises in a
 mutliple meta-regression as follows:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_multi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html" class="external-link">rma</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">sex</span> <span class="op">+</span> <span class="va">donorcode</span>,</span>
 <span>               vi <span class="op">=</span> <span class="va">vi</span>,</span>
 <span>               data <span class="op">=</span> <span class="va">df</span><span class="op">)</span></span>
@@ -649,7 +656,7 @@ mutliple meta-regression as follows:</p>
 <span><span class="co">#&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span></span></code></pre>
 <p>Now, let’s create a model that includes <em>all</em> potential
 moderators of the effect size:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>, <span class="st">"age"</span>, <span class="st">"location"</span>, <span class="st">"donorcode"</span>, <span class="st">"interventioncode"</span>, <span class="st">"controlcode"</span>, <span class="st">"recipients"</span>, <span class="st">"outcomecode"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">res_multi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html" class="external-link">rma</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">as.formula</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"yi ~"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">mods</span>, collapse <span class="op">=</span> <span class="st">"+"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, vi <span class="op">=</span> <span class="va">vi</span>, data <span class="op">=</span> <span class="va">df</span><span class="op">)</span></span>
@@ -719,7 +726,7 @@ the same information, and therefore, it’s not possible to include both
 in the same model.</p>
 <p>For example, look at the following subset of the data. Imagine that
 this would be our entire dataset:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">24</span>, <span class="fl">28</span>, <span class="fl">46</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"location"</span>, <span class="st">"interventioncode"</span>, <span class="st">"controlcode"</span>, <span class="st">"outcomecode"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;      age location   interventioncode      controlcode outcomecode</span></span>
 <span><span class="co">#&gt; 5  21.00   Canada Prosocial Spending        Self Help       Other</span></span>
@@ -839,7 +846,7 @@ locally on a multi-core machine, you can set
 <code>options(mc.cores = 4)</code>. This runs 4 MCMC chains in parallel,
 giving you multiple independent sampling chains while keeping estimation
 time relatively short.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/cjvanlissa/pema" class="external-link">pema</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://cjvanlissa.github.io/tidySEM/" class="external-link">tidySEM</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
@@ -849,7 +856,7 @@ time relatively short.</p>
 </h3>
 <p>First, for simplicity, we run a two-level BRMA model, ignoring the
 fact that certain effect sizes come from the same study.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_brma</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yi"</span>, <span class="st">"vi"</span>, <span class="va">mods</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="two-level-model-with-the-lasso-prior">Two-level model with the lasso prior<a class="anchor" aria-label="anchor" href="#two-level-model-with-the-lasso-prior"></a>
@@ -870,7 +877,7 @@ shrinkage. The influence of these hyperparameters can be visualized
 through the implemented shiny app, which can be called via
 <code><a href="../reference/shiny_prior.html">shiny_prior()</a></code>, and by calling
 <code>plot(sample_prior())</code>.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">fit_lasso</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brma.html">brma</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">.</span>,</span>
 <span>                  data <span class="op">=</span> <span class="va">df_brma</span>,</span>
@@ -899,7 +906,7 @@ is discarded as burn-in. As a result, a total of 4000 iterations is
 available on which posterior summaries are based. If this does not help,
 non-convergence might indicate a problem with the model
 specification.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sum</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_lasso</span><span class="op">)</span></span>
 <span><span class="va">sum</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"sd"</span>, <span class="st">"2.5%"</span>, <span class="st">"97.5%"</span>, <span class="st">"n_eff"</span>, <span class="st">"Rhat"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <table class="table">
@@ -1266,7 +1273,7 @@ analysis.</option></select><p></p></span>
 because it performed best in simulation studies. Moreover, we can take
 into account the fact that some effect sizes might come from the same
 study by fitting a three-level model as follows:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_brma_threelevel</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yi"</span>, <span class="st">"vi"</span>, <span class="st">"study_id"</span>, <span class="va">mods</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span>
 <span><span class="va">fit_hs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brma.html">brma</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">.</span>,</span>
@@ -1293,18 +1300,9 @@ to moderator selection is to use tree-based methods. In this section, we
 use MetaForest - a random forest-based approach - to analyze the same
 data and select relevant moderators <span class="citation">(Van Lissa
 2020)</span>.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load the metaforest package</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">metaforest</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: metafor</span></span>
-<span><span class="co">#&gt; Loading required package: Matrix</span></span>
-<span><span class="co">#&gt; Loading required package: metadat</span></span>
-<span><span class="co">#&gt; Loading required package: numDeriv</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Loading the 'metafor' package (version 4.8-0). For an</span></span>
-<span><span class="co">#&gt; introduction to the package please type: help(metafor)</span></span>
-<span><span class="co">#&gt; Loading required package: ranger</span></span>
-<span><span class="co">#&gt; Loading required package: data.table</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://cjvanlissa.github.io/metaforest/" class="external-link">metaforest</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="check-convergence">Check Convergence<a class="anchor" aria-label="anchor" href="#check-convergence"></a>
 </h4>
@@ -1318,10 +1316,10 @@ speed up computationally heavy steps, such as replication and model
 tuning. We re-examine convergence for the final model. Note that we can
 account for multiple effect sizes per study in <code>MetaForest</code>
 as well:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Run model with many trees to check convergence</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">74</span><span class="op">)</span></span>
-<span><span class="va">check_conv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaforest/man/MetaForest.html" class="external-link">MetaForest</a></span><span class="op">(</span><span class="va">yi</span><span class="op">~</span><span class="va">.</span>,</span>
+<span><span class="va">check_conv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://cjvanlissa.github.io/metaforest/reference/MetaForest.html" class="external-link">MetaForest</a></span><span class="op">(</span><span class="va">yi</span><span class="op">~</span><span class="va">.</span>,</span>
 <span>data <span class="op">=</span> <span class="va">df_brma_threelevel</span>,</span>
 <span>study <span class="op">=</span> <span class="st">"study_id"</span>,</span>
 <span>whichweights <span class="op">=</span> <span class="st">"random"</span>,</span>
@@ -1348,7 +1346,7 @@ cannot exceed the number of clusters in the data. Moreover, if the
 number of clusters is very small, one might have to resort to specifying
 the same number of folds as clusters. Model tuning is computationally
 intensive and might take a long time.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load caret</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
 <span><span class="co"># Set up 5-fold clustered CV</span></span>
@@ -1366,7 +1364,7 @@ intensive and might take a long time.</p>
 <span><span class="va">mf_cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/caret/man/train.html" class="external-link">train</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">df_brma_threelevel</span><span class="op">$</span><span class="va">yi</span>,</span>
 <span>x <span class="op">=</span> <span class="va">X</span>,</span>
 <span>study <span class="op">=</span> <span class="st">"study_id"</span>, <span class="co"># Name of the clustering variable</span></span>
-<span>method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/metaforest/man/ModelInfo_mf.html" class="external-link">ModelInfo_mf</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>method <span class="op">=</span> <span class="fu"><a href="https://cjvanlissa.github.io/metaforest/reference/ModelInfo_mf.html" class="external-link">ModelInfo_mf</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>trControl <span class="op">=</span> <span class="va">grouped_cv</span>,</span>
 <span>tuneGrid <span class="op">=</span> <span class="va">tuning_grid</span>,</span>
 <span>num.trees <span class="op">=</span> <span class="fl">2500</span><span class="op">)</span></span>
@@ -1385,7 +1383,7 @@ split, and a minimum of three cases per terminal node.</p>
 </h4>
 <p>The object returned by train already contains the final model,
 estimated with the best combination of tuning parameters.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract final model</span></span>
 <span><span class="va">final</span> <span class="op">&lt;-</span> <span class="va">mf_cv</span><span class="op">$</span><span class="va">finalModel</span></span>
 <span><span class="co"># Extract R^2_oob from the final model</span></span>
@@ -1402,16 +1400,16 @@ after permutation. Partial dependence plots show the model’s predicted
 values at different levels of one variable, averaging over the values of
 all other variables. Thus, you can think of this as the bivariate
 marginal association.</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot variable importance</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/metaforest/man/VarImpPlot.html" class="external-link">VarImpPlot</a></span><span class="op">(</span><span class="va">final</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://cjvanlissa.github.io/metaforest/reference/VarImpPlot.html" class="external-link">VarImpPlot</a></span><span class="op">(</span><span class="va">final</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Sort the variable names by importance</span></span>
 <span><span class="va">ordered_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">final</span><span class="op">$</span><span class="va">forest</span><span class="op">$</span><span class="va">variable.importance</span><span class="op">)</span><span class="op">[</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">final</span><span class="op">$</span><span class="va">forest</span><span class="op">$</span><span class="va">variable.importance</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co"># Plot partial dependence</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/metaforest/man/PartialDependence.html" class="external-link">PartialDependence</a></span><span class="op">(</span><span class="va">final</span>, vars <span class="op">=</span> <span class="va">ordered_vars</span>,</span>
+<span><span class="fu"><a href="https://cjvanlissa.github.io/metaforest/reference/PartialDependence.html" class="external-link">PartialDependence</a></span><span class="op">(</span><span class="va">final</span>, vars <span class="op">=</span> <span class="va">ordered_vars</span>,</span>
 <span>rawdata <span class="op">=</span> <span class="cn">TRUE</span>, pi <span class="op">=</span> <span class="fl">.95</span><span class="op">)</span></span></code></pre></div>
 <div class="webex-check webex-box">
 <span>
@@ -1478,23 +1476,23 @@ meta-analyses using the function <code><a href="https://wviechtb.github.io/metaf
 <code><a href="https://rdrr.io/pkg/bain/man/pbf.html" class="external-link">pbf()</a></code> function in the <code>bain</code> package, which
 accepts the same arguments.</p>
 <p>First, we will load the required packages.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://informative-hypotheses.sites.uu.nl/software/bain/" class="external-link">bain</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="repeating-the-rma">Repeating the RMA<a class="anchor" aria-label="anchor" href="#repeating-the-rma"></a>
 </h4>
 <p>Let’s repeat our previous random effects meta-analysis, and examine a
 funnel plot of the distribution of effect sizes:</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_rma</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html" class="external-link">rma</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">yi</span>, vi <span class="op">=</span> <span class="va">vi</span>, data <span class="op">=</span> <span class="va">df</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/funnel.html" class="external-link">funnel</a></span><span class="op">(</span><span class="va">res_rma</span><span class="op">)</span></span></code></pre></div>
-<p><img src="meta-analysis_tutorial_files/figure-html/unnamed-chunk-50-1.png" width="700"></p>
+<p><img src="meta-analysis_tutorial_files/figure-html/unnamed-chunk-51-1.png" width="700"></p>
 <p>An effect size over 0 means that helping others increased happiness,
 even a little bit.</p>
 <p>With a Bayes Factor, we could test the informative hypothesis (just a
 directional null hypothesis) that helping increases happiness in one
 particular study, for example the first row of the dataset:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/bain/man/bain.html" class="external-link">bain</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yi"</span> <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">yi</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, <span class="co"># Select the first effect size</span></span>
 <span>     Sigma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">vi</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="co"># Make covariance matrix</span></span>
@@ -1528,7 +1526,7 @@ applications where PBF is applied to meta-analytic datasets. The
 construct the prior for the approximate Bayes factors <span class="citation">(Hoijtink et al. 2019)</span>. Importantly, the
 <code>hypothesis</code> argument determines which informative hypotheses
 are tested.</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">res_pbf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/bain/man/pbf.html" class="external-link">pbf</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">yi</span>,</span>
 <span>               vi <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">vi</span>,</span>
@@ -1716,7 +1714,7 @@ Statistical Software</em> 36 (3): 1–48.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
