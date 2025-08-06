@@ -20,5 +20,5 @@ Meta-Regression, and checks that \code{pema} package dependencies are correctly
 installed. It suggests how to remedy any failed checks.
 }
 \examples{
-check_workshop_data(fukkink_lont)
+check_workshop_data(bonapersona)
 }

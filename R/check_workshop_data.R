@@ -65,12 +65,12 @@ check_dependencies <- function (packages = "metaforest")
 #' @return Invisibly returns a logical TRUE/FALSE, indicating whether all checks
 #' have passed.
 #' @examples
-#' check_workshop_data(fukkink_lont)
+#' check_workshop_data(bonapersona)
 #' @rdname check_workshop_data
 #' @export
 check_workshop_data <- function(df = NULL){
   if(is.null(df)){
-    df <- curry
+    df <- pema::bonapersona
   }
   no_errors <- TRUE
   has_dep <- no_errors & check_dependencies(packages = c("pema", "metaforest", "ranger"))
