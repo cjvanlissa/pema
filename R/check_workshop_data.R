@@ -68,7 +68,10 @@ check_dependencies <- function (packages = "metaforest")
 #' check_workshop_data(fukkink_lont)
 #' @rdname check_workshop_data
 #' @export
-check_workshop_data <- function(df){
+check_workshop_data <- function(df = NULL){
+  if(is.null(df)){
+    df <- curry
+  }
   no_errors <- TRUE
   has_dep <- no_errors & check_dependencies(packages = c("pema", "metaforest", "ranger"))
 

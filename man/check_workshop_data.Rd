@@ -4,7 +4,7 @@
 \alias{check_workshop_data}
 \title{Check Data for BRMA Workshop}
 \usage{
-check_workshop_data(df)
+check_workshop_data(df = NULL)
 }
 \arguments{
 \item{df}{A \code{data.frame}.}
