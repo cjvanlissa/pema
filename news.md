@@ -1,6 +1,7 @@
 # pema 0.1.5
 
-* Fix CRAN errors caused by dependency metaforest no longer Import-ing metafor
+* Address Prof. Dr. Brian Ripley's comments / fix CRAN errors caused by
+  dependency `metaforest` no longer Import-ing `metafor`
 
 # pema 0.1.4
 

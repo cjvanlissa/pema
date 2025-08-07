@@ -1,3 +1,8 @@
+# pema 0.1.5
+
+* Address Prof. Dr. Brian Ripley's comments / fix CRAN errors caused by
+  dependency `metaforest` no longer Import-ing `metafor`
+
 ## Test environments
 
 * local Windows 11, R 4.5.0
