@@ -1,11 +1,6 @@
-# pema 0.1.4
-
-* Incorporate necessary changes to maintain compatibility with rstan
-* Make Suggested packages truly optional, add test without Suggests
-* Add tutorial vignette
-
 ## Test environments
-* local Windows 11, R 4.4.3
+
+* local Windows 11, R 4.5.0
 * devtools::check_win_devel()
 * devtools::check_win_release()
 * devtools::check_win_oldrelease()
