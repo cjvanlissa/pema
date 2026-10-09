@@ -26,6 +26,13 @@ model_accuracy <-
            ...) {
     switch(
       class(fit)[1],
+      cv.lrma = {
+        if (is.null(newdata)) {
+          predicted	<- pred_brma(fit)
+        } else {
+          predicted <- pred_brma(fit, data = newdata)
+        }
+      },
       brma = {
         if (is.null(newdata)) {
           predicted	<- pred_brma(fit)
@@ -34,7 +41,7 @@ model_accuracy <-
         }
       },
       rma.uni = {
-        if (is.null(newdata) | nrow(models$b) == 1) {
+        if (is.null(newdata) | nrow(fit$b) == 1) {
           predicted	  <- predict(fit)$pred
           if (length(predicted) == 1) {
             predicted <- rep(predicted, length(observed))

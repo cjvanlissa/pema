@@ -29,12 +29,12 @@ using namespace stan::math;
 stan::math::profile_map profiles__;
 static constexpr std::array<const char*, 7> locations_array__ =
   {" (found before start of program)",
-  " (in 'string', line 6, column 2 to column 9)",
-  " (in 'string', line 7, column 2 to column 33)",
-  " (in 'string', line 11, column 2 to column 69)",
-  " (in 'string', line 12, column 2 to column 51)",
-  " (in 'string', line 2, column 2 to column 19)",
-  " (in 'string', line 3, column 2 to column 22)"};
+  " (in 'lasso_prior', line 6, column 2 to column 9)",
+  " (in 'lasso_prior', line 7, column 2 to column 33)",
+  " (in 'lasso_prior', line 11, column 2 to column 69)",
+  " (in 'lasso_prior', line 12, column 2 to column 51)",
+  " (in 'lasso_prior', line 2, column 2 to column 19)",
+  " (in 'lasso_prior', line 3, column 2 to column 22)"};
 #include <stan_meta_header.hpp>
 class model_lasso_prior final : public model_base_crtp<model_lasso_prior> {
 private:

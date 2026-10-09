@@ -373,7 +373,12 @@ brma.default <-
         cl[["refresh"]] <- 0
       }
     }
-    fit <- eval(cl)
+    if(mute_stan){
+      dump <- capture.output(fit <- suppressWarnings(suppressMessages(eval(cl))))
+    } else {
+      fit <- eval(cl)
+    }
+
     sums <- make_sums(fit, colnames(X))
     tau2 <- sums[which(startsWith(rownames(sums), "tau2"))[1], 1]
     foroutput <- c(

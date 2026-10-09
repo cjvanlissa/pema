@@ -6,6 +6,7 @@
 #' @name pema-package
 #' @aliases pema
 #' @useDynLib pema, .registration = TRUE
+#' @importFrom Rcpp evalCpp
 #' @import methods
 #' @import Rcpp
 #' @importFrom rstan sampling

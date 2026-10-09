@@ -16,6 +16,35 @@ maxap <- function(x, dens = NULL, ...) {
   dens$x[which.max(dens$y)]
 }
 
+#' @title Highest Posterior Density Interval
+#' @description Find the smallest possible interval to contain proportion `p`
+#' of the posterior density. All values in this interval have higher probability
+#' density than values outside of this interval. Note that this function uses
+#' a fast approximation that only works for unimodal posterior distributions.
+#' @param x Numeric vector.
+#' @param p Value for the probability to be covered by the interval, between 0
+#' and 1. Default: .95.
+#' @return Numeric vector.
+#' @examples
+#' set.seed(1)
+#' hdi(rnorm(20))
+#' @export
+#' @importFrom stats density
+hdi <- function(x, p = 0.95) {
+  stopifnot(is.numeric(x), length(x) >= 2,
+            all(is.finite(x)), p > 0, p < 1)
+
+  x <- sort(x)
+  n <- length(x)
+  k <- ceiling(p * n)
+
+  widths <- x[(k + 1):n] - x[1:(n - k)]
+  i <- which.min(widths)
+
+  c(lower = x[i], upper = x[i + k])
+}
+
+
 #
 # highest_alpha <- function(alpha, df, x.min, x.max, ...) {
 #   p <- function(h) {
