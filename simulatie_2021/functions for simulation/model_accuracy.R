@@ -28,9 +28,9 @@ model_accuracy <-
       class(fit)[1],
       cv.lrma = {
         if (is.null(newdata)) {
-          predicted	<- pred_brma(fit)
+          predicted	<- pema:::predict.cv.lrma(fit, ...)
         } else {
-          predicted <- pred_brma(fit, data = newdata)
+          predicted	<- pema:::predict.cv.lrma(fit, newdata = newdata, ...)
         }
       },
       brma = {

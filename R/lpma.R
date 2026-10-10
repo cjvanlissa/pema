@@ -247,6 +247,17 @@ lrma.formula <- function(formula,
   if (missing(data)) {
     stop("'data' must be supplied.")
   }
+  ## Sampling variances can be specified by column name
+  if (is.character(vi) && length(vi) == 1L) {
+    if (!vi %in% names(data)) {
+      stop("Column '", vi, "' not found in 'data'.")
+    }
+    vi_vec <- data[[vi]]
+    data[[vi]] <- NULL
+
+  } else {
+    vi_vec <- vi
+  }
 
   ## Construct model frame for outcome + moderators
   mf <- model.frame(
@@ -273,16 +284,6 @@ lrma.formula <- function(formula,
   ## intercept was supplied explicitly.
   if (!formula_intercept) {
     intercept <- FALSE
-  }
-
-  ## Sampling variances can be specified by column name
-  if (is.character(vi) && length(vi) == 1L) {
-    if (!vi %in% names(data)) {
-      stop("Column '", vi, "' not found in 'data'.")
-    }
-    vi_vec <- data[[vi]]
-  } else {
-    vi_vec <- vi
   }
 
   ## Complete-case filtering across yi, vi, and moderators
@@ -464,7 +465,7 @@ lrma.default <- function(x,
     ## Step A: coordinate descent for beta
     w <- 1 / (vi + tau2)
 
-    cd <- lasso_cd_cpp(
+    cd <- pema:::lasso_cd_cpp(
       X = X,
       y = y,
       w = w,
@@ -662,6 +663,16 @@ cv.lrma.formula <- function(formula,
 
   metric <- match.arg(metric)
 
+  if (is.character(vi) && length(vi) == 1L) {
+    if (!vi %in% names(data)) {
+      stop("Variable '", vi, "' not found in 'data'.")
+    }
+    vi_vec <- data[[vi]]
+    data[[vi]] <- NULL
+  } else {
+    vi_vec <- vi
+  }
+
   mf <- model.frame(
     formula = formula,
     data = data,
@@ -679,19 +690,6 @@ cv.lrma.formula <- function(formula,
 
   if (!formula_intercept) {
     intercept <- FALSE
-  }
-
-  if (is.character(vi) && length(vi) == 1L) {
-
-    if (!vi %in% names(data)) {
-      stop("Variable '", vi, "' not found in 'data'.")
-    }
-
-    vi_vec <- data[[vi]]
-
-  } else {
-
-    vi_vec <- vi
   }
 
   keep <- complete.cases(y, vi_vec, X)
@@ -1106,7 +1104,7 @@ predict.lrma <- function(object,
 
     ## Formula interface: preserve factor coding,
     ## transformations, and interaction terms.
-    tt <- delete.response(terms(object$formula))
+    tt <- delete.response(terms(object$formula, data = newdata))
 
     X <- model.matrix(
       tt,
