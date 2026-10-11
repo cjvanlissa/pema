@@ -1,7 +1,7 @@
 # Load packages
 packagenames <- c('pema', 'parallel', 'sn', 'rstan', 'foreach', 'glmnet', 'metafor', 'doSNOW')
 lapply(packagenames, library, character.only = TRUE)
-
+num_sims = 1000
 # Check package versions
 # Which packages require correct versions and which versions are they?--------------------------------------------------
 versions <- c(
@@ -14,42 +14,46 @@ source("./simulatie_2021/functions for simulation/simulate_smd.R") #this functio
 #different than the function simulate_smd in pema.
 source("./simulatie_2021/functions for simulation/model_accuracy.R")
 source("simulation_2026/run_models.R")
-hyper_parameters<-list(
-  #Number of datasets per condition
-  ndataset=1:100,
-  #Number of studies per dataset, normally distributed with mean n and sd n/3
-  k_train=c(20, 40, 100),
-  #Average n per study (k)
-  mean_n=c(40, 80, 160),
-  #Effect size
-  es = c(0, .2, .5, .8),
-  #Residual heterogeneity
-  tau2=c(0, .04, .1),
-  # Slant parameter alpha
-  alpha_tau = c(0),
-  alpha_mod = c(0, 2, 10),
-  #Study-level moderators
-  moderators= c(1, 2, 5),
-  model = c("es * x[, 1]",
-            "es * x[, 1] + es * (x[, 1] ^ 2) + es * (x[, 1] ^ 3)"),
-  distribution = "sn"
-)
-
-# Create grid with simulation parameters and save it
-summarydata <- expand.grid(hyper_parameters, stringsAsFactors = FALSE)
 
 # Prepare seeds
 RNGkind("L'Ecuyer-CMRG") # 1. RNG capable of creating multiple streams
 set.seed(59747)
-seeds <- vector("list", nrow(summarydata))
+seeds <- vector("list", num_sims)
 seeds[[1]] <- .Random.seed
 for (i in 2:length(seeds)) {
   seeds[[i]] <- parallel::nextRNGStream(seeds[[i - 1]])
 }
+# Create grid with simulation parameters and save it
+summarydata <- do.call(rbind, lapply(1:num_sims, function(i){
+  # Set seed
+  .Random.seed <- seeds[i][[1]]
+  data.frame(#Number of studies per dataset, normally distributed with mean n and sd n/3
+    k_train = round(exp(runif(1, min = log(20), max = log(100)))),
+    # vi value
+    vi = runif(1, min = .01, max = .1),
+    #Effect size
+    r2 = runif(1, min = 0, max = .5),
+    #Residual heterogeneity
+    #Study-level moderators
+    moderators = sample.int(5, size = 1)+1L,
+    model = c("x[, 1]",
+              "x[, 1]^3")
+  )
+}))
+
 summarydata$seed <- seeds
 
-# Add moderators so there's always sufficient predictors
-summarydata$moderators <-  summarydata$moderators + 1
+sim_data <- function(k_train, vi, r2, moderators, model){
+  k_train <- k_train + 100L
+  x <- matrix(rnorm(k_train*moderators), nrow = k_train)
+  f_x <- eval(parse(text = model))
+  sigma_error <- sqrt(var(f_x) * (1 - r2) / r2)
+  vi <- runif(k_train, min = 0, max = vi)
+  y <- f_x + rnorm(k_train, sd = (sigma_error + sqrt(vi)))
+  data <- data.frame(yi = y, vi = vi, x)
+  list(training = data[1:(k_train-100L), ], testing = data[(k_train-99L):k_train, ])
+}
+
 saveRDS(summarydata, file = "summarydata.RData")
 
 library(doSNOW)
@@ -64,9 +68,8 @@ file.remove(f)
 max_mods <- max(summarydata$moderators)
 foreach(rownum = 1:nrow(summarydata), .packages = c("pema", "sn", "rstan", "glmnet"), .final = function(x) NULL) %dopar% {
   # rownum <- sample.int(nrow(summarydata), 1L)
-  # Set seed
-  .Random.seed <- summarydata$seed[rownum][[1]]
-  data <- do.call(simulate_smd, as.list(summarydata[rownum, -c(1, 11, 12), drop = FALSE]))
+  .Random.seed <- seeds[i][[1]]
+  data <- do.call(sim_data, as.list(summarydata[rownum, -ncol(summarydata)]))
 
   result_rma <- run_rma(data, max_mods = max_mods)
   result_2step <- run_2step(data, max_mods = max_mods)
