@@ -1,5 +1,5 @@
 # Load packages
-packagenames <- c('pema', 'parallel', 'sn', 'rstan', 'foreach', 'glmnet')
+packagenames <- c('pema', 'parallel', 'sn', 'rstan', 'foreach', 'glmnet', 'metafor', 'doSNOW')
 lapply(packagenames, library, character.only = TRUE)
 
 # Check package versions
@@ -54,7 +54,7 @@ saveRDS(summarydata, file = "summarydata.RData")
 
 library(doSNOW)
 library(foreach)
-cl<-makeCluster(18) #change the 2 to your number of CPU cores
+cl<-makeCluster(30) #change the 2 to your number of CPU cores
 registerDoSNOW(cl)
 
 # Run a random sample of test iterations
